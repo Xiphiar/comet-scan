@@ -1,0 +1,36 @@
+{
+  "name": "comet-scan-api",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Encore Typescript Starter",
+  "license": "MPL-2.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "start": "encore run --listen 0.0.0.0:4000"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.7",
+    "@types/ripemd160": "^2.0.3",
+    "typescript": "^5.2.2",
+    "vitest": "^1.5.0"
+  },
+  "dependencies": {
+    "@cosmjs/cosmwasm-stargate": "^0.32.4",
+    "@cosmjs/crypto": "^0.32.4",
+    "@cosmjs/encoding": "^0.32.4",
+    "@cosmjs/proto-signing": "^0.32.4",
+    "axios": "^1.7.7",
+    "encore.dev": "^1.44.4",
+    "mongoose": "^8.8.2",
+    "node-cache": "^5.1.2",
+    "p-limit": "^6.1.0",
+    "p-map": "^7.0.2",
+    "p-queue": "^8.0.1",
+    "ripemd160": "^2.0.2",
+    "secretjs": "^1.12.5"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.13.0"
+  }
+}

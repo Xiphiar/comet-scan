@@ -1,0 +1,19 @@
+.navbar {
+    background-color: var(--xlight-grey);
+    display: flex;
+    gap: 8px;
+
+    > a {
+        display: flex;
+        place-items: center;
+        height: 100%;
+        padding: 12px 24px;
+        font-weight: 500;
+        color: #000;
+    }
+    > a:hover {
+        background-color: var(--main);
+        color: #000;
+    }
+}
+

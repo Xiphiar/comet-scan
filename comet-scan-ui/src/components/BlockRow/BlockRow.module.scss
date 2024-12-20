@@ -1,0 +1,12 @@
+.dataRow {
+    height: 48px;
+    width: 100%;
+    display: flex;
+    // gap: .5rem;
+    align-items: center;
+    color: #000;
+    > div {
+        display: flex;
+        flex-direction: column;
+    }
+}

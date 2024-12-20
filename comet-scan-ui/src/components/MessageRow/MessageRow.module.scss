@@ -1,0 +1,17 @@
+.messageRow {
+    padding: 12px;
+    border: 1px solid var(--light-grey);
+    // width: 100%;
+    // display: flex;
+    // flex-direction: column;
+    // gap: .5rem;
+
+    details[open] {
+        summary {
+            color: transparent;
+        }
+        summary::marker {
+            color: black;
+        }
+    }
+}

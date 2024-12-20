@@ -1,0 +1,161 @@
+import axios from "axios";
+import Chains from "../config/chains";
+import { Amount, StakingMetrics } from "../interfaces/responses/explorerApiResponses";
+import Validators from "../models/validators";
+import { getSecretWasmClient } from "./cosmWasmClient";
+import { Cache } from "./cache";
+
+export const getTotalSupply = async (chainId: string): Promise<Amount> => {
+    const chainConfig = Chains.find(c => c.chainId === chainId);
+    if (!chainConfig) throw `Chain ${chainId} not found in config.`
+
+    const cached = Cache.get<Amount>(`${chainId}-total-supply`);
+    if (cached) return cached;
+
+    if (chainConfig.sdkVersion === '50') {
+        const {data: _data} = await axios.get(`${chainConfig.lcd}/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.denom}`);
+        const data = {
+            amount: _data?.amount?.amount || '0',
+            denom: chainConfig.denom,
+            denomDecimals: chainConfig.denomDecimals,
+        }
+        Cache.set(`${chainId}-total-supply`, data);
+        return data;
+    } else {
+        const client = await getSecretWasmClient(chainConfig.chainId);
+        const response = await client.query.bank.supplyOf({ denom: chainConfig.denom });
+        const data = {
+            amount: response.amount?.amount || '0',
+            denom: chainConfig.denom,
+            denomDecimals: chainConfig.denomDecimals,
+        }
+        Cache.set(`${chainId}-total-supply`, data);
+        return data;
+    }
+
+
+
+
+}
+
+export const getTotalBonded = async (chainId: string): Promise<Amount> => {
+    const chainConfig = Chains.find(c => c.chainId === chainId);
+    if (!chainConfig) throw `Chain ${chainId} not found in config.`
+
+    const cached = Cache.get<Amount>(`${chainId}-total-bonded`);
+    if (cached) return cached;
+
+    const client = await getSecretWasmClient(chainConfig.chainId);
+
+    const response = await client.query.staking.pool({});
+
+    const data = {
+        amount: response.pool?.bonded_tokens || '0',
+        denom: chainConfig.denom,
+        denomDecimals: chainConfig.denomDecimals,
+    }
+    
+    Cache.set(`${chainId}-total-bonded`, data);
+    return data;
+}
+
+export const getInflation = async (chainId: string): Promise<number> => {
+    const chainConfig = Chains.find(c => c.chainId === chainId);
+    if (!chainConfig) throw `Chain ${chainId} not found in config.`
+
+    const cached = Cache.get<number>(`${chainId}-inflation`);
+    if (cached) return cached;
+
+    const client = await getSecretWasmClient(chainConfig.chainId);
+
+    const response = await client.query.mint.inflation({}) as unknown as { inflation: string };
+
+    const data = parseFloat(response.inflation || '0');
+    Cache.set(`${chainId}-inflation`, data, 600);
+    return data;
+}
+
+// export const getActiveProposals = async (chainId: string) => {
+//     const chainConfig = Chains.find(c => c.chainId === chainId);
+//     if (!chainConfig) throw `Chain ${chainId} not found in config.`
+
+//     const client = await getSecretWasmClient(chainConfig.chainId);
+
+//     const response = await client.query.gov.proposals({proposal_status: 2 as any});
+//     return (response.proposals || []);
+// }
+
+// export const getTopActiveValidators = async (chainId: string) => {
+//     const chainConfig = Chains.find(c => c.chainId === chainId);
+//     if (!chainConfig) throw `Chain ${chainId} not found in config.`
+
+//     const client = await getSecretWasmClient(chainConfig.chainId);
+
+//     const response = await client.query.staking.validators({ status: 'BOND_STATUS_BONDED' });
+//     return (response.validators || []);
+// }
+
+export const getDelegationToValidator = async (chainId: string, delegator_addr: string, validator_addr: string): Promise<string> => {
+    try {
+        const chainConfig = Chains.find(c => c.chainId === chainId);
+        if (!chainConfig) throw `Chain ${chainId} not found in config.`
+
+        const client = await getSecretWasmClient(chainConfig.chainId);
+
+        const data = await client.query.staking.delegation({delegator_addr, validator_addr});
+        return data.delegation_response?.balance?.amount || '0';
+    } catch (err: any) {
+        if (err.code === 5 && err.message.includes('not found for validator')) return '0';
+        else throw err;
+    }
+}
+
+export const getStakingMetrics = async (chainId: string): Promise<StakingMetrics> => {
+    const cached = Cache.get<StakingMetrics>(`${chainId}-staking-metrics`);
+    if (cached) return cached;
+
+    const chainConfig = Chains.find(c => c.chainId === chainId);
+    if (!chainConfig) throw `Chain ${chainId} not found in config.`
+
+    const client = await getSecretWasmClient(chainConfig.chainId);
+
+    const supply = await getTotalSupply(chainId);
+
+    // APR Calculation //
+    const inflationRate = await getInflation(chainId);
+
+    // const mintProvisions = await client.query.mint.annualProvisions({});
+    // const annualProvisions = Number(mintProvisions.annual_provisions);
+    const annualProvisions = Number(supply.amount) * inflationRate;
+
+    const mintParams = await client.query.mint.params({});
+    const blocksPerYear =  Number(mintParams.params?.blocks_per_year); //string
+
+    const bonded = await getTotalBonded(chainId);
+
+    const distributionParams = await client.query.distribution.params({});
+    const communityTax = Number(distributionParams.params?.community_tax); //string
+
+    const nominalApr = (annualProvisions * (1 - communityTax) / Number(bonded.amount));
+    // End APR Calculation //
+
+    const stakingParams = await client.query.staking.params({});
+
+    const activeValidators = await Validators.countDocuments({ chainId, status: 'BOND_STATUS_BONDED' });
+
+
+    const supplyBigInt = BigInt(supply.amount);
+    const bondedBigInt = BigInt(bonded.amount);
+    const bondRate = Number(bondedBigInt * 10000n / supplyBigInt) / 10000;
+
+    const data = {
+        activeValidators,
+        bondRate,
+        inflationRate,
+        nominalApr,
+        communityPoolTax: parseFloat(distributionParams.params?.community_tax || '0'),
+        unbondingPeriodSeconds: parseInt(stakingParams.params?.unbonding_time ? (stakingParams.params?.unbonding_time as string).slice(0, -1) : '0'),
+    }
+    Cache.set(`${chainId}-staking-metrics`, data);
+    return data;
+}

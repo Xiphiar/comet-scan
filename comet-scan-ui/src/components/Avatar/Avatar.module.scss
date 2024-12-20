@@ -1,0 +1,20 @@
+.avatarWrapper {
+    border-radius: 50%;
+    overflow: hidden;
+
+    > img {
+        height: 100%;
+    }
+
+    > div {
+        height: 100%;
+        width: 100%;
+        color: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        font-weight: 700;
+        font-size: 16px;
+    }
+}

@@ -1,0 +1,17 @@
+.avatarWrapper {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 12px;
+
+    > img {
+        height: 100%;
+    }
+
+    > div {
+        height: 100%;
+        width: 100%;
+        background-color: var(--main);
+    }
+}

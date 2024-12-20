@@ -1,0 +1,14 @@
+.titleAndSearchWrapper {
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    > form {
+        flex-grow: 1;
+        > input {
+            height: 48px;
+            width: 100%;
+        }
+    }
+}

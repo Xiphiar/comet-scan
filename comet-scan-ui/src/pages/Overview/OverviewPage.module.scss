@@ -1,0 +1,45 @@
+.dataRow {
+    height: 48px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    color: #000;
+    > div {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.valRow {
+    gap: .5rem;
+    > div {
+        align-items: center;
+    }
+}
+
+.dataRow:hover {
+    color: var(--main) !important;
+}
+
+.rowAvatarWrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+
+    > img {
+        height: 100%;
+    }
+
+    > div {
+        height: 100%;
+        width: 100%;
+        background-color: var(--main);
+    }
+}
+
+.propRow {
+    > div {
+        align-items: flex-start;
+    }
+}

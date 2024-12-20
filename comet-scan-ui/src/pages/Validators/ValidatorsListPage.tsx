@@ -1,0 +1,65 @@
+import { FC } from "react";
+import { useParams } from "react-router-dom";
+import { Chains } from "../../config/chains";
+import useAsync from "../../hooks/useAsync";
+import { ValidatorsPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { getValidatorsPage } from "../../api/pagesApi";
+import ContentLoading from "../../components/ContentLoading";
+import Card from "../../components/Card";
+import TitleAndSearch from "../../components/TitleAndSearch";
+import { secondsToDhms } from "../../utils/time";
+import ValidatorsCard from "../Overview/ValidatorsCard";
+
+const ValidatorsListPage: FC = () => {
+    const { chain: chainLookupId } = useParams();
+    const chain = Chains.find(c => c.id.toLowerCase() === chainLookupId?.toLowerCase());
+    const { data } = useAsync<ValidatorsPageResponse>(getValidatorsPage(chain.chainId));
+
+    if (!chain) {
+        return (
+            <div>
+                <h1>Chain Not Found</h1>
+            </div>
+        )
+    }
+
+    if (!data) {
+        return <ContentLoading chain={chain} title='Validators' />
+    }
+
+    console.log('data.stakingMetrics', data.stakingMetrics)
+ 
+    return (
+        <div className='d-flex flex-column gap-2 mx-4'>
+            <TitleAndSearch chain={chain} title='Validators' />
+            <div className='d-flex gap-2 w-full'>
+                <Card className='col'>
+                    <h5>Active Validators</h5>
+                    {data.stakingMetrics.activeValidators}
+                </Card>
+                <Card className='col'>
+                    <h5>Staking APR</h5>
+                    {(data.stakingMetrics.nominalApr * 100).toFixed(2)}%
+                </Card>
+                <Card className='col'>
+                    <h5>Bond Rate</h5>
+                    {(data.stakingMetrics.bondRate * 100).toFixed(2)}%
+                </Card>
+                <Card className='col'>
+                    <h5>Unbonding Time</h5>
+                    {secondsToDhms(data.stakingMetrics.unbondingPeriodSeconds)}
+                </Card>
+            </div>
+            <ValidatorsCard
+                validators={data.validators}
+                activeValidators={data.stakingMetrics.activeValidators}
+                chain={chain}
+                title='Active Validators'
+                className='d-flex flex-column gap-2'
+            />
+            <div></div>
+        </div>
+    )
+}
+
+export default ValidatorsListPage;

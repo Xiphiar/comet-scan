@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Chains } from "../../config/chains";
+import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
@@ -12,7 +12,8 @@ import { formatProposalStatus } from "../../utils/format";
 
 const SingleProposalPage: FC = () => {
     const { chain: chainLookupId, proposalId } = useParams();
-    const chain = Chains.find(c => c.id.toLowerCase() === chainLookupId?.toLowerCase());
+    const { getChain } = useConfig();
+    const chain = getChain(chainLookupId);
     const { data } = useAsync<SingleProposalPageResponse>(getSingleProposalPage(chain.chainId, proposalId));
 
     if (!chain) {
@@ -94,12 +95,12 @@ const SingleProposalPage: FC = () => {
                         <div className='col-3 font-weight-bold'>Proposer</div>
                         <div className='col d-flex gap-2 align-items-center'>
                             { data.proposingValidator ?
-                                <Link to={`${chainLookupId}/validators/${data.proposingValidator.operatorAddress}`} className='d-flex gap-2 align-items-center'>
+                                <Link to={`/${chainLookupId}/validators/${data.proposingValidator.operatorAddress}`} className='d-flex gap-2 align-items-center'>
                                     <KeybaseAvatar identity={proposerDetails?.identity} moniker={proposerDetails?.moniker} />
                                     {proposerDetails?.moniker || data.proposingValidator?.operatorAddress}
                                 </Link>
                             : data.proposal.proposer ?
-                                <Link to={`${chainLookupId}/accounts/${data.proposal.proposer}`}>{data.proposal.proposer}</Link>
+                                <Link to={`/${chainLookupId}/accounts/${data.proposal.proposer}`}>{data.proposal.proposer}</Link>
                             : 'Unknown' }
                         </div>
                     </div>

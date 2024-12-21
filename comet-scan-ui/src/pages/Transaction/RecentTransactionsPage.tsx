@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { useParams } from "react-router-dom";
-import { Chains } from "../../config/chains";
+import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
@@ -12,7 +12,8 @@ import TransactionRow from "../../components/TransactionRow/TransactionRow";
 
 const RecentTransactionsPage: FC = () => {
     const { chain: chainLookupId } = useParams();
-    const chain = Chains.find(c => c.id.toLowerCase() === chainLookupId?.toLowerCase());
+    const { getChain } = useConfig();
+    const chain = getChain(chainLookupId);
     const { data } = useAsync<TransactionsPageResponse>(getRecentTransactionsPage(chain.chainId));
 
     if (!chain) {

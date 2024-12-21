@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { useParams } from "react-router-dom";
-import { Chains } from "../../config/chains";
+import useConfig from "../../hooks/useConfig";
 import Card from "../../components/Card";
 import ValidatorsCard from "./ValidatorsCard";
 import useAsync from "../../hooks/useAsync";
@@ -13,8 +13,8 @@ import TitleAndSearch from "../../components/TitleAndSearch";
 
 const OverviewPage: FC = () => {
     const { chain: chainLookupId } = useParams();
-
-    const chain = Chains.find(c => c.id.toLowerCase() === chainLookupId?.toLowerCase());
+    const { getChain } = useConfig();
+    const chain = getChain(chainLookupId);
     const { data } = useAsync<OverviewPageResponse>(getOverviewPage(chain.chainId));
 
     if (!chain) {

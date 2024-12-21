@@ -1,5 +1,4 @@
 import axios from "axios";
-import { ChainConfig } from "../config/chains";
 import Blocks from "../models/blocks";
 import RpcStatusResponse from "../interfaces/rpcStatusResponse";
 import pMap from "p-map";
@@ -8,10 +7,12 @@ import { importTransactionsForBlock } from "./importTransactions";
 import { RpcBlockResponse } from "../interfaces/rpcBlockResponse";
 import { RpcBlockResultsResponse } from "../interfaces/rpcBlockResultsResponse";
 import { Block } from "../interfaces/models/blocks.interface";
+import { ChainConfig } from "../interfaces/config.interface";
 
 // const limit = pLimit(10);
 
 const importBlocks = async ({chainId, rpc, startHeight: _startHeight = 0}: ChainConfig) => {
+    console.log(`Starting block import on ${chainId}`);
     try {
         let startHeight = _startHeight;
         let highestInDb = await Blocks.findOne({ chainId }).sort('-height').lean();
@@ -33,9 +34,9 @@ const importBlocks = async ({chainId, rpc, startHeight: _startHeight = 0}: Chain
 
 
         // Find missing heights since configures _startHeight
-        console.log('Looking for missing blocks...')
+        // console.log('Looking for missing blocks...')
         highestInDb = await Blocks.findOne({ chainId }).sort('-height').lean();
-        console.log('Heighest height after import:', highestInDb?.height);
+        // console.log('Heighest height after import:', highestInDb?.height);
         const _existingHeights = await Blocks.aggregate([
             { 
                 $group: { 
@@ -55,7 +56,7 @@ const importBlocks = async ({chainId, rpc, startHeight: _startHeight = 0}: Chain
         for (let i = _startHeight; i < (highestInDb?.height || _startHeight+1); i++) {
             if (!existingHeights.includes(i)) missingHeights.push(i)
         }
-        console.log('Missing', missingHeights.length, 'blocks!')
+        // console.log('Missing', missingHeights.length, 'blocks!')
         await processList(missingHeights, chainId, rpc);
 
         console.log(`Done importing blocks on ${chainId}!`)
@@ -66,6 +67,7 @@ const importBlocks = async ({chainId, rpc, startHeight: _startHeight = 0}: Chain
 }
 
 const processList = async (toFetch: number[], chainId: string, rpc: string) => {
+    console.log(`Importing ${toFetch.length} blocks on ${chainId}`)
     const mapper = async (h: number) => await processBlock(chainId, rpc, h);
     await pMap(toFetch, mapper, {concurrency: 4});
 }
@@ -73,7 +75,7 @@ const processList = async (toFetch: number[], chainId: string, rpc: string) => {
 
 const processBlock = async (chainId: string, rpc: string, heightToFetch: number) => {
     // try {
-        console.log(`Fetching block ${heightToFetch} on ${chainId}`)
+        // console.log(`Fetching block ${heightToFetch} on ${chainId}`)
         const {data: block} = await axios.get<RpcBlockResponse>(`${rpc}/block`, {
             params: {
                 height: heightToFetch

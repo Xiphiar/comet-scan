@@ -1,57 +1,63 @@
-export interface ChainConfig {
-    chainId: string;
-    rpc: string;
-    lcd: string;
-    startHeight?: number;
-    denom: string;
-    denomDecimals: number;
-    prefix: string;
-    govVersion: 'v1' | 'v1beta1',
-    sdkVersion: 'pre-50' | '50',
-}
+import { ChainConfig } from "../interfaces/config.interface";
+
 
 const SecretNetwork: ChainConfig = {
+    id: 'secret',
     chainId: 'secret-4',
-
-    rpc: 'https://secret-4.api.trivium.network:26657',
-    // rpc: 'http://66.85.149.163:26657',
-
-    lcd: 'https://secret-4.api.trivium.network:1317',
-    
-    startHeight: 17_446_000,
-    // startHeight: 17335290,
-    denom: 'uscrt',
-    denomDecimals: 6,
+    name: 'Secret Network',
+    bondingDenom: 'uscrt',
+    bondingDecimals: 6,
+    bondingDisplayDenom: 'SCRT',
+    logoFile: 'secret.png',
     prefix: 'secret',
     govVersion: 'v1beta1',
     sdkVersion: 'pre-50',
+    rpc: 'https://secret-4.api.trivium.network:26657',
+    lcd: 'https://secret-4.api.trivium.network:1317',
+    startHeight: 17_446_000,
 }
 
 const SecretNetworkPulsar3: ChainConfig = {
+    id: 'secret-testnet',
     chainId: 'pulsar-3',
-    rpc: 'https://pulsar-3.api.trivium.network:26657',
-    lcd: 'https://pulsar-3.api.trivium.network:1317',
-    startHeight: 8_243_000,
-    denom: 'uscrt',
-    denomDecimals: 6,
+    name: 'Secret Network (Testnet)',
+    bondingDenom: 'uscrt',
+    bondingDecimals: 6,
+    bondingDisplayDenom: 'SCRT',
+    logoFile: 'secret.png',
     prefix: 'secret',
     govVersion: 'v1',
     sdkVersion: '50',
+    rpc: 'https://pulsar-3.api.trivium.network:26657',
+    lcd: 'https://pulsar-3.api.trivium.network:1317',
+    startHeight: 8_243_000,
 }
 
 const Jackal: ChainConfig = {
+    id: 'jackal',
     chainId: 'jackal-1',
-    rpc: 'https://jackal.api.trivium.network:26657',
-    lcd: 'https://jackal.api.trivium.network:1317',
-    startHeight: 10_774_000,
-    denom: 'ujkl',
-    denomDecimals: 6,
+    name: 'Jackal Protocol',
+    bondingDenom: 'ujkl',
+    bondingDecimals: 6,
+    bondingDisplayDenom: 'JKL',
+    logoFile: 'jackal.svg',
     prefix: 'jkl',
     govVersion: 'v1beta1',
     sdkVersion: 'pre-50',
+    rpc: 'https://jackal.api.trivium.network:26657',
+    lcd: 'https://jackal.api.trivium.network:1317',
+    startHeight: 10_774_000,
 }
 
-const Chains: ChainConfig[] = [SecretNetwork, SecretNetworkPulsar3, Jackal];
+const Chains: ChainConfig[] = [
+    SecretNetwork,
+    SecretNetworkPulsar3,
+    Jackal
+];
+
+Chains.forEach(chain => {
+    if (Chains.filter(c => c.chainId === chain.chainId).length > 1) throw `Found duplicate configured chain ${chain.chainId}`
+})
 
 export default Chains;
 

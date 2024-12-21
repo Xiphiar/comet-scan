@@ -1,8 +1,8 @@
 import { FC, useState } from "react";
 import styles from './TitleAndSearch.module.scss'
-import { Chain } from "../config/chains";
+import { FrontendChainConfig } from "../interfaces/config.interface";
 
-const TitleAndSearch: FC<{chain: Chain, title: string}> = ({chain, title}) => {
+const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string}> = ({chain, title}) => {
     const [searchInput, setSearchInput] = useState('');
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -13,7 +13,10 @@ const TitleAndSearch: FC<{chain: Chain, title: string}> = ({chain, title}) => {
 
     return (
         <div className={styles.titleAndSearchWrapper}>
-            <h1>{chain.name} {title}</h1>
+            <div className='d-flex gap-4 align-items-center'>
+                {!!chain.logoFile && <img src={`/logos/${chain.logoFile}`} style={{height: '50px'}} />}
+                <h1 style={{display: 'block'}}>{chain.name} {title}</h1>
+            </div>
             <form onSubmit={handleSearch}>
                 <input type='text' placeholder='Search for an address, transaction, or block' value={searchInput} onChange={e => setSearchInput(e.target.value)} />
             </form>

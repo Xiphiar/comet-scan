@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Chains } from "../../config/chains";
+import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
 import { SingleValidatorPageResponse } from "../../interfaces/responses/explorerApiResponses";
 import { getSingleValidatorPage } from "../../api/pagesApi";
@@ -13,7 +13,8 @@ import KeybaseAvatar from "../../components/Avatar/KeybaseAvatar";
 
 const SingleValidatorPage: FC = () => {
     const { chain: chainLookupId, operatorAddress } = useParams();
-    const chain = Chains.find(c => c.id.toLowerCase() === chainLookupId?.toLowerCase());
+    const { getChain } = useConfig();
+    const chain = getChain(chainLookupId);
     const { data } = useAsync<SingleValidatorPageResponse>(getSingleValidatorPage(chain.chainId, operatorAddress));
     const currentDetails = data?.validator.descriptions.length ? data.validator.descriptions[0] : undefined;
 
@@ -82,7 +83,7 @@ const SingleValidatorPage: FC = () => {
                     {parseFloat(data.validator.commission.rates[0].rate) * 100}%
                 </Card>
             </div>
-            <div className='d-flex flex-wrap gap-2'>
+            {/* <div className='d-flex flex-wrap gap-2'>
                 <div className='col col-12 col-md-6'>
                     <Card>
                         TODO
@@ -93,7 +94,7 @@ const SingleValidatorPage: FC = () => {
                         TODO
                     </Card>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }

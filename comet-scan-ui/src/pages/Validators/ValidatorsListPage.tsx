@@ -1,6 +1,5 @@
 import { FC } from "react";
 import { useParams } from "react-router-dom";
-import { Chains } from "../../config/chains";
 import useAsync from "../../hooks/useAsync";
 import { ValidatorsPageResponse } from "../../interfaces/responses/explorerApiResponses";
 import { getValidatorsPage } from "../../api/pagesApi";
@@ -9,10 +8,12 @@ import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import { secondsToDhms } from "../../utils/time";
 import ValidatorsCard from "../Overview/ValidatorsCard";
+import useConfig from "../../hooks/useConfig";
 
 const ValidatorsListPage: FC = () => {
     const { chain: chainLookupId } = useParams();
-    const chain = Chains.find(c => c.id.toLowerCase() === chainLookupId?.toLowerCase());
+    const { getChain } = useConfig();
+    const chain = getChain(chainLookupId);
     const { data } = useAsync<ValidatorsPageResponse>(getValidatorsPage(chain.chainId));
 
     if (!chain) {

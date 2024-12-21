@@ -1,11 +1,9 @@
-import { FC } from "react";
+import { FC, Fragment } from "react";
 import Spinner from "../../components/Spinner";
 import Card from "../../components/Card";
 import styles from './OverviewPage.module.scss';
 import { Link } from "react-router-dom";
-import useAsync from "../../hooks/useAsync";
-import { getKeybaseAvatar } from "../../api/keybaseApi";
-import { Chain } from "../../config/chains";
+import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { weiFormatNice } from "../../utils/coin";
 import { Validator } from "../../interfaces/models/validators.interface";
 import KeybaseAvatar from "../../components/Avatar/KeybaseAvatar";
@@ -13,7 +11,7 @@ import KeybaseAvatar from "../../components/Avatar/KeybaseAvatar";
 interface Props {
     validators: Validator[];
     activeValidators: number;
-    chain: Chain;
+    chain: FrontendChainConfig;
     title: string;
     className?: string;
 }
@@ -35,17 +33,19 @@ const ValidatorsCard: FC<Props> = ({ validators, activeValidators, chain, classN
                 <h3>{title}</h3>
                 <div style={{fontSize: '75%', color: 'var(--gray)', marginBottom: '8px'}}>{activeValidators || '...'} Active Validators</div>
             </div>
-            { validators.map((val, i) => <>
-                <ValidatorCard validator={val} chain={chain} position={i} key={val.operatorAddress} />
-                {i + 1 < validators.length && <div style={{borderBottom: '1px solid var(--light-grey)'}} /> }
-            </>)}
+            { validators.map((val, i) =>
+                <Fragment key={val.operatorAddress}>
+                    <ValidatorCard validator={val} chain={chain} position={i} />
+                    {i + 1 < validators.length && <div style={{borderBottom: '1px solid var(--light-grey)'}} /> }
+                </Fragment>
+            )}
         </Card>
     )
 }
 
 export default ValidatorsCard;
 
-const ValidatorCard: FC<{ position: number, validator: Validator, chain: Chain }> = ({ position, validator, chain }) => {
+const ValidatorCard: FC<{ position: number, validator: Validator, chain: FrontendChainConfig }> = ({ position, validator, chain }) => {
     return (
         <Link
             to={`/${chain.id}/validators/${validator.operatorAddress}`}

@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FC } from "react";
+import { FC, Fragment } from "react";
 import Spinner from "../../components/Spinner";
 import Card from "../../components/Card";
 import styles from './OverviewPage.module.scss';
 import { Proposal } from "../../interfaces/models/proposals.interface";
-import { Chain } from "../../config/chains";
+import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { Link } from "react-router-dom";
 import { formatProposalStatus, formatProposalType } from "../../utils/format";
 
-const ProposalsCard: FC<{ chain: Chain, proposals: Proposal[], totalProposals: number, className?: string }> = ({ chain, proposals, totalProposals, className }) => {
+const ProposalsCard: FC<{ chain: FrontendChainConfig, proposals: Proposal[], totalProposals: number, className?: string }> = ({ chain, proposals, totalProposals, className }) => {
     if (!proposals.length) {
         return (
             <Card className={`${className}`}>
@@ -25,17 +25,19 @@ const ProposalsCard: FC<{ chain: Chain, proposals: Proposal[], totalProposals: n
                 <h3>Recent Proposals</h3>
                 <div style={{fontSize: '75%', color: 'var(--gray)', marginBottom: '8px'}}>{totalProposals || '...'} Total Proposals</div>
             </div>
-            { proposals.map((prop, i) => <>
-                <ProposalRow proposal={prop} chain={chain} key={prop.id} />
-                { i + 1 < proposals.length && <div style={{borderBottom: '1px solid var(--light-grey)'}} /> }
-            </>)}
+            { proposals.map((prop, i) =>
+                <Fragment key={prop.id}>
+                    <ProposalRow proposal={prop} chain={chain} key={prop.id} />
+                    { i + 1 < proposals.length && <div style={{borderBottom: '1px solid var(--light-grey)'}} /> }
+                </Fragment>
+            )}
         </Card>
     )
 }
 
 export default ProposalsCard;
 
-export const ProposalRow: FC<{ chain: Chain, proposal: Proposal }> = ({ chain, proposal }) => {
+export const ProposalRow: FC<{ chain: FrontendChainConfig, proposal: Proposal }> = ({ chain, proposal }) => {
     const endTime = new Date(
         proposal.status === 'PROPOSAL_STATUS_DEPOSIT_PERIOD' ? proposal.depositEndTime : proposal.votingEndTime
     )

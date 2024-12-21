@@ -1,12 +1,12 @@
 import { FC } from "react";
-import { Chain } from "../../config/chains";
 import { BlockWithProposer } from "../../interfaces/models/blocks.interface";
 import { Link } from "react-router-dom";
 import styles from './BlockRow.module.scss'
 import { truncateString } from "../../utils/format";
 import KeybaseAvatar from "../Avatar/KeybaseAvatar";
+import { FrontendChainConfig } from "../../interfaces/config.interface";
 
-const BlockRow: FC<{ block: BlockWithProposer, chain: Chain }> = ({ block, chain }) => {
+const BlockRow: FC<{ block: BlockWithProposer, chain: FrontendChainConfig }> = ({ block, chain }) => {
     const proposerDetails = block.proposer?.descriptions.length ? block.proposer.descriptions[0] : undefined;
     return (
         <Link

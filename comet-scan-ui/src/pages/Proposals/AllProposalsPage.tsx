@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { useParams } from "react-router-dom";
-import { Chains } from "../../config/chains";
+import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
@@ -11,7 +11,8 @@ import { ProposalRow } from "../Overview/ProposalsCard";
 
 const AllProposalsPage: FC = () => {
     const { chain: chainLookupId } = useParams();
-    const chain = Chains.find(c => c.id.toLowerCase() === chainLookupId?.toLowerCase());
+    const { getChain } = useConfig();
+    const chain = getChain(chainLookupId);
     const { data } = useAsync<AllProposalsPageResponse>(getAllProposalsPage(chain.chainId));
 
     if (!chain) {

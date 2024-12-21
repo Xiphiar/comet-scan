@@ -20,47 +20,53 @@ import RecentTransactionsPage from './pages/Transaction/RecentTransactionsPage.t
 import RecentBlocksPage from './pages/Block/RecentBlocksPage.tsx';
 import AllProposalsPage from './pages/Proposals/AllProposalsPage.tsx';
 import SingleProposalPage from './pages/Proposals/SingleProposalPage.tsx';
+import ConfigProvider from './providers/ConfigProvider.tsx';
+import MainPage from './pages/Main/MainPage.tsx';
 
 const router = createBrowserRouter([
   {
     path: '/',
+    element: <MainPage />,
+  },
+  {
+    path: '/:chain',
     element: <MainLayout />,
     errorElement: <ErrorPage />,
     children: [
       {
-        path: ':chain',
+        path: '',
         element: <OverviewPage />,
       },
       {
-        path: ':chain/blocks',
+        path: 'blocks',
         element: <RecentBlocksPage />,
       },
       {
-        path: ':chain/blocks/:blockHeight',
+        path: 'blocks/:blockHeight',
         element: <SingleBlockPage />,
       },
       {
-        path: ':chain/transactions',
+        path: 'transactions',
         element: <RecentTransactionsPage />,
       },
       {
-        path: ':chain/transactions/:transactionHash',
+        path: 'transactions/:transactionHash',
         element: <SingleTransactionPage />,
       },
       {
-        path: ':chain/validators',
+        path: 'validators',
         element: <ValidatorsListPage />,
       },
       {
-        path: ':chain/validators/:operatorAddress',
+        path: 'validators/:operatorAddress',
         element: <SingleValidatorPage />,
       },
       {
-        path: ':chain/proposals',
+        path: 'proposals',
         element: <AllProposalsPage />,
       },
       {
-        path: ':chain/proposals/:proposalId',
+        path: 'proposals/:proposalId',
         element: <SingleProposalPage />,
       }
     ]
@@ -69,6 +75,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ConfigProvider>
+      <RouterProvider router={router} />
+    </ConfigProvider>
   </StrictMode>,
 )

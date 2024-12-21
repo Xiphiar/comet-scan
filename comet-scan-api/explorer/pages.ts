@@ -20,9 +20,15 @@ export const getOverview = api(
     const bonded = await getTotalBonded(chainId);
     const inflationRate = await getInflation(chainId);
 
+    console.log(5)
     const proposals = await getProposalsFromDb(chainId);
+
+    console.log(6)
     const topValidators = await getTopValidatorsFromDb(chainId, 5);
+
+    console.log(7)
     const activeValidators = await getActiveValidatorsCount(chainId);
+    console.log(bonded.amount, supply.amount)
 
     return {
       metrics: {
@@ -30,7 +36,7 @@ export const getOverview = api(
         dailyTransactions,
         supply,
         bonded,
-        bondRate: Number(BigInt(bonded.amount) / BigInt(supply.amount)),
+        bondRate: Number(bonded.amount) / Number(supply.amount),
         inflationRate,
         activeValidators,
         totalProposals: proposals.length,
@@ -150,13 +156,16 @@ export const getAllProposals = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/proposals" },
   async ({ chainId }: { chainId: string }): Promise<AllProposalsPageResponse> => {
     const proposals = await getProposalsFromDb(chainId, 1000);
+    console.log('proposals', proposals.length)
 
     const propsWithSubmittingVal: ProposalWithProposingValidator[] = [];
     for (const prop of proposals) {
-      if (!prop.proposer) propsWithSubmittingVal.push({ ...prop, proposingValidator: null })
-
+      if (!prop.proposer) {
+        propsWithSubmittingVal.push({ ...prop, proposingValidator: null })
+      } else {
         const proposingValidator = await Validators.findOne({ chainId, accountAddress: prop.proposer }, { _id: false, __v: false}).lean();
         propsWithSubmittingVal.push({ ...prop, proposingValidator })
+      }
     }
 
     return {

@@ -46,7 +46,7 @@ const importTransactions = async (chainId: string) => {
 }
 
 export const importTransactionsForBlock = async (chainId: string, blockHeight: number) => {
-    console.log(`Importing transactions for block ${blockHeight} on ${chainId}`)
+    // console.log(`Importing transactions for block ${blockHeight} on ${chainId}`)
     const config = getChainConfig(chainId);
     const block: Block | null = await Blocks.findOne({ height: blockHeight }).lean();
     if (!block) throw `Block ${blockHeight} not found in DB for ${chainId}`;

@@ -1,6 +1,6 @@
 import { Validator as SJSValidator } from "secretjs/dist/grpc_gateway/cosmos/staking/v1beta1/staking.pb";
 import { getSecretWasmClient } from "../common/cosmWasmClient";
-import Chains, { ChainConfig } from "../config/chains";
+import Chains from "../config/chains";
 import Validators from "../models/validators";
 import { Validator } from "../interfaces/models/validators.interface";
 import { base64TendermintPubkeyToValconsAddress, fromBase64, validatorAddressToSelfDelegatorAddress } from "secretjs";
@@ -8,8 +8,10 @@ import { getDelegationToValidator } from "../common/chainQueries";
 
 import { sha256 } from "@noble/hashes/sha256";
 import { consensusPubkeyToHexAddress } from "../common/addresses";
+import { ChainConfig } from "../interfaces/config.interface";
 
-const updateValidatorsForChain = async (chain: ChainConfig) => {
+export const updateValidatorsForChain = async (chain: ChainConfig) => {
+    console.log(`Updating validators on ${chain.chainId}`)
     const client = await getSecretWasmClient(chain.chainId);
 
     const allValidators: SJSValidator[] = [];
@@ -123,23 +125,23 @@ const updateValidatorsForChain = async (chain: ChainConfig) => {
     }
 }
 
-let UPDATING = false;
-export const updateValidatorsForAllChains = async () => {
-    if (UPDATING) {
-        console.log('Already updaring all validators');
-        return;
-    };
+// let UPDATING = false;
+// export const updateValidatorsForAllChains = async () => {
+//     if (UPDATING) {
+//         console.log('Already updaring all validators');
+//         return;
+//     };
 
-    UPDATING = true;
+//     UPDATING = true;
 
-    for (const chain of Chains) {
-        try {
-            console.log(`Updating validators on ${chain.chainId}`)
-            await updateValidatorsForChain(chain);
-        } catch(e: any) {
-            console.error(`Failed to update validators on ${chain.chainId}:`, e, e.toString())
-        }
-    }
+//     for (const chain of Chains) {
+//         try {
+//             console.log(`Updating validators on ${chain.chainId}`)
+//             await updateValidatorsForChain(chain);
+//         } catch(e: any) {
+//             console.error(`Failed to update validators on ${chain.chainId}:`, e, e.toString())
+//         }
+//     }
 
-    UPDATING = false;
-}
+//     UPDATING = false;
+// }

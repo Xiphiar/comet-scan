@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Chains } from "../../config/chains";
+import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
@@ -13,7 +13,8 @@ import KeybaseAvatar from "../../components/Avatar/KeybaseAvatar";
 
 const SingleBlockPage: FC = () => {
     const { chain: chainLookupId, blockHeight } = useParams();
-    const chain = Chains.find(c => c.id.toLowerCase() === chainLookupId?.toLowerCase());
+    const { getChain } = useConfig();
+    const chain = getChain(chainLookupId);
     const { data } = useAsync<SingleBlockPageResponse>(getSingleBlockPage(chain.chainId, blockHeight));
 
     if (!chain) {
@@ -81,7 +82,7 @@ const SingleBlockPage: FC = () => {
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Proposer</div>
                         <div className='col d-flex gap-2 align-items-center'>
-                            { data.proposer ? <Link to={`${chainLookupId}/validators/${data.proposer.operatorAddress}`} className='d-flex gap-2 align-items-center'>
+                            { data.proposer ? <Link to={`/${chainLookupId}/validators/${data.proposer.operatorAddress}`} className='d-flex gap-2 align-items-center'>
                                 <KeybaseAvatar identity={proposerDetails?.identity} moniker={proposerDetails?.moniker} />
                                 {proposerDetails?.moniker || data.proposer?.operatorAddress || data.block.block.result.block.header.proposer_address}
                             </Link>

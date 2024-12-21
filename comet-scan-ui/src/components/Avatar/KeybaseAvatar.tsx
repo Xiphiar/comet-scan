@@ -1,4 +1,4 @@
-import { FC, useMemo } from "react";
+import { FC } from "react";
 import styles from './Avatar.module.scss'
 import useAsync from "../../hooks/useAsync";
 import { getKeybaseAvatar } from "../../api/keybaseApi";

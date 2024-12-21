@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Chains } from "../../config/chains";
+import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
@@ -13,7 +13,8 @@ import { truncateString } from "../../utils/format";
 
 const SingleTransactionPage: FC = () => {
     const { chain: chainLookupId, transactionHash } = useParams();
-    const chain = Chains.find(c => c.id.toLowerCase() === chainLookupId?.toLowerCase());
+    const { getChain } = useConfig();
+    const chain = getChain(chainLookupId);
     const { data } = useAsync<SingleTransactionPageResponse>(getSingleTransactionPage(chain.chainId, transactionHash));
 
     if (!chain) {
@@ -91,9 +92,7 @@ const SingleTransactionPage: FC = () => {
             <Card className='d-flex flex-column gap-3'>
                 <h3>Messages</h3>
                 {data.transaction.transaction.tx.body.messages.map((_, i) =><>
-                    {/* <div style={{borderBottom: '1px solid var(--light-gray)'}} /> */}
-                    <MessageRow transaction={data.transaction} messageIndex={i} chain={chain} />
-                    {/* { i < data.transactions.length - 1 && <div style={{borderBottom: '1px solid var(--light-gray)'}} />} */}
+                    <MessageRow transaction={data.transaction} messageIndex={i} />
                 </>)}
             </Card>
         </div>

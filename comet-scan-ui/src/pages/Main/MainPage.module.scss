@@ -1,0 +1,8 @@
+.chainCard {
+    transition: background-color 0.2s ease;
+    color: var(--very-dark-gray)
+}
+
+.chainCard:hover {
+    background-color: var(--main);
+}

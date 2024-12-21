@@ -11,6 +11,9 @@
   --dark-gray: #46494c;
   --dark-grey: #46494c;
 
+  --very-dark-gray: #2d2f31;
+  --very-dark-grey: #2d2f31;
+
   --light-gray: #c5c3c6;
   --light-grey: #c5c3c6;
 
@@ -18,6 +21,14 @@
   --xlight-grey: #dadada;
 
   --bg: #eee;
+}
+
+@font-face {
+  font-family: 'Bunken Tech';
+  src: url('/fonts/bunken_tech_sans_w01_semibold-webfont.woff2') format('woff2'),
+       url('/fonts/bunken_tech_sans_w01_semibold-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
 
 a {

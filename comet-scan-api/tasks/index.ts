@@ -1,52 +1,17 @@
-import { CronJob } from "encore.dev/cron";
 import { api } from "encore.dev/api";
-import Chains from "../config/chains";
-import importBlocks from "../tasks/importBlocks";
 import mongoose from "mongoose";
-import { updateValidatorsForAllChains } from "./updateValidators";
-import importTransactions, { importTransactionsForBlock } from "./importTransactions";
-import { updateProposalsForChain } from "./updateProposals";
-
-let IT_RUNNING = false;
-const runImportTasks = async () => {
-    if (IT_RUNNING === true) {
-        console.log('Import Tasks already running.')
-        return;
-    }
-    IT_RUNNING = true;
-    for (const chain of Chains) {
-        await importBlocks(chain);
-        await importTransactions(chain.chainId);
-    }
-
-    IT_RUNNING = false;
-}
-
-let UT_RUNNING = false;
-const runUpdateTasks = async () => {
-    if (UT_RUNNING === true) {
-        console.log('Update Tasks already running.')
-        return;
-    }
-    UT_RUNNING = true;
-
-    await updateValidatorsForAllChains();
-
-    for (const chain of Chains) {
-        await updateProposalsForChain(chain);
-    }
-
-
-    UT_RUNNING = false;
-}
+import { importTransactionsForBlock } from "./importTransactions";
+import { runImportTasks } from "./importTasks";
+import { runUpdateTasks } from "./updateTasks";
+import Blocks from "../models/blocks";
 
 interface Response {
     message: string;
 }
 
-export const runTasksApi = api({ expose: true, method: 'GET' }, runImportTasks)
+// export const runTasksApi = api({ expose: true, method: 'GET' }, runImportTasks)
 
-export const getAllProposals = api(
+export const importBlockTransactions = api(
     { expose: true, method: "GET", path: "/tasks/:chainId/import_block_transactions/:blockHeight" },
     async ({ chainId, blockHeight }: { chainId: string, blockHeight: number }): Promise<{ status: string }> => {
       await importTransactionsForBlock(chainId, blockHeight)
@@ -75,9 +40,11 @@ const tenMinuteMs = oneMinuteMs * 10;
 
 (async()=>{
     await connectToDb();
-    await runImportTasks();
-    await runUpdateTasks();
+    // await Blocks.syncIndexes();
 
-    setInterval(runImportTasks, oneMinuteMs)
-    setInterval(runUpdateTasks, tenMinuteMs)
+    // await runImportTasks();
+    // await runUpdateTasks();
+
+    // setInterval(runImportTasks, oneMinuteMs * 2)
+    // setInterval(runUpdateTasks, tenMinuteMs * 2)
 })();

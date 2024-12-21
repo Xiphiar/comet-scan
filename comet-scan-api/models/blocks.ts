@@ -10,7 +10,7 @@ const blocksSchema = new mongoose.Schema<Block>({
     height: {
         type: Number,
         required: true,
-        unique: true,
+        index: true,
     },
     hash: {
         type: String,
@@ -20,7 +20,7 @@ const blocksSchema = new mongoose.Schema<Block>({
     timestamp: {
         type: Date,
         required: true,
-        unique: true,
+        index: true,
     },
     block: {
         type: {},

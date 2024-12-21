@@ -1,6 +1,5 @@
 import { FC } from "react";
 import { useParams } from "react-router-dom";
-import { Chains } from "../../config/chains";
 import useAsync from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
@@ -8,10 +7,12 @@ import TitleAndSearch from "../../components/TitleAndSearch";
 import { BlocksPageResponse } from "../../interfaces/responses/explorerApiResponses";
 import { getRecentBlocksPage } from "../../api/pagesApi";
 import BlockRow from "../../components/BlockRow/BlockRow";
+import useConfig from "../../hooks/useConfig";
 
 const RecentBlocksPage: FC = () => {
     const { chain: chainLookupId } = useParams();
-    const chain = Chains.find(c => c.id.toLowerCase() === chainLookupId?.toLowerCase());
+    const { getChain } = useConfig();
+    const chain = getChain(chainLookupId);
     const { data } = useAsync<BlocksPageResponse>(getRecentBlocksPage(chain.chainId));
 
     if (!chain) {

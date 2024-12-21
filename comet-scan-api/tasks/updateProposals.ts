@@ -1,4 +1,3 @@
-import { ChainConfig } from "../config/chains";
 import axios from "axios";
 import { getTopValidatorsFromDb } from "../common/dbQueries";
 import Proposals from "../models/proposals";
@@ -6,6 +5,7 @@ import { Proposal, ProposalStatus, ValidatorVote } from "../interfaces/models/pr
 import Blocks from "../models/blocks";
 import Transactions from "../models/transactions";
 import { v1beta1LcdProposal, v1LcdProposal } from "../interfaces/lcdProposalResponse";
+import { ChainConfig } from "../interfaces/config.interface";
 
 export const updateProposalsForChain = async (chain: ChainConfig) => {
     if (chain.govVersion === 'v1') return await updateProposalsForChain_v1(chain);

@@ -13,21 +13,21 @@ export const getTotalSupply = async (chainId: string): Promise<Amount> => {
     if (cached) return cached;
 
     if (chainConfig.sdkVersion === '50') {
-        const {data: _data} = await axios.get(`${chainConfig.lcd}/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.denom}`);
+        const {data: _data} = await axios.get(`${chainConfig.lcd}/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.bondingDenom}`);
         const data = {
             amount: _data?.amount?.amount || '0',
-            denom: chainConfig.denom,
-            denomDecimals: chainConfig.denomDecimals,
+            denom: chainConfig.bondingDenom,
+            denomDecimals: chainConfig.bondingDecimals,
         }
         Cache.set(`${chainId}-total-supply`, data);
         return data;
     } else {
         const client = await getSecretWasmClient(chainConfig.chainId);
-        const response = await client.query.bank.supplyOf({ denom: chainConfig.denom });
+        const response = await client.query.bank.supplyOf({ denom: chainConfig.bondingDenom });
         const data = {
             amount: response.amount?.amount || '0',
-            denom: chainConfig.denom,
-            denomDecimals: chainConfig.denomDecimals,
+            denom: chainConfig.bondingDenom,
+            denomDecimals: chainConfig.bondingDecimals,
         }
         Cache.set(`${chainId}-total-supply`, data);
         return data;
@@ -51,8 +51,8 @@ export const getTotalBonded = async (chainId: string): Promise<Amount> => {
 
     const data = {
         amount: response.pool?.bonded_tokens || '0',
-        denom: chainConfig.denom,
-        denomDecimals: chainConfig.denomDecimals,
+        denom: chainConfig.bondingDenom,
+        denomDecimals: chainConfig.bondingDecimals,
     }
     
     Cache.set(`${chainId}-total-bonded`, data);

@@ -19,16 +19,9 @@ export const getOverview = api(
     const supply = await getTotalSupply(chainId);
     const bonded = await getTotalBonded(chainId);
     const inflationRate = await getInflation(chainId);
-
-    console.log(5)
     const proposals = await getProposalsFromDb(chainId);
-
-    console.log(6)
     const topValidators = await getTopValidatorsFromDb(chainId, 5);
-
-    console.log(7)
     const activeValidators = await getActiveValidatorsCount(chainId);
-    console.log(bonded.amount, supply.amount)
 
     return {
       metrics: {

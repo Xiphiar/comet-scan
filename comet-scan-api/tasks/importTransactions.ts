@@ -7,6 +7,7 @@ import axios from "axios";
 import { LcdTxSearchResponse } from "../interfaces/lcdTxResponse";
 import Transactions from "../models/transactions";
 import { Block } from "../interfaces/models/blocks.interface";
+import { processBlock } from "./importBlocks";
 
 const key = 'txs-import-processed-block'
 
@@ -48,8 +49,15 @@ const importTransactions = async (chainId: string) => {
 export const importTransactionsForBlock = async (chainId: string, blockHeight: number) => {
     // console.log(`Importing transactions for block ${blockHeight} on ${chainId}`)
     const config = getChainConfig(chainId);
-    const block: Block | null = await Blocks.findOne({ height: blockHeight }).lean();
-    if (!block) throw `Block ${blockHeight} not found in DB for ${chainId}`;
+    let block: Block | null = await Blocks.findOne({ height: blockHeight }).lean();
+    if (!block) {
+        await processBlock(chainId, config.rpc, blockHeight);
+        block = await Blocks.findOne({ height: blockHeight }).lean();
+        // throw `Block ${blockHeight} not found in DB for ${chainId}`;
+    }
+    if (!block) {
+        throw `Block ${blockHeight} not found in DB for ${chainId}`;
+    }
     if (!block.transactionsCount) return;
 
     // const txs = await client.query.txsQuery(`tx.height=${blockHeight}`);

@@ -4,6 +4,7 @@ import { importTransactionsForBlock } from "./importTransactions";
 import { runImportTasks } from "./importTasks";
 import { runUpdateTasks } from "./updateTasks";
 import Blocks from "../models/blocks";
+import Accounts from "../models/accounts.model";
 
 interface Response {
     message: string;
@@ -41,8 +42,9 @@ const tenMinuteMs = oneMinuteMs * 10;
 (async()=>{
     await connectToDb();
     // await Blocks.syncIndexes();
+    await Accounts.syncIndexes();
 
-    // await runImportTasks();
+    await runImportTasks();
     // await runUpdateTasks();
 
     // setInterval(runImportTasks, oneMinuteMs * 2)

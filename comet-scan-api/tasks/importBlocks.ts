@@ -73,7 +73,7 @@ const processList = async (toFetch: number[], chainId: string, rpc: string) => {
 }
 
 
-const processBlock = async (chainId: string, rpc: string, heightToFetch: number) => {
+export const processBlock = async (chainId: string, rpc: string, heightToFetch: number) => {
     // try {
         // console.log(`Fetching block ${heightToFetch} on ${chainId}`)
         const {data: block} = await axios.get<RpcBlockResponse>(`${rpc}/block`, {

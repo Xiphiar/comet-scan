@@ -1,5 +1,6 @@
 import Chains from "../config/chains";
 import { ChainConfig } from "../interfaces/config.interface";
+import importAccountsForChain from "./importAccounts";
 import importBlocks from "./importBlocks";
 import importTransactions from "./importTransactions";
 
@@ -17,6 +18,7 @@ const runImportTasksForChain = async (chain: ChainConfig) => {
     try {
         await importBlocks(chain);
         await importTransactions(chain.chainId);
+        await importAccountsForChain(chain.chainId);
     } catch (err: any) {
         console.error(`Import tasks error on ${chain.chainId}: ${err.toString()}`)
     } finally {

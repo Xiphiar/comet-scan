@@ -7,9 +7,9 @@ export interface Account {
     accountNumber: string;
     label?: string;
     
-    firstTransactionHash?: string;
-    firstTransactionBlock?: number;
-    firstTransactionTime?: Date;
+    firstTransactionHash: string;
+    firstTransactionBlock: number;
+    firstTransactionTime: Date;
     
     heldBalanceInBondingDenom: string;
     delegations: Delegation[];

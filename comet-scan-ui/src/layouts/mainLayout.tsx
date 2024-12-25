@@ -20,7 +20,11 @@ const MainLayout: FC = () => {
                     <Link to={`/${chain}/validators`} style={{color: 'black'}}>Validators</Link>
                 </div>
             </header>
-            <Outlet />
+            <div  style={{display: 'flex', justifyContent: 'center'}}>
+                <div style={{width: '100%', maxWidth: '1400px'}}>
+                    <Outlet />
+                </div>
+            </div>
             <footer>
 
             </footer>

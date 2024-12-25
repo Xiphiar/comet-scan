@@ -34,19 +34,42 @@ const accountsSchema = new mongoose.Schema<Account>({
     },
     firstTransactionHash: {
         type: String,
-        required: true,
+        required: false,
     },
     firstTransactionBlock: {
         type: Number,
-        required: true,
+        required: false,
         index: true,
     },
     firstTransactionTime: {
         type: Date,
-        required: true,
+        required: false,
         index: true
     },
-    balanceInBondingDenom: {
+    heldBalanceInBondingDenom: {
+        type: String,
+        required: true,
+        index: true,
+    },
+    delegations: {
+        type: [{}],
+        required: true,
+    },
+    totalDelegatedBalance: {
+        type: String,
+        required: true,
+        index: true,
+    },
+    unbondings: {
+        type: [{}],
+        required: true,
+    },
+    totalUnbondingBalance: {
+        type: String,
+        required: true,
+        index: true,
+    },
+    totalBalanceInBondingDenom: {
         type: String,
         required: true,
         index: true,
@@ -55,7 +78,7 @@ const accountsSchema = new mongoose.Schema<Account>({
         type: Date,
         required: true,
         index: true,
-    }
+    },
 });
 
 const Accounts = mongoose.model<Account>('Accounts', accountsSchema);

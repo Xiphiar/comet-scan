@@ -1,3 +1,4 @@
+import { Account } from "../models/accounts.interface";
 import { Block, BlockWithProposer } from "../models/blocks.interface";
 import { Proposal, ProposalWithProposingValidator } from "../models/proposals.interface";
 import { Transaction } from "../models/transactions.interface";
@@ -72,4 +73,11 @@ export interface SingleProposalPageResponse {
   proposal: Proposal;
   proposingValidator: Validator | null;
   bonded: Amount;
+}
+
+export interface SingleAccountPageResponse {
+  account: Account;
+  recentTransactions: Transaction[];
+  instantiatedContracts: unknown[];
+  administratedContracts: unknown[];
 }

@@ -9,6 +9,7 @@ import { getDelegationToValidator } from "../common/chainQueries";
 import { sha256 } from "@noble/hashes/sha256";
 import { consensusPubkeyToHexAddress } from "../common/addresses";
 import { ChainConfig } from "../interfaces/config.interface";
+import { importAccount } from "./importAccounts";
 
 export const updateValidatorsForChain = async (chain: ChainConfig) => {
     console.log(`Updating validators on ${chain.chainId}`)
@@ -122,6 +123,8 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
             };
             await Validators.create(newVal)
         }
+
+        await importAccount(chain.chainId, accountAddress)
     }
 }
 

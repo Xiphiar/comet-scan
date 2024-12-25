@@ -1,18 +1,18 @@
-import { base64PubkeyToAddress, pubkeyToAddress } from "secretjs";
 import { Transaction } from "../interfaces/models/transactions.interface";
 import Blocks from "../models/blocks";
-import KvStore, { KV } from "../models/kv"
+import KvStore from "../models/kv"
 import { getChainConfig } from "../config/chains";
-import axios, { Axios } from "axios";
-import { LcdTxSearchResponse } from "../interfaces/lcdTxResponse";
+import axios from "axios";
 import Transactions from "../models/transactions";
 import { Block } from "../interfaces/models/blocks.interface";
 import Accounts from "../models/accounts.model";
-import { Account } from "../interfaces/models/accounts.interface";
+import { Account, Delegation, Unbonding } from "../interfaces/models/accounts.interface";
 import { BaseAccountDetails, LcdAuthAccount } from "../interfaces/lcdAuthAccountResponse";
 import { importTransactionsForBlock } from "./importTransactions";
 import { processBlock } from "./importBlocks";
 import { LcdBalance } from "../interfaces/LcdBalanceResponse";
+import { LcdDelegationsResponse, LcdUnbondingResponse } from "../interfaces/lcdBondingResponse";
+import { ChainConfig } from "../interfaces/config.interface";
 
 const key = 'accounts-import-processed-block'
 
@@ -80,58 +80,130 @@ export const importAccountsForBlock = async (chainId: string, blockHeight: numbe
         };
 
         for (const address of addresses) {
-            const existingAccount = await Accounts.findOne({ chainId, address }).lean();
-            if (existingAccount) {
-                let update: any = {};
-
-                // Update firstSeen if this block is earlier than the previous value
-                if (blockHeight < existingAccount.firstTransactionBlock) update = {
-                    ...update,
-                    firstTransactionHash: tx.hash,
-                    firstTransactionBlock: tx.blockHeight,
-                    firstTransactionTime: tx.timestamp,
-                }
-
-                // Update current balance if this block is later than the previous balance update height
-                if (block.timestamp.valueOf() > existingAccount.balanceUpdateTime.valueOf()) {
-                    const balanceUpdateTime = new Date();
-                    const {data: balanceResponse} = await axios.get<LcdBalance>(`${config.lcd}/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=${config.bondingDenom}`);
-                    update = {
-                        ...update,
-                        balanceInBondingDenom: balanceResponse.balance.amount,
-                        balanceUpdateTime,
-                    }
-                }
-
-                await Accounts.findByIdAndUpdate(existingAccount._id, update);
-            } else if (!existingAccount) {
-                // otherwise add non-existant accounts
-                const {data} = await axios.get<LcdAuthAccount>(`${config.lcd}/cosmos/auth/v1beta1/accounts/${address}`);
-                const baseAccount: BaseAccountDetails = data.account["@type"] === '/cosmos.auth.v1beta1.ModuleAccount' ? data.account.base_account : data.account;
-                const balanceUpdateTime = new Date();
-                const {data: balanceResponse} = await axios.get<LcdBalance>(`${config.lcd}/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=${config.bondingDenom}`);
-
-                
-                const newAccount: Account = {
-                    chainId,
-                    address,
-                    accountType: data.account["@type"],
-                    pubKeyType: baseAccount.pub_key?.["@type"],
-                    pubKeyBase64: baseAccount.pub_key?.key,
-                    accountNumber: baseAccount.account_number,
-                    label: undefined,
-                    
-                    firstTransactionHash: tx.hash,
-                    firstTransactionBlock: tx.blockHeight,
-                    firstTransactionTime: tx.timestamp,
-
-                    balanceInBondingDenom: balanceResponse.balance.amount,
-                    balanceUpdateTime: balanceUpdateTime,
-                };
-                await Accounts.create(newAccount);
-            }
+            await importAccount(config.chainId, address, tx);
         }
     }
 }
 
+export const importAccount = async (chainId: string, address: string, tx?: Transaction): Promise<Account> => {
+    const config = getChainConfig(chainId);
+    const existingAccount = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
+    if (existingAccount) {
+        let update: any = {};
+
+        // Update firstSeen if this block is earlier than the previous value
+        if (tx && tx.blockHeight < (existingAccount.firstTransactionBlock || 0)) update = {
+            ...update,
+            firstTransactionHash: tx.hash,
+            firstTransactionBlock: tx.blockHeight,
+            firstTransactionTime: tx.timestamp,
+        }
+
+        // Update current balances if this block is later than the previous balance update height
+        if ((tx?.timestamp || new Date()).valueOf() > existingAccount.balanceUpdateTime.valueOf()) {
+            const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings } = await getBalancesForAccount(config, address);
+
+            update = {
+                ...update,
+                heldBalanceInBondingDenom,
+                delegations,
+                totalDelegatedBalance,
+                unbondings,
+                totalUnbondingBalance,
+                totalBalanceInBondingDenom,
+                balanceUpdateTime,
+            }
+        }
+
+        const updatedAccount = await Accounts.findByIdAndUpdate(existingAccount._id, update, { new: true, lean: true });
+        return updatedAccount!;
+    } else {
+        // otherwise add non-existant accounts
+        const {data} = await axios.get<LcdAuthAccount>(`${config.lcd}/cosmos/auth/v1beta1/accounts/${address}`);
+        const baseAccount: BaseAccountDetails = data.account["@type"] === '/cosmos.auth.v1beta1.ModuleAccount' ? data.account.base_account : data.account;
+        const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings } = await getBalancesForAccount(config, address);
+        
+        const newAccount: Account = {
+            chainId,
+            address,
+            accountType: data.account["@type"],
+            pubKeyType: baseAccount.pub_key?.["@type"],
+            pubKeyBase64: baseAccount.pub_key?.key,
+            accountNumber: baseAccount.account_number,
+            label: undefined,
+            
+            firstTransactionHash: tx?.hash,
+            firstTransactionBlock: tx?.blockHeight,
+            firstTransactionTime: tx?.timestamp,
+
+            heldBalanceInBondingDenom,
+            delegations,
+            totalDelegatedBalance,
+            unbondings,
+            totalUnbondingBalance,
+            totalBalanceInBondingDenom,
+            balanceUpdateTime,
+        };
+        const createdAccount = await Accounts.create(newAccount);
+        const { _id, ...clean } = createdAccount.toObject();
+        return clean;
+    }
+}
+
 export default importAccountsForChain;
+
+interface AccountBalances {
+    heldBalanceInBondingDenom: string;
+    delegations: Delegation[];
+    totalDelegatedBalance: string;
+    unbondings: Unbonding[];
+    totalUnbondingBalance: string;
+    totalBalanceInBondingDenom: string;
+    balanceUpdateTime: Date;
+}
+const getBalancesForAccount = async (config: ChainConfig, address: string): Promise<AccountBalances> => {
+    const balanceUpdateTime = new Date();
+    const {data: balanceResponse} = await axios.get<LcdBalance>(`${config.lcd}/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=${config.bondingDenom}`);
+    const { data: _delegations } = await axios.get<LcdDelegationsResponse>(`${config.lcd}/cosmos/staking/v1beta1/delegations/${address}`);
+    const { data: _unbondings } = await axios.get<LcdUnbondingResponse>(`${config.lcd}/cosmos/staking/v1beta1/delegators/${address}/unbonding_delegations`);
+
+    const delegations = _delegations.delegation_responses.map(d => {
+        return {
+           validatorAddress: d.delegation.validator_address,
+           shares: d.delegation.shares,
+           amount: d.balance.amount, 
+        }
+    })
+    const totalDelegatedBalance = delegations.reduce(
+        (sum, delegation) => sum + BigInt(delegation.amount),
+        0n,
+    )
+
+    const unbondings: Unbonding[] = [];
+    for (const u of _unbondings.unbonding_responses) {
+        for (const entry of u.entries) {
+            unbondings.push({
+                validatorAddress: u.validator_address,
+                amount: entry.balance,
+                creationHeight: entry.creation_height,
+                completionTime: new Date(entry.completion_time)
+            })
+        }
+    }
+    const totalUnbondingBalance = unbondings.reduce(
+        (sum, unbonding) => sum + BigInt(unbonding.amount),
+        0n,
+    )
+
+    const totalbalance = totalDelegatedBalance + totalUnbondingBalance + BigInt(balanceResponse.balance.amount);
+
+    return {
+        heldBalanceInBondingDenom: balanceResponse.balance.amount,
+        delegations,
+        totalDelegatedBalance: totalDelegatedBalance.toString(),
+        unbondings,
+        totalUnbondingBalance: totalUnbondingBalance.toString(),
+        totalBalanceInBondingDenom: totalbalance.toString(),
+        balanceUpdateTime: balanceUpdateTime,
+    }
+}

@@ -22,6 +22,7 @@ import AllProposalsPage from './pages/Proposals/AllProposalsPage.tsx';
 import SingleProposalPage from './pages/Proposals/SingleProposalPage.tsx';
 import ConfigProvider from './providers/ConfigProvider.tsx';
 import MainPage from './pages/Main/MainPage.tsx';
+import SingleAccountPage from './pages/Accounts/SingleAccountPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -68,6 +69,14 @@ const router = createBrowserRouter([
       {
         path: 'proposals/:proposalId',
         element: <SingleProposalPage />,
+      },
+      {
+        path: 'accounts',
+        element: <div>TODO</div>,
+      },
+      {
+        path: 'accounts/:accountAddress',
+        element: <SingleAccountPage />,
       }
     ]
   },

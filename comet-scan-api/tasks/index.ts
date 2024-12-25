@@ -45,8 +45,8 @@ const tenMinuteMs = oneMinuteMs * 10;
     await Accounts.syncIndexes();
 
     await runImportTasks();
-    // await runUpdateTasks();
+    await runUpdateTasks();
 
-    // setInterval(runImportTasks, oneMinuteMs * 2)
-    // setInterval(runUpdateTasks, tenMinuteMs * 2)
+    setInterval(runImportTasks, oneMinuteMs * 3)
+    setInterval(runUpdateTasks, tenMinuteMs * 2)
 })();

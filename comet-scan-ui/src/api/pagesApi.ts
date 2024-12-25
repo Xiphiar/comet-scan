@@ -1,4 +1,4 @@
-import { AllProposalsPageResponse, BlocksPageResponse, SingleBlockPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
+import { AllProposalsPageResponse, BlocksPageResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
 import http from "./apiClient"
 
 export const getOverviewPage = async (chainId: string) => {
@@ -91,6 +91,17 @@ export const getAllProposalsPage = async (chainId: string): Promise<AllProposals
 
 export const getSingleProposalPage = async (chainId: string, proposalId: string): Promise<SingleProposalPageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/proposals/${proposalId}`,
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+    return data;
+}
+
+export const getSingleAccountPage = async (chainId: string, accountAddress: string): Promise<SingleAccountPageResponse> => {
+    const {data} = await http.get(`/explorer/${chainId}/accounts/${accountAddress}`,
         {
             headers: {
                 'Content-Type': 'application/json'

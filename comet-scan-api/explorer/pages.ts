@@ -1,13 +1,16 @@
 import { api, APIError, ErrCode } from "encore.dev/api";
 import { get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getProposalsFromDb, getTopValidatorsFromDb, getValidatorsFromDb } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
-import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse } from "../interfaces/responses/explorerApiResponses";
+import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
 import Blocks from "../models/blocks";
 import Transactions from "../models/transactions";
 import { BlockWithProposer } from "../interfaces/models/blocks.interface";
 import Proposals from "../models/proposals";
 import { ProposalWithProposingValidator } from "../interfaces/models/proposals.interface";
+import Accounts from "../models/accounts.model";
+import { importAccount } from "../tasks/importAccounts";
+import { Account } from "../interfaces/models/accounts.interface";
 
 export const getOverview = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/overview" },
@@ -180,6 +183,36 @@ export const getSingleProposal = api(
       proposal,
       proposingValidator,
       bonded
+    };
+  }
+);
+
+export const getSingleAccount = api(
+  { expose: true, method: "GET", path: "/explorer/:chainId/accounts/:address" },
+  async ({ chainId, address }: { chainId: string, address: string }): Promise<SingleAccountPageResponse> => {
+    let account: Account | null = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
+    // if (!account) throw new APIError(ErrCode.NotFound, 'Account not found.');
+    if (!account) account = await importAccount(chainId, address)
+
+    const recentTransactions = await Transactions.find({
+      chainId,
+      $or: [
+        { signers: address },
+        { senders: address },
+        { recipients: address },
+        { feePayer: address },
+        { feeGranter: address },
+      ]
+    }, { _id: false, __v: false })
+      .sort({blockHeight: -1})
+      .limit(10)
+      .lean();
+    
+    return {
+      account,
+      recentTransactions,
+      administratedContracts: [],
+      instantiatedContracts: []
     };
   }
 );

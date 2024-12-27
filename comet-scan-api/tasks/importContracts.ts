@@ -1,13 +1,15 @@
+import axios from "axios";
 import { getSecretNftContractInfo, getSecretNftTokenCount, getSecretTokenInfo, getSecretTokenPermitSupport } from "../common/chainQueries";
 import { getSecretWasmClient } from "../common/cosmWasmClient";
 import Chains, { getChainConfig } from "../config/chains";
 import { ChainConfig } from "../interfaces/config.interface";
 import { WasmCode } from "../interfaces/models/codes.interface";
-import { SecretWasmContract } from "../interfaces/models/contracts.interface";
+import { WasmContract } from "../interfaces/models/contracts.interface";
 import { NftContractInfoResponse, TokenInfoResponse } from "../interfaces/secretQueryResponses";
 import Codes from "../models/codes.model";
-import SecretContracts from "../models/contracts.model";
+import Contracts from "../models/contracts.model";
 import Transactions from "../models/transactions";
+import { LcdCosmWasmCodesResponse, LcdCosmWasmContractInfoResponse } from "../interfaces/lcdCosmwasmResponses";
 
 const updateContractsForChain = async (config: ChainConfig) => {
     try {
@@ -72,12 +74,12 @@ const updateSecretWasmContracts = async (config: ChainConfig) => {
             if (!contract_address || !contract_info) continue;
             console.log(contract_address, '-', contract_info.label)
 
-            const existingContract = await SecretContracts.findOne({ chainId: config.chainId, contractAddress: contract_address }).lean();
+            const existingContract = await Contracts.findOne({ chainId: config.chainId, contractAddress: contract_address }).lean();
 
             if (existingContract) {
                 const executions = await Transactions.find({ chainId: config.chainId, executedContracts: contract_address }).countDocuments();
 
-                let update: Partial<SecretWasmContract> = {
+                let update: Partial<WasmContract> = {
                     codeId: contract_info.code_id,
                     admin: contract_info.admin,
                     executions,
@@ -107,7 +109,7 @@ const updateSecretWasmContracts = async (config: ChainConfig) => {
                     }
                 }
 
-                await SecretContracts.findByIdAndUpdate(existingContract._id, update);
+                await Contracts.findByIdAndUpdate(existingContract._id, update);
             } else {
                 /////////////////////////
                 // Insert new contract //
@@ -140,7 +142,7 @@ const updateSecretWasmContracts = async (config: ChainConfig) => {
                 // Get count of transactions that executed this contract
                 const executions = await Transactions.find({ chainId: config.chainId, executedContracts: contract_address }).countDocuments();
 
-                const dbContract: SecretWasmContract = {
+                const dbContract: WasmContract = {
                     chainId: config.chainId,
                     contractAddress: contract_address,
                     codeId: contract_info.code_id || code.codeId,
@@ -164,7 +166,7 @@ const updateSecretWasmContracts = async (config: ChainConfig) => {
                     executions,
                 }
 
-                await SecretContracts.create(dbContract);
+                await Contracts.create(dbContract);
             }
         }
     } catch(err: any) {
@@ -173,7 +175,73 @@ const updateSecretWasmContracts = async (config: ChainConfig) => {
 }
 
 const updateCosmWasmContracts = async (config: ChainConfig) => {
-    throw 'CosmWasm Import TODO'
+    console.log('Updating Wasm Contracts on', config.chainId);
+    const {data} = await axios.get<LcdCosmWasmCodesResponse>(`${config.lcd}/cosmwasm/wasm/v1/code?pagination.limit=1000`);
+
+    if (!data?.code_infos?.length) return;
+
+    // Import codes
+    for (const code of data.code_infos) {
+        console.log(`Importing code ${code.code_id} on ${config.chainId}`)
+        const existingCode = await Codes.findOne({ chainId: config.chainId, codeId: code.code_id }).lean();
+        if (existingCode) continue;
+
+        if (!code.code_id || !code.data_hash) continue;
+
+        const dbCode: WasmCode = {
+            chainId: config.chainId,
+            codeId: code.code_id,
+            codeHash: code.data_hash,
+            source: undefined,
+            builder: undefined,
+            creator: code.creator,
+            verified: false,
+        };
+        await Codes.create(dbCode);
+    }
+
+    if (config.features.includes('no_contract_import')) return;
+
+    // Import Contracts
+    const dbCodes = await Codes.find({ chainId: config.chainId }).lean();
+    for (const code of dbCodes) try {
+        console.log(`Importing contracts with code ID ${code.codeId} on ${config.chainId}`)
+
+        const {data: contractsResponse} = await axios.get(`${config.lcd}/cosmwasm/wasm/v1/code/${code.codeId}/contracts`);
+        const contracts: string[] = contractsResponse.contracts;
+        for (const contractAddress of contracts) {
+            await importCosmWasmContract(config, contractAddress);
+        }
+        
+    } catch(err: any) {
+        console.error(`Error updating contracts for code ID ${code.codeId} on ${config.chainId}`)
+    }
+}
+
+export const importCosmWasmContract = async (config: ChainConfig, contractAddress: string): Promise<WasmContract> => {
+    const {data} = await axios.get<LcdCosmWasmContractInfoResponse>(`${config.lcd}/cosmwasm/wasm/v1/contract/${contractAddress}`);
+
+    const executions = await Transactions.find({ chainId: config.chainId, executedContracts: contractAddress }).countDocuments();
+
+    const newContract: WasmContract = {
+        chainId: config.chainId,
+        contractAddress,
+        codeId: data.contract_info.code_id,
+        creator: data.contract_info.creator,
+        label: data.contract_info.label,
+        created: data.contract_info.created,
+        ibc_port_id: data.contract_info.ibc_port_id,
+        admin: data.contract_info.admin,
+        tokenInfo: undefined,
+        nftInfo: undefined,
+        executions,
+    };
+
+    return await Contracts.findOneAndReplace(
+        { chainId: config.chainId, contractAddress },
+        newContract,
+        { upsert: true, new: true }
+    )
 }
 
 export const updateContractsForAllChains = async () => {
@@ -185,14 +253,12 @@ export const updateContractsForAllChains = async () => {
 const updateExecutedCountsForChain = async (config: ChainConfig) => {
     console.log(`Updating contract executed counts on ${config.chainId}`)
     try {
-        if (config.features.includes('secretwasm')) {
-            const contracts = await SecretContracts.find({ chainId: config.chainId }).lean();
+        if (config.features.includes('secretwasm') || config.features.includes('cosmwasm')) {
+            const contracts = await Contracts.find({ chainId: config.chainId }).lean();
             for (const {_id, contractAddress} of contracts) {
                 const executions = await Transactions.find({ chainId: config.chainId, executedContracts: contractAddress }).countDocuments();
-                await SecretContracts.findByIdAndUpdate(_id, { executions })
+                await Contracts.findByIdAndUpdate(_id, { executions })
             }
-        } else if (config.features.includes('cosmwasm')) {
-            throw 'CosmWasm TODO'
         }
         console.log(`Done updating contract executed counts on ${config.chainId}`)
     } catch (err: any) {

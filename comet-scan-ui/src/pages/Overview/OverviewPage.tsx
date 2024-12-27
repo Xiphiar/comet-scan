@@ -42,7 +42,7 @@ const OverviewPage: FC = () => {
                 </Card>
                 <Card className='col'>
                     <h5>Daily Transactions</h5>
-                    {data.metrics.dailyTransactions || '...'}
+                    {data.metrics.dailyTransactions?.toLocaleString?.() || '...'}
                 </Card>
                 <Card className='col'>
                     <h5>Total Supply</h5>

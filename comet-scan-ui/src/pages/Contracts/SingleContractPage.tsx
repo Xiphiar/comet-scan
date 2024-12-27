@@ -7,16 +7,13 @@ import { getSingleContractPage } from "../../api/pagesApi";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
-import { weiFormatNice } from "../../utils/coin";
 import TransactionRow from "../../components/TransactionRow/TransactionRow";
-import AssetRow from "../../components/AssetRow/AssetRow";
-import { SecretWasmContract } from "../../interfaces/models/contracts.interface";
 
 const SingleContractPage: FC = () => {
     const { chain: chainLookupId, contractAddress } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<SingleContractPageResponse<SecretWasmContract>>(getSingleContractPage(chain.chainId, contractAddress));
+    const { data } = useAsync<SingleContractPageResponse>(getSingleContractPage(chain.chainId, contractAddress));
     const title = `Contract`;
 
     if (!chain) {
@@ -60,7 +57,7 @@ const SingleContractPage: FC = () => {
                         <div className='col-3 font-weight-bold'>Created Height</div>
                         <div className='col'>
                             { data.contract.created?.block_height ? 
-                                <Link to={`/${chainLookupId}/blocks/${data.contract.created.block_height}`}>{data.contract.created.block_height}</Link>
+                                <Link to={`/${chainLookupId}/blocks/${data.contract.created.block_height}`}>{parseInt(data.contract.created.block_height).toLocaleString()}</Link>
                             : 'Unknown' }
                         </div>
                     </div>

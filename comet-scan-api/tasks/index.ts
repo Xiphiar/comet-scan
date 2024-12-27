@@ -6,7 +6,7 @@ import { runUpdateTasks } from "./updateTasks";
 import Blocks from "../models/blocks";
 import Accounts from "../models/accounts.model";
 import Transactions from "../models/transactions";
-import SecretContracts from "../models/contracts.model";
+import Contracts from "../models/contracts.model";
 import { updateContractExecutedCountsForAllChains, updateContractsForAllChains } from "./importContracts";
 
 interface Response {
@@ -52,7 +52,7 @@ const tenMinuteMs = oneMinuteMs * 10;
     // await addExecutedContractsToTransactions('secret-4')
 
     // await updateContractExecutedCountsForAllChains();
-    await runImportTasks();
+    // await runImportTasks();
     await runUpdateTasks();
     // await updateContractsForAllChains();
 

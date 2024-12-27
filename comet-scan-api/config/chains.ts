@@ -53,9 +53,9 @@ const Jackal: ChainConfig = {
 }
 
 const Chains: ChainConfig[] = [
-    SecretNetwork,
+    // SecretNetwork,
     // SecretNetworkPulsar3,
-    // Jackal
+    Jackal
 ];
 
 Chains.forEach(chain => {

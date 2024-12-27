@@ -2,16 +2,9 @@ import { FC } from "react";
 import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { Link } from "react-router-dom";
 import { truncateString } from "../../utils/format";
-import { SecretWasmContract } from "../../interfaces/models/contracts.interface";
 import { ContractWithStats } from "../../interfaces/responses/explorerApiResponses";
 
-const ContractRow: FC<{ contract: ContractWithStats<SecretWasmContract>, chain: FrontendChainConfig }> = ({ contract, chain }) => {
-    if (chain.features.includes('secretwasm')) return <SecretContractRow contract={contract} chain={chain} />
-
-    else return <div>TODO</div>
-}
-
-const SecretContractRow: FC<{ contract: ContractWithStats<SecretWasmContract>, chain: FrontendChainConfig }> = ({ contract: { contract }, chain }) => {
+const ContractRow: FC<{ contract: ContractWithStats, chain: FrontendChainConfig }> = ({ contract: { contract }, chain }) => {
     return (
         <Link
             to={`/${chain.id}/contracts/${contract.contractAddress}`}

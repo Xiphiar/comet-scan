@@ -1,4 +1,4 @@
-import { SecretWasmContract } from "../interfaces/models/contracts.interface";
+import { WasmContract } from "../interfaces/models/contracts.interface";
 import { AllContractsPageResponse, AllProposalsPageResponse, BlocksPageResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
 import http from "./apiClient"
 
@@ -112,7 +112,7 @@ export const getSingleAccountPage = async (chainId: string, accountAddress: stri
     return data;
 }
 
-export const getAllContractsPage = async (chainId: string): Promise<AllContractsPageResponse<SecretWasmContract>> => {
+export const getAllContractsPage = async (chainId: string): Promise<AllContractsPageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/contracts`,
         {
             headers: {
@@ -123,7 +123,7 @@ export const getAllContractsPage = async (chainId: string): Promise<AllContracts
     return data;
 }
 
-export const getSingleContractPage = async (chainId: string, contractAddress: string): Promise<SingleContractPageResponse<SecretWasmContract>> => {
+export const getSingleContractPage = async (chainId: string, contractAddress: string): Promise<SingleContractPageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/contracts/${contractAddress}`,
         {
             headers: {

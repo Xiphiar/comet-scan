@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { SecretWasmContract } from "../interfaces/models/contracts.interface";
+import { WasmContract } from "../interfaces/models/contracts.interface";
 
-const secretContractsSchema = new mongoose.Schema<SecretWasmContract>({
+const contractsSchema = new mongoose.Schema<WasmContract>({
     chainId: {
         type: String,
         required: true,
@@ -57,6 +57,6 @@ const secretContractsSchema = new mongoose.Schema<SecretWasmContract>({
     }
 });
 
-const SecretContracts = mongoose.model<SecretWasmContract>('SecretContracts', secretContractsSchema);
+const Contracts = mongoose.model<WasmContract>('Contracts', contractsSchema);
 
-export default SecretContracts;
+export default Contracts;

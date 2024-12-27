@@ -1,4 +1,4 @@
-export interface SecretWasmContract {
+export interface WasmContract {
     chainId: string;
     contractAddress: string;
     codeId: string;

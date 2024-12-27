@@ -7,7 +7,6 @@ import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import ContractRow from "../../components/ContractRow/ContractRow";
 import { getAllContractsPage } from "../../api/pagesApi";
-import { SecretWasmContract } from "../../interfaces/models/contracts.interface";
 import { AllContractsPageResponse } from "../../interfaces/responses/explorerApiResponses";
 
 
@@ -15,7 +14,7 @@ const AllContractsPage: FC = () => {
     const { chain: chainLookupId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<AllContractsPageResponse<SecretWasmContract>>(getAllContractsPage(chain.chainId));
+    const { data } = useAsync<AllContractsPageResponse>(getAllContractsPage(chain.chainId));
 
     if (!chain) {
         return (

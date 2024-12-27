@@ -1,0 +1,207 @@
+import { getSecretNftContractInfo, getSecretNftTokenCount, getSecretTokenInfo, getSecretTokenPermitSupport } from "../common/chainQueries";
+import { getSecretWasmClient } from "../common/cosmWasmClient";
+import Chains, { getChainConfig } from "../config/chains";
+import { ChainConfig } from "../interfaces/config.interface";
+import { WasmCode } from "../interfaces/models/codes.interface";
+import { SecretWasmContract } from "../interfaces/models/contracts.interface";
+import { NftContractInfoResponse, TokenInfoResponse } from "../interfaces/secretQueryResponses";
+import Codes from "../models/codes.model";
+import SecretContracts from "../models/contracts.model";
+import Transactions from "../models/transactions";
+
+const updateContractsForChain = async (config: ChainConfig) => {
+    try {
+        if (config.features.includes('secretwasm')) {
+            await updateSecretWasmContracts(config);
+        } else if (config.features.includes('cosmwasm')) {
+            await updateCosmWasmContracts(config);
+        } else {
+            console.log(`Skipping contract updates on ${config.chainId}`)
+        }
+
+        console.log('Done importing contracts on', config.chainId);
+    } catch (err: any) {
+        console.error('Failed to import contracts on', config.chainId, err.toString())
+        console.trace(err)
+    }
+}
+
+export default updateContractsForChain;
+
+const updateSecretWasmContracts = async (config: ChainConfig) => {
+    console.log('Updating Secret Wasm Contracts on', config.chainId);
+    const client = await getSecretWasmClient(config.chainId);
+    const codes = await client.query.compute.codes({})
+    if (!codes?.code_infos?.length) return;
+
+    // Import codes
+    for (const code of codes.code_infos) {
+        console.log(`Importing code ${code.code_id} on ${config.chainId}`)
+        const existingCode = await Codes.findOne({ chainId: config.chainId, codeId: code.code_id }).lean();
+        if (existingCode) continue;
+
+        if (!code.code_id || !code.code_hash) continue;
+
+        const dbCode: WasmCode = {
+            chainId: config.chainId,
+            codeId: code.code_id,
+            codeHash: code.code_hash,
+            source: code.source,
+            builder: code.builder,
+            creator: code.creator,
+            verified: false,
+        };
+        await Codes.create(dbCode);
+    }
+
+    if (config.features.includes('no_contract_import')) return;
+
+    // Import Contracts
+    const dbCodes = await Codes.find({ chainId: config.chainId }).lean();
+    for (const code of dbCodes) try {
+        console.log(`Importing contracts with code ID ${code.codeId} on ${config.chainId}`)
+        const {contract_infos} = await client.query.compute.contractsByCodeId({ code_id: code.codeId });
+        if (!contract_infos?.length) continue;
+        console.log(`Found ${contract_infos?.length} contracts with code ID ${code.codeId}`)
+
+
+        let isToken = true;
+        let isNft = true;
+
+        for (const {contract_address, contract_info} of contract_infos) {
+            if (!contract_address || !contract_info) continue;
+            console.log(contract_address, '-', contract_info.label)
+
+            const existingContract = await SecretContracts.findOne({ chainId: config.chainId, contractAddress: contract_address }).lean();
+
+            if (existingContract) {
+                const executions = await Transactions.find({ chainId: config.chainId, executedContracts: contract_address }).countDocuments();
+
+                let update: Partial<SecretWasmContract> = {
+                    codeId: contract_info.code_id,
+                    admin: contract_info.admin,
+                    executions,
+                }
+
+                // Update token total supply
+                if (existingContract.tokenInfo) {
+                    const tokenInfo = await getSecretTokenInfo(config.chainId, contract_address, code.codeHash);
+                    update = {
+                        ...update,
+                        tokenInfo: {
+                            ...existingContract.tokenInfo,
+                            totalSupply: tokenInfo.token_info.total_supply,
+                        }
+                    }
+                }
+
+                // Update NFT count
+                if (existingContract.nftInfo) {
+                    const numTokens = await getSecretNftTokenCount(config.chainId, contract_address, code.codeHash);
+                    update = {
+                        ...update,
+                        nftInfo: {
+                            ...existingContract.nftInfo,
+                            numTokens,
+                        }
+                    }
+                }
+
+                await SecretContracts.findByIdAndUpdate(existingContract._id, update);
+            } else {
+                /////////////////////////
+                // Insert new contract //
+                /////////////////////////
+
+                // Check if Token
+                let tokenInfo: TokenInfoResponse | undefined = undefined;
+                let permitSupport = false;
+                if (isToken) try {
+                    tokenInfo = await getSecretTokenInfo(config.chainId, contract_address, code.codeHash);
+                    permitSupport = await getSecretTokenPermitSupport(config.chainId, contract_address, code.codeHash);
+                } catch {
+                    isToken = false;
+                }
+
+                // Check if NFT
+                let nftInfo: NftContractInfoResponse | undefined = undefined;
+                let numTokens = 0;
+                if (!tokenInfo && isNft) try {
+                    nftInfo = await getSecretNftContractInfo(config.chainId, contract_address, code.codeHash);
+
+                    // Get number of NFTs in collection
+                    try {
+                        numTokens = await getSecretNftTokenCount(config.chainId, contract_address, code.codeHash);
+                    } catch {};
+                } catch {
+                    isNft = false
+                }
+
+                // Get count of transactions that executed this contract
+                const executions = await Transactions.find({ chainId: config.chainId, executedContracts: contract_address }).countDocuments();
+
+                const dbContract: SecretWasmContract = {
+                    chainId: config.chainId,
+                    contractAddress: contract_address,
+                    codeId: contract_info.code_id || code.codeId,
+                    creator: contract_info.creator as any as string,
+                    label: contract_info.label as string,
+                    admin: contract_info.admin || undefined,
+                    created: contract_info.created as any || undefined,
+                    ibc_port_id: contract_info.ibc_port_id || undefined,
+                    tokenInfo: tokenInfo?.token_info ? {
+                        name: tokenInfo.token_info.name,
+                        symbol: tokenInfo.token_info.symbol,
+                        decimals: tokenInfo.token_info.decimals,
+                        totalSupply: tokenInfo.token_info.total_supply || undefined,
+                        permitSupport,
+                    } : undefined,
+                    nftInfo: nftInfo?.contract_info ? {
+                        name: nftInfo.contract_info.name,
+                        symbol: nftInfo.contract_info.symbol,
+                        numTokens,
+                    } : undefined,
+                    executions,
+                }
+
+                await SecretContracts.create(dbContract);
+            }
+        }
+    } catch(err: any) {
+        console.error(`Error updating contracts for code ID ${code.codeId} on ${config.chainId}`)
+    }
+}
+
+const updateCosmWasmContracts = async (config: ChainConfig) => {
+    throw 'CosmWasm Import TODO'
+}
+
+export const updateContractsForAllChains = async () => {
+    for (const chain of Chains) {
+        await updateContractsForChain(chain);
+    }
+}
+
+const updateExecutedCountsForChain = async (config: ChainConfig) => {
+    console.log(`Updating contract executed counts on ${config.chainId}`)
+    try {
+        if (config.features.includes('secretwasm')) {
+            const contracts = await SecretContracts.find({ chainId: config.chainId }).lean();
+            for (const {_id, contractAddress} of contracts) {
+                const executions = await Transactions.find({ chainId: config.chainId, executedContracts: contractAddress }).countDocuments();
+                await SecretContracts.findByIdAndUpdate(_id, { executions })
+            }
+        } else if (config.features.includes('cosmwasm')) {
+            throw 'CosmWasm TODO'
+        }
+        console.log(`Done updating contract executed counts on ${config.chainId}`)
+    } catch (err: any) {
+        console.error(`Failed to update contract executed counts on ${config.chainId}:`, err, err.toString())
+    }
+}
+
+export const updateContractExecutedCountsForAllChains = async () => {
+    for (const chain of Chains) {
+        await updateExecutedCountsForChain(chain);
+    }
+}

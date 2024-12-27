@@ -1,5 +1,7 @@
 import { Account } from "../models/accounts.interface";
 import { Block, BlockWithProposer } from "../models/blocks.interface";
+import { WasmCode } from "../models/codes.interface";
+import { SecretWasmContract } from "../models/contracts.interface";
 import { Proposal, ProposalWithProposingValidator } from "../models/proposals.interface";
 import { Transaction } from "../models/transactions.interface";
 import { Validator } from "../models/validators.interface";
@@ -78,6 +80,26 @@ export interface SingleProposalPageResponse {
 export interface SingleAccountPageResponse {
   account: Account;
   recentTransactions: Transaction[];
-  instantiatedContracts: unknown[];
-  administratedContracts: unknown[];
+  instantiatedContracts: ContractWithStats<SecretWasmContract>[];
+  administratedContracts: ContractWithStats<SecretWasmContract>[];
+}
+
+export interface ContractWithStats<T> {
+  contract: T,
+  verified: boolean;
+  dailyExecutions: number;
+}
+
+export interface AllContractsPageResponse<T> {
+  contracts: ContractWithStats<T>[],
+  totalContracts: number;
+  totalExecutions: number;
+  dailyExecutions: number;
+}
+
+export interface SingleContractPageResponse<T> {
+  contract: T,
+  code: WasmCode,
+  recentTransactions: Transaction[],
+  dailyExecutions: number;
 }

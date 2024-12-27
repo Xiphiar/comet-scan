@@ -79,6 +79,14 @@ const accountsSchema = new mongoose.Schema<Account>({
         required: true,
         index: true,
     },
+    nativeAssets: {
+        type: [{}],
+        required: true,
+    },
+    tokenAssets: {
+        type: [{}],
+        required: true,
+    }
 });
 
 const Accounts = mongoose.model<Account>('Accounts', accountsSchema);

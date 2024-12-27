@@ -1,9 +1,12 @@
 import { FC } from "react";
 import { Link, Outlet, useParams } from "react-router-dom";
 import styles from './mainLayout.module.scss';
+import useConfig from "../hooks/useConfig";
 
 const MainLayout: FC = () => {
     const { chain } = useParams();
+    const { getChain } = useConfig()
+    const chainConfig = getChain(chain);
 
     return (
         <>
@@ -18,15 +21,18 @@ const MainLayout: FC = () => {
                     <Link to={`/${chain}/transactions`} style={{color: 'black'}}>Transactions</Link>
                     <Link to={`/${chain}/proposals`} style={{color: 'black'}}>Proposals</Link>
                     <Link to={`/${chain}/validators`} style={{color: 'black'}}>Validators</Link>
+                    { (chainConfig.features.includes('secretwasm') || chainConfig.features.includes('cosmwasm')) &&
+                        <Link to={`/${chain}/contracts`} style={{color: 'black'}}>Contracts</Link>
+                    }
                 </div>
             </header>
-            <div  style={{display: 'flex', justifyContent: 'center'}}>
+            <div style={{display: 'flex', justifyContent: 'center'}}>
                 <div style={{width: '100%', maxWidth: '1400px'}}>
                     <Outlet />
                 </div>
             </div>
             <footer>
-
+                <div style={{height: '16px'}} />
             </footer>
         </>
     )

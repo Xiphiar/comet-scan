@@ -1,4 +1,5 @@
-import { AllProposalsPageResponse, BlocksPageResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
+import { SecretWasmContract } from "../interfaces/models/contracts.interface";
+import { AllContractsPageResponse, AllProposalsPageResponse, BlocksPageResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
 import http from "./apiClient"
 
 export const getOverviewPage = async (chainId: string) => {
@@ -102,6 +103,28 @@ export const getSingleProposalPage = async (chainId: string, proposalId: string)
 
 export const getSingleAccountPage = async (chainId: string, accountAddress: string): Promise<SingleAccountPageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/accounts/${accountAddress}`,
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+    return data;
+}
+
+export const getAllContractsPage = async (chainId: string): Promise<AllContractsPageResponse<SecretWasmContract>> => {
+    const {data} = await http.get(`/explorer/${chainId}/contracts`,
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+    return data;
+}
+
+export const getSingleContractPage = async (chainId: string, contractAddress: string): Promise<SingleContractPageResponse<SecretWasmContract>> => {
+    const {data} = await http.get(`/explorer/${chainId}/contracts/${contractAddress}`,
         {
             headers: {
                 'Content-Type': 'application/json'

@@ -46,6 +46,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background-color: var(--bg);
+  font-family: "Montserrat", sans-serif;
 }
 
 h1 {
@@ -91,4 +92,17 @@ button:focus-visible {
 
 .tall, .h-full {
   height: 100%;
+}
+
+.dataRow {
+  height: 48px;
+  width: 100%;
+  display: flex;
+  /* gap: .5rem; */
+  align-items: center;
+  color: black;
+  > div {
+      display: flex;
+      flex-direction: column;
+  }
 }

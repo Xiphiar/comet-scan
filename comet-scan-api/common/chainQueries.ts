@@ -4,6 +4,7 @@ import { Amount, StakingMetrics } from "../interfaces/responses/explorerApiRespo
 import Validators from "../models/validators";
 import { getSecretWasmClient } from "./cosmWasmClient";
 import { Cache } from "./cache";
+import { NftContractInfoResponse, TokenInfoResponse } from "../interfaces/secretQueryResponses";
 
 export const getTotalSupply = async (chainId: string): Promise<Amount> => {
     const chainConfig = Chains.find(c => c.chainId === chainId);
@@ -158,4 +159,95 @@ export const getStakingMetrics = async (chainId: string): Promise<StakingMetrics
     }
     Cache.set(`${chainId}-staking-metrics`, data);
     return data;
+}
+
+
+export interface DenomTraceResponse {
+    denom_trace: {
+        path: string;
+        base_denom: string;
+    }
+}
+
+export const getDenomTrace = async (chainId: string, denomHash: string): Promise<string> => {
+    const key = `${chainId}-denom-trace-${denomHash}`;
+
+    const chainConfig = Chains.find(c => c.chainId === chainId);
+    if (!chainConfig) throw `Chain ${chainId} not found in config.`
+
+    const cached = Cache.get<string>(key);
+    if (cached) return cached;
+
+    const {data} = await axios.get<DenomTraceResponse>(`${chainConfig.lcd}/ibc/apps/transfer/v1/denom_traces/${denomHash}`)
+    const denom = data.denom_trace.base_denom;
+    
+    Cache.set(key, denom);
+    return denom;
+}
+
+export const getSecretTokenInfo = async (chainId: string, contract_address: string, code_hash?: string): Promise<TokenInfoResponse> => {
+    const client = await getSecretWasmClient(chainId);
+
+    const query = {
+        token_info: {},
+    };
+
+    const result: TokenInfoResponse | string = await client.query.compute.queryContract({
+        contract_address,
+        code_hash,
+        query,
+    });
+
+    if (typeof result === 'string') throw result;
+    return result;
+}
+
+export const getSecretTokenPermitSupport = async (chainId: string, contract_address: string, code_hash?: string): Promise<boolean> => {
+    const client = await getSecretWasmClient(chainId);
+
+    const query = {
+        fake_query_that_should_not_exist_z_z_a: {},
+    };
+
+    const result: unknown = await client.query.compute.queryContract({
+        contract_address,
+        code_hash,
+        query,
+    });
+    if (typeof result === 'string' && result.includes('with_permit')) return true;
+    else return false;
+}
+
+export const getSecretNftContractInfo = async (chainId: string, contract_address: string, code_hash?: string): Promise<NftContractInfoResponse> => {
+    const client = await getSecretWasmClient(chainId);
+
+    const query = {
+        num_tokens: {},
+    };
+
+    const result: NftContractInfoResponse | string = await client.query.compute.queryContract({
+        contract_address,
+        code_hash,
+        query,
+    });
+
+    if (typeof result === 'string') throw result;
+    return result;
+}
+
+export const getSecretNftTokenCount = async (chainId: string, contract_address: string, code_hash?: string): Promise<number> => {
+    const client = await getSecretWasmClient(chainId);
+
+    const query = {
+        contract_info: {},
+    };
+
+    const result: { num_tokens: { count: number }} = await client.query.compute.queryContract({
+        contract_address,
+        code_hash,
+        query,
+    });
+
+    if (typeof result === 'string') throw result;
+    return result.num_tokens.count;;
 }

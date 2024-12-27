@@ -24,6 +24,12 @@ export interface Proposal {
     validatorVotes: ValidatorVote[];
     proposal: v1beta1LcdProposal | v1LcdProposal;
     expedited: boolean;
+    tally: {
+        yes: string;
+        no: string;
+        no_with_veto: string;
+        abstain: string;
+    }
 }
 
 export interface ProposalWithProposingValidator extends Proposal {

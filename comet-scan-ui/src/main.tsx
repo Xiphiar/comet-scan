@@ -23,6 +23,8 @@ import SingleProposalPage from './pages/Proposals/SingleProposalPage.tsx';
 import ConfigProvider from './providers/ConfigProvider.tsx';
 import MainPage from './pages/Main/MainPage.tsx';
 import SingleAccountPage from './pages/Accounts/SingleAccountPage.tsx';
+import AllContractsPage from './pages/Contracts/AllContractsPage.tsx';
+import SingleContractPage from './pages/Contracts/SingleContractPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -77,6 +79,14 @@ const router = createBrowserRouter([
       {
         path: 'accounts/:accountAddress',
         element: <SingleAccountPage />,
+      },
+      {
+        path: 'contracts',
+        element: <AllContractsPage />,
+      },
+      {
+        path: 'contracts/:contractAddress',
+        element: <SingleContractPage />,
       }
     ]
   },

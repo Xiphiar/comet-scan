@@ -32,9 +32,9 @@ export const getActiveValidatorsCount = async (chainId: string): Promise<number>
     return await Validators.countDocuments({ chainId, status: 'BOND_STATUS_BONDED' }, { __v: false, _id: false });
 }
 
-const minuteMs = 60 * 1000;
-const hourMs = minuteMs * 60;
-const dayMs = hourMs * 24;
+export const minuteMs = 60 * 1000;
+export const hourMs = minuteMs * 60;
+export const dayMs = hourMs * 24;
 export const get24hTransactionsCount = async (chainId: string) => {
     const oneDayAgo = new Date(new Date().valueOf() - dayMs);
     return await Transactions.countDocuments({ chainId, timestamp: { $gte: oneDayAgo }})

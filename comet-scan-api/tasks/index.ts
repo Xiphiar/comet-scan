@@ -1,10 +1,13 @@
 import { api } from "encore.dev/api";
 import mongoose from "mongoose";
-import { importTransactionsForBlock } from "./importTransactions";
+import { addExecutedContractsToTransactions, importTransactionsForBlock } from "./importTransactions";
 import { runImportTasks } from "./importTasks";
 import { runUpdateTasks } from "./updateTasks";
 import Blocks from "../models/blocks";
 import Accounts from "../models/accounts.model";
+import Transactions from "../models/transactions";
+import SecretContracts from "../models/contracts.model";
+import { updateContractExecutedCountsForAllChains, updateContractsForAllChains } from "./importContracts";
 
 interface Response {
     message: string;
@@ -41,11 +44,17 @@ const tenMinuteMs = oneMinuteMs * 10;
 
 (async()=>{
     await connectToDb();
+    // await Transactions.syncIndexes();
     // await Blocks.syncIndexes();
-    await Accounts.syncIndexes();
+    // await Accounts.syncIndexes();
+    // await SecretContracts.syncIndexes();
 
+    // await addExecutedContractsToTransactions('secret-4')
+
+    // await updateContractExecutedCountsForAllChains();
     await runImportTasks();
     await runUpdateTasks();
+    // await updateContractsForAllChains();
 
     setInterval(runImportTasks, oneMinuteMs * 3)
     setInterval(runUpdateTasks, tenMinuteMs * 2)

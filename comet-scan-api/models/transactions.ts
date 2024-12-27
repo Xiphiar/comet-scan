@@ -20,7 +20,6 @@ const transactionsSchema = new mongoose.Schema<Transaction>({
     blockHash: {
         type: String,
         required: true,
-        index: true,
     },
     timestamp: {
         type: Date,
@@ -30,22 +29,32 @@ const transactionsSchema = new mongoose.Schema<Transaction>({
     signers: {
         type: [String],
         required: true,
+        index: true,
     },
     senders: {
         type: [String],
         required: true,
+        index: true,
     },
     recipients: {
         type: [String],
         required: true,
+        index: true,
+    },
+    executedContracts: {
+        type: [String],
+        required: true,
+        index: true,
     },
     feePayer: {
         type: String,
         required: false,
+        index: true,
     },
     feeGranter: {
         type: String,
         required: false,
+        index: true,
     },
     gasLimit: {
         type: Number,

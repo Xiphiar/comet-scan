@@ -1,7 +1,7 @@
 import { api, APIError, ErrCode } from "encore.dev/api";
-import { get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getProposalsFromDb, getTopValidatorsFromDb, getValidatorsFromDb } from "../common/dbQueries";
+import { dayMs, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getProposalsFromDb, getTopValidatorsFromDb, getValidatorsFromDb } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
-import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse } from "../interfaces/responses/explorerApiResponses";
+import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
 import Blocks from "../models/blocks";
 import Transactions from "../models/transactions";
@@ -11,6 +11,11 @@ import { ProposalWithProposingValidator } from "../interfaces/models/proposals.i
 import Accounts from "../models/accounts.model";
 import { importAccount } from "../tasks/importAccounts";
 import { Account } from "../interfaces/models/accounts.interface";
+import { getChainConfig } from "../config/chains";
+import { SecretWasmContract } from "../interfaces/models/contracts.interface";
+import SecretContracts from "../models/contracts.model";
+import Codes from "../models/codes.model";
+import { addContractStats } from "../common/contracts";
 
 export const getOverview = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/overview" },
@@ -190,6 +195,8 @@ export const getSingleProposal = api(
 export const getSingleAccount = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/accounts/:address" },
   async ({ chainId, address }: { chainId: string, address: string }): Promise<SingleAccountPageResponse> => {
+    const config = getChainConfig(chainId);
+
     let account: Account | null = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
     // if (!account) throw new APIError(ErrCode.NotFound, 'Account not found.');
     if (!account) account = await importAccount(chainId, address)
@@ -207,12 +214,95 @@ export const getSingleAccount = api(
       .sort({blockHeight: -1})
       .limit(10)
       .lean();
+
+      let administratedContracts: SecretWasmContract[] = [];
+      let instantiatedContracts: SecretWasmContract[] = [];
+
+      if (config.features.includes('secretwasm')) {
+        administratedContracts = await SecretContracts.find({ chainId, admin: address }, { _id: false, __v: false }).lean();
+        instantiatedContracts = await SecretContracts.find({ chainId, creator: address }, { _id: false, __v: false }).lean();
+      } else if (config.features.includes('cosmwasm')) {
+        throw 'CosmWasm support TODO'
+      }
     
     return {
       account,
       recentTransactions,
-      administratedContracts: [],
-      instantiatedContracts: []
+      administratedContracts: await addContractStats(chainId, administratedContracts),
+      instantiatedContracts: await addContractStats(chainId, instantiatedContracts),
     };
+  }
+);
+
+export const getContractsPage = api(
+  { expose: true, method: "GET", path: "/explorer/:chainId/contracts" },
+  async ({ chainId }: { chainId: string }): Promise<AllContractsPageResponse<any>> => {
+    const config = getChainConfig(chainId);
+    if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
+
+    let contracts: SecretWasmContract[] = [];
+    let totalContracts = 0;
+    if (config.features.includes('secretwasm')) {
+      contracts = await SecretContracts.find({ chainId }, { _id: false, __v: false }).sort({ executions: -1}).limit(30).lean();
+      totalContracts = await SecretContracts.find({ chainId }).countDocuments();
+    } else {
+      throw new APIError(ErrCode.Internal, 'CosmWasm TODO')
+    }
+
+    const now = new Date();
+    const oneDayAgo = new Date(now.valueOf() - dayMs);
+    const contractsWithStats: ContractWithStats<SecretWasmContract>[] = []
+    for (const contract of contracts) {
+      const dailyExecutions = await Transactions.find({ chainId, executedContracts: contract.contractAddress, timestamp: { $gte: oneDayAgo } }).countDocuments();
+      const code = await Codes.findOne({ chainId, codeId: contract.codeId }).lean();
+
+      contractsWithStats.push({
+        contract,
+        dailyExecutions,
+        verified: code?.verified || false,
+      })
+    }
+
+    const dailyExecutions = await Transactions.find({ chainId, 'executedContracts.0': { $exists: true}, timestamp: { $gte: oneDayAgo } }).countDocuments();
+    const totalExecutions = await Transactions.find({ chainId, 'executedContracts.0': { $exists: true} }).countDocuments();
+
+    return {
+      contracts: contractsWithStats,
+      totalContracts,
+      dailyExecutions,
+      totalExecutions,
+    }
+  }
+);
+
+export const getSingleContract = api(
+  { expose: true, method: "GET", path: "/explorer/:chainId/contracts/:contractAddress" },
+  async ({ chainId, contractAddress }: { chainId: string, contractAddress: string }): Promise<SingleContractPageResponse<SecretWasmContract | unknown>> => {
+    const config = getChainConfig(chainId);
+    if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
+
+    let contract: SecretWasmContract | null = null;
+    if (config.features.includes('secretwasm')) {
+      contract = await SecretContracts.findOne({ chainId, contractAddress }, { _id: false, __v: false }).lean();
+      if (!contract) throw new APIError(ErrCode.NotFound, 'Contract not found');
+    } else {
+      throw new APIError(ErrCode.Internal, 'CosmWasm TODO')
+    }
+
+    const code = await Codes.findOne({ chainId, codeId: contract.codeId }, { _id: false, __v: false }).lean();
+    if (!code) throw new APIError(ErrCode.NotFound, 'Contract code not found');
+
+    const recentTransactions = await Transactions.find({ chainId, executedContracts: contractAddress }, { _id: false, __v: false }).sort({height: -1}).limit(20).lean();
+
+    const now = new Date();
+    const oneDayAgo = new Date(now.valueOf() - dayMs);
+    const dailyExecutions = await Transactions.find({ chainId, executedContracts: contractAddress, timestamp: { $gte: oneDayAgo } }).countDocuments();
+
+    return {
+      contract, 
+      code,
+      recentTransactions,
+      dailyExecutions,
+    }
   }
 );

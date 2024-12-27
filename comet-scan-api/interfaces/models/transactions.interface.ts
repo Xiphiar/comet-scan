@@ -9,6 +9,7 @@ export interface Transaction {
     signers: string[];
     senders: string[];
     recipients: string[];
+    executedContracts: string[];
     feePayer?: string;
     feeGranter?: string;
     gasLimit: number;

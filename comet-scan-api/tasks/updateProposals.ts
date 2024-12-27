@@ -46,12 +46,14 @@ export const updateProposalsForChain_v1beta1 = async (chain: ChainConfig) => {
         const submitMsg = submitPropTx?.transaction.tx.body.messages.find(msg => msg["@type"].includes('MsgSubmitProposal') && msg.content.title === prop.content.title);
         const proposer = submitMsg?.proposer || (submitPropTx ? submitPropTx.signers[0] : undefined)
 
+        const {data: tallyData} = await axios.get(`${chain.lcd}/cosmos/gov/v1beta1/proposals/${prop.proposal_id}/tally`);
+
         // Upsert Proposal
         const newProp: Proposal = {
             chainId: chain.chainId,
             id: prop.proposal_id,
             title: prop.content.title,
-            summary: prop.content.summary,
+            summary: prop.content.summary || prop.content.description,
             proposalType: prop.content["@type"],
             status: prop.status as ProposalStatus,
             proposer,
@@ -62,6 +64,12 @@ export const updateProposalsForChain_v1beta1 = async (chain: ChainConfig) => {
             validatorVotes,
             proposal: prop,
             expedited: prop.is_expedited || false,
+            tally: {
+                yes: tallyData.tally.yes,
+                no: tallyData.tally.no,
+                no_with_veto: tallyData.tally.no_with_veto,
+                abstain: tallyData.tally.abstain,
+            }
         }
 
         await Proposals.findOneAndUpdate({ chainId: chain.chainId, id: prop.proposal_id }, newProp, { upsert: true })
@@ -89,6 +97,8 @@ export const updateProposalsForChain_v1 = async (chain: ChainConfig) => {
             validatorVotes = await getValidatorVotes(chain, prop.id);
         }
 
+        const {data: tallyData} = await axios.get(`${chain.lcd}/cosmos/gov/v1/proposals/${prop.id}/tally`);
+
         // Upsert Proposal
         const newProp: Proposal = {
             chainId: chain.chainId,
@@ -105,6 +115,12 @@ export const updateProposalsForChain_v1 = async (chain: ChainConfig) => {
             validatorVotes,
             proposal: prop,
             expedited: prop.expedited || false,
+            tally: {
+                yes: tallyData.tally.yes,
+                no: tallyData.tally.no,
+                no_with_veto: tallyData.tally.no_with_veto,
+                abstain: tallyData.tally.abstain,
+            }
         }
 
         await Proposals.findOneAndUpdate({ chainId: chain.chainId, id: prop.id }, newProp, { upsert: true })

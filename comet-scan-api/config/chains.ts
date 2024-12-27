@@ -15,6 +15,7 @@ const SecretNetwork: ChainConfig = {
     rpc: 'https://secret-4.api.trivium.network:26657',
     lcd: 'https://secret-4.api.trivium.network:1317',
     startHeight: 17_550_000,
+    features: ['secretwasm']
 }
 
 const SecretNetworkPulsar3: ChainConfig = {
@@ -31,6 +32,7 @@ const SecretNetworkPulsar3: ChainConfig = {
     rpc: 'https://pulsar-3.api.trivium.network:26657',
     lcd: 'https://pulsar-3.api.trivium.network:1317',
     startHeight: 8_310_000,
+    features: ['secretwasm', 'no_contract_import']
 }
 
 const Jackal: ChainConfig = {
@@ -47,12 +49,13 @@ const Jackal: ChainConfig = {
     rpc: 'https://jackal.api.trivium.network:26657',
     lcd: 'https://jackal.api.trivium.network:1317',
     startHeight: 10_838_000,
+    features: ['cosmwasm']
 }
 
 const Chains: ChainConfig[] = [
     SecretNetwork,
-    SecretNetworkPulsar3,
-    Jackal
+    // SecretNetworkPulsar3,
+    // Jackal
 ];
 
 Chains.forEach(chain => {

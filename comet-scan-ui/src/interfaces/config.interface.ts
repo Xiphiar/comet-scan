@@ -1,3 +1,5 @@
+export type ChainFeature = 'secretwasm' | 'cosmwasm' | 'no_contract_import';
+
 export interface FrontendChainConfig {
     id: string;
     chainId: string;
@@ -9,6 +11,7 @@ export interface FrontendChainConfig {
     prefix: string;
     govVersion: 'v1' | 'v1beta1',
     sdkVersion: 'pre-50' | '50',
+    features: ChainFeature[],
 }
 
 export interface ChainConfig extends FrontendChainConfig {

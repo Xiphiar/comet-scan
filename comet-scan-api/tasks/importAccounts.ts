@@ -4,15 +4,17 @@ import KvStore from "../models/kv"
 import { getChainConfig } from "../config/chains";
 import axios from "axios";
 import Transactions from "../models/transactions";
-import { Block } from "../interfaces/models/blocks.interface";
+import { Block, Coin } from "../interfaces/models/blocks.interface";
 import Accounts from "../models/accounts.model";
 import { Account, Delegation, Unbonding } from "../interfaces/models/accounts.interface";
 import { BaseAccountDetails, LcdAuthAccount } from "../interfaces/lcdAuthAccountResponse";
 import { importTransactionsForBlock } from "./importTransactions";
 import { processBlock } from "./importBlocks";
-import { LcdBalance } from "../interfaces/LcdBalanceResponse";
+import { LcdBalance, LcdBalancesResponse } from "../interfaces/LcdBalanceResponse";
 import { LcdDelegationsResponse, LcdUnbondingResponse } from "../interfaces/lcdBondingResponse";
 import { ChainConfig } from "../interfaces/config.interface";
+import { ibcDenom } from "secretjs";
+import { getDenomTrace } from "../common/chainQueries";
 
 const key = 'accounts-import-processed-block'
 
@@ -101,7 +103,7 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
 
         // Update current balances if this block is later than the previous balance update height
         if ((tx?.timestamp || new Date()).valueOf() > existingAccount.balanceUpdateTime.valueOf()) {
-            const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings } = await getBalancesForAccount(config, address);
+            const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings, nativeAssets } = await getBalancesForAccount(config, address);
 
             update = {
                 ...update,
@@ -112,6 +114,7 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
                 totalUnbondingBalance,
                 totalBalanceInBondingDenom,
                 balanceUpdateTime,
+                nativeAssets
             }
         }
 
@@ -121,8 +124,8 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
         // otherwise add non-existant accounts
         const {data} = await axios.get<LcdAuthAccount>(`${config.lcd}/cosmos/auth/v1beta1/accounts/${address}`);
         const baseAccount: BaseAccountDetails = data.account["@type"] === '/cosmos.auth.v1beta1.ModuleAccount' ? data.account.base_account : data.account;
-        const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings } = await getBalancesForAccount(config, address);
-        
+        const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings, nativeAssets } = await getBalancesForAccount(config, address);
+
         const newAccount: Account = {
             chainId,
             address,
@@ -143,6 +146,9 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
             totalUnbondingBalance,
             totalBalanceInBondingDenom,
             balanceUpdateTime,
+
+            nativeAssets,
+            tokenAssets: [],
         };
         const createdAccount = await Accounts.create(newAccount);
         const { _id, ...clean } = createdAccount.toObject();
@@ -160,10 +166,12 @@ interface AccountBalances {
     totalUnbondingBalance: string;
     totalBalanceInBondingDenom: string;
     balanceUpdateTime: Date;
+    nativeAssets: Coin[];
 }
 const getBalancesForAccount = async (config: ChainConfig, address: string): Promise<AccountBalances> => {
     const balanceUpdateTime = new Date();
     const {data: balanceResponse} = await axios.get<LcdBalance>(`${config.lcd}/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=${config.bondingDenom}`);
+    const {data: allBalancesResponse} = await axios.get<LcdBalancesResponse>(`${config.lcd}/cosmos/bank/v1beta1/balances/${address}`);
     const { data: _delegations } = await axios.get<LcdDelegationsResponse>(`${config.lcd}/cosmos/staking/v1beta1/delegations/${address}`);
     const { data: _unbondings } = await axios.get<LcdUnbondingResponse>(`${config.lcd}/cosmos/staking/v1beta1/delegators/${address}/unbonding_delegations`);
 
@@ -197,6 +205,20 @@ const getBalancesForAccount = async (config: ChainConfig, address: string): Prom
 
     const totalbalance = totalDelegatedBalance + totalUnbondingBalance + BigInt(balanceResponse.balance.amount);
 
+    const nativeAssets: Coin[] = [];
+    for (const coin of allBalancesResponse.balances) {
+        if (coin.denom.toLowerCase().startsWith('ibc/')) {
+            // Trace denom
+            const denom = await getDenomTrace(config.chainId, coin.denom);
+            nativeAssets.push({
+                denom,
+                amount: coin.amount,
+            })
+        } else {
+            nativeAssets.push(coin);
+        }
+    }
+
     return {
         heldBalanceInBondingDenom: balanceResponse.balance.amount,
         delegations,
@@ -205,5 +227,6 @@ const getBalancesForAccount = async (config: ChainConfig, address: string): Prom
         totalUnbondingBalance: totalUnbondingBalance.toString(),
         totalBalanceInBondingDenom: totalbalance.toString(),
         balanceUpdateTime: balanceUpdateTime,
+        nativeAssets,
     }
 }

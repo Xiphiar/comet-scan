@@ -1,3 +1,12 @@
+import { Coin } from "./blocks.interface";
+
+export interface Token {
+    tokenAddress: string;
+    tokenSymbol: string;
+    tokenDecimals: string;
+    balance: string;
+}
+
 export interface Account {
     chainId: string;
     address: string;
@@ -7,9 +16,9 @@ export interface Account {
     accountNumber: string;
     label?: string;
     
-    firstTransactionHash: string;
-    firstTransactionBlock: number;
-    firstTransactionTime: Date;
+    firstTransactionHash?: string;
+    firstTransactionBlock?: number;
+    firstTransactionTime?: Date;
     
     heldBalanceInBondingDenom: string;
     delegations: Delegation[];
@@ -18,6 +27,9 @@ export interface Account {
     totalUnbondingBalance: string;
     totalBalanceInBondingDenom: string;
     balanceUpdateTime: Date;
+
+    nativeAssets: Coin[];
+    tokenAssets: Token[];
 }
 
 export interface Delegation {

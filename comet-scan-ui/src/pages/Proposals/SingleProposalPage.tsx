@@ -29,10 +29,10 @@ const SingleProposalPage: FC = () => {
     }
 
     const proposerDetails = data.proposingValidator?.descriptions.length ? data.proposingValidator.descriptions[0] : undefined;
-    const totalNo = Number(data.proposal.proposal.final_tally_result.no) + Number(data.proposal.proposal.final_tally_result.no_with_veto);
-    const totalYesNo = totalNo + Number(data.proposal.proposal.final_tally_result.yes);
-    const totalWithAbstain = totalYesNo + Number(data.proposal.proposal.final_tally_result.abstain)
-    const percentYes = Number(data.proposal.proposal.final_tally_result.yes) / totalYesNo;
+    const totalNo = Number(data.proposal.tally.no) + Number(data.proposal.tally.no_with_veto);
+    const totalYesNo = totalNo + Number(data.proposal.tally.yes);
+    const totalWithAbstain = totalYesNo + Number(data.proposal.tally.abstain)
+    const percentYes = Number(data.proposal.tally.yes) / totalYesNo;
     const turnoutPercent = totalWithAbstain / Number(data.bonded.amount)
     return (
         <div className='d-flex flex-column gap-2 mx-4'>
@@ -46,10 +46,10 @@ const SingleProposalPage: FC = () => {
                     <h5>Status</h5>
                     {formatProposalStatus(data.proposal.status)}
                 </Card>
-                <Card className='col'>
+                {/* <Card className='col'>
                     <h5>Voted Yes</h5>
                     {(percentYes * 100).toFixed(2)}%
-                </Card>
+                </Card> */}
                 <Card className='col'>
                     <h5>Turout</h5>
                     {(turnoutPercent * 100).toFixed(2)}%
@@ -67,7 +67,7 @@ const SingleProposalPage: FC = () => {
                     </div>
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Summary</div>
-                        <p className='col'>{data.proposal.summary}</p>
+                        <p className='col' style={{whiteSpace: 'pre-wrap'}}>{data.proposal.summary}</p>
                     </div>
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Submit Time</div>
@@ -106,6 +106,24 @@ const SingleProposalPage: FC = () => {
                     </div>
                 </div>
             </Card>
+            <div className='d-flex gap-2 w-full'>
+                <Card className='col'>
+                    <h5>Yes</h5>
+                    {((parseInt(data.proposal.tally.yes) / totalWithAbstain) * 100).toFixed(2)}%
+                </Card>
+                <Card className='col'>
+                    <h5>No</h5>
+                    {((parseInt(data.proposal.tally.no) / totalWithAbstain) * 100).toFixed(2)}%
+                </Card>
+                <Card className='col'>
+                    <h5>Veto</h5>
+                    {((parseInt(data.proposal.tally.no_with_veto) / totalWithAbstain) * 100).toFixed(2)}%
+                </Card>
+                <Card className='col'>
+                    <h5>Abstain</h5>
+                    {((parseInt(data.proposal.tally.abstain) / totalWithAbstain) * 100).toFixed(2)}%
+                </Card>
+            </div>
         </div>
     )
 }

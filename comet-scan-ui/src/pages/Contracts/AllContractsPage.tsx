@@ -1,0 +1,91 @@
+import { FC } from "react";
+import { useParams } from "react-router-dom";
+import useConfig from "../../hooks/useConfig";
+import useAsync from "../../hooks/useAsync";
+import ContentLoading from "../../components/ContentLoading";
+import Card from "../../components/Card";
+import TitleAndSearch from "../../components/TitleAndSearch";
+import ContractRow from "../../components/ContractRow/ContractRow";
+import { getAllContractsPage } from "../../api/pagesApi";
+import { SecretWasmContract } from "../../interfaces/models/contracts.interface";
+import { AllContractsPageResponse } from "../../interfaces/responses/explorerApiResponses";
+
+
+const AllContractsPage: FC = () => {
+    const { chain: chainLookupId } = useParams();
+    const { getChain } = useConfig();
+    const chain = getChain(chainLookupId);
+    const { data } = useAsync<AllContractsPageResponse<SecretWasmContract>>(getAllContractsPage(chain.chainId));
+
+    if (!chain) {
+        return (
+            <div>
+                <h1>Chain Not Found</h1>
+            </div>
+        )
+    }
+    const title = `Contracts`
+
+    if (!data) {
+        return <ContentLoading chain={chain} title={title} />
+    }
+
+    return (
+        <div className='d-flex flex-column gap-2 mx-4'>
+            <TitleAndSearch chain={chain} title={title} />
+            <div className='d-flex gap-2 w-full'>
+                <Card className='col'>
+                    <h5>Total Contracts</h5>
+                    {data.totalContracts.toLocaleString()}
+                </Card>
+                <Card className='col'>
+                    <h5>Total Executions</h5>
+                    {data.totalExecutions.toLocaleString()}
+                </Card>
+                <Card className='col'>
+                    <h5>Daily Executions</h5>
+                    {data.dailyExecutions.toLocaleString()}
+                </Card>
+                {/* <Card className='col'>
+                    <h5>Total Fee</h5>
+                    {data.}
+                </Card> */}
+            </div>
+            <div className='d-flex flex-wrap gap-2'>
+                <div className='col'>
+                    <Card>
+                        <h3>Top Contracts</h3>
+                        {!!data.contracts.length &&
+                            <div className='d-flex mt-4 mb-1'>
+                                <div className='col col-5 col-md-4'>
+                                    Label
+                                </div>
+                                <div className='col col-5 col-md-3'>
+                                    Address
+                                </div>
+                                <div className='col col-2 col-md-1'>
+                                    Code ID
+                                </div>
+                                <div className='col col-2 d-none d-md-block'>
+                                    Created
+                                </div>
+                                <div className='col col-2 d-none d-md-block'>
+                                    Executions
+                                </div>
+                            </div>
+                        }
+                        {data.contracts.map((contract) =><>
+                            <div style={{borderBottom: '1px solid var(--light-gray)'}} />
+                            <ContractRow contract={contract} chain={chain} />
+                        </>)}
+                        {!data.contracts.length && <div className='py-4 w-full text-center'>
+                            No contracts found.
+                        </div>}
+                    </Card>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default AllContractsPage;

@@ -62,6 +62,10 @@ const proposalSchema = new mongoose.Schema<Proposal>({
     expedited: {
         type: Boolean,
         required: true,
+    },
+    tally: {
+        type: {},
+        required: true,
     }
 });
 

@@ -103,6 +103,19 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
             ).toString('utf8')
         )
 
+        const executedContracts: string[] = [];
+        if (config.features.includes('secretwasm')) {
+            for (const msgLogs of txResponse.logs) {
+                const wasmEvent = msgLogs.events.find(e => e.type === 'wasm');
+                if (!wasmEvent) continue;
+                for (const attribute of wasmEvent.attributes) {
+                    if (attribute.key === 'contract_address') executedContracts.push(attribute.value);
+                }
+            }
+        } else if (config.features.includes('cosmwasm')) {
+            // TODO
+        }
+
         const newTx: Transaction = {
             chainId,
             hash: txResponse.txhash,
@@ -112,6 +125,7 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
             signers,
             senders,
             recipients,
+            executedContracts,
             feePayer: tx.auth_info?.fee?.payer || undefined,
             feeGranter: tx.auth_info?.fee?.granter || undefined,
             gasLimit: parseInt(txResponse.gas_wanted),
@@ -127,3 +141,33 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
 }
 
 export default importTransactions;
+
+export const addExecutedContractsToTransactions = async (chainId: string) => {
+    try {
+        console.log('Migrating transactions on', chainId)
+        const config = getChainConfig(chainId);
+
+        const txs = await Transactions.find({ chainId, executedContracts: { $exists: false } });
+        
+        for (const {_id, transaction} of txs) {
+            const executedContracts: string[] = [];
+            if (config.features.includes('secretwasm')) {
+                for (const msgLogs of transaction.tx_response.logs) {
+                    const wasmEvent = msgLogs.events.find(e => e.type === 'wasm');
+                    if (!wasmEvent) continue;
+                    for (const attribute of wasmEvent.attributes) {
+                        if (attribute.key === 'contract_address') executedContracts.push(attribute.value);
+                    }
+                }
+            } else if (config.features.includes('cosmwasm')) {
+                // TODO
+            }
+
+            await Transactions.findByIdAndUpdate(_id, { executedContracts })
+        }
+
+        console.log('Finished migrating transactions on', chainId)
+    } catch (err: any) {
+        console.error(`Failed to update transactions for ${chainId}:`, err.toString())
+    }
+}

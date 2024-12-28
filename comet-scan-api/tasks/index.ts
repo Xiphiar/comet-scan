@@ -8,6 +8,8 @@ import Accounts from "../models/accounts.model";
 import Transactions from "../models/transactions";
 import Contracts from "../models/contracts.model";
 import { updateContractExecutedCountsForAllChains, updateContractsForAllChains } from "./importContracts";
+import dotenv from 'dotenv';
+dotenv.config();
 
 interface Response {
     message: string;
@@ -34,7 +36,8 @@ export const importBlockTransactions = api(
 
 const connectToDb = async () => {
     console.log('Connecting DB...')
-    await mongoose.connect('mongodb://127.0.0.1:27017/chain-analytics-test');
+    if (!process.env.MONGODB_CONNECTION_STRING) throw 'Environment variable MONGODB_CONNECTION_STRING is undefined'
+    await mongoose.connect(process.env.MONGODB_CONNECTION_STRING);
     console.log('DB Connected!')
 }
 

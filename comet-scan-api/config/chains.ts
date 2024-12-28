@@ -53,8 +53,8 @@ const Jackal: ChainConfig = {
 }
 
 const Chains: ChainConfig[] = [
-    // SecretNetwork,
-    // SecretNetworkPulsar3,
+    SecretNetwork,
+    SecretNetworkPulsar3,
     Jackal
 ];
 

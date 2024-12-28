@@ -41,6 +41,7 @@ const connectToDb = async () => {
 const threeHoursMs = 60 * 60 * 3 * 1000;
 const oneMinuteMs = 60 * 1000;
 const tenMinuteMs = oneMinuteMs * 10;
+const twelveHourMs = threeHoursMs * 4;
 
 (async()=>{
     await connectToDb();
@@ -51,11 +52,12 @@ const tenMinuteMs = oneMinuteMs * 10;
 
     // await addExecutedContractsToTransactions('secret-4')
 
-    // await updateContractExecutedCountsForAllChains();
-    // await runImportTasks();
+    await runImportTasks();
     await runUpdateTasks();
-    // await updateContractsForAllChains();
+    await updateContractExecutedCountsForAllChains();
 
     setInterval(runImportTasks, oneMinuteMs * 3)
     setInterval(runUpdateTasks, tenMinuteMs * 2)
+    setInterval(updateContractExecutedCountsForAllChains, tenMinuteMs * 3)
+    setInterval(updateContractsForAllChains, twelveHourMs * 2)
 })();

@@ -88,26 +88,59 @@ export const importAccountsForBlock = async (chainId: string, blockHeight: numbe
     }
 }
 
-export const importAccount = async (chainId: string, address: string, tx?: Transaction): Promise<Account> => {
+export const importAccount = async (chainId: string, address: string, tx?: Transaction): Promise<Account | undefined> => {
     const config = getChainConfig(chainId);
-    const existingAccount = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
-    if (existingAccount) {
-        let update: any = {};
+    try {
+        const existingAccount = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
+        if (existingAccount) {
+            let update: any = {};
 
-        // Update firstSeen if this block is earlier than the previous value
-        if (tx && tx.blockHeight < (existingAccount.firstTransactionBlock || 0)) update = {
-            ...update,
-            firstTransactionHash: tx.hash,
-            firstTransactionBlock: tx.blockHeight,
-            firstTransactionTime: tx.timestamp,
-        }
+            // Update firstSeen if this block is earlier than the previous value
+            if (tx && tx.blockHeight < (existingAccount.firstTransactionBlock || 0)) update = {
+                ...update,
+                firstTransactionHash: tx.hash,
+                firstTransactionBlock: tx.blockHeight,
+                firstTransactionTime: tx.timestamp,
+            }
 
-        // Update current balances if this block is later than the previous balance update height
-        if ((tx?.timestamp || new Date()).valueOf() > existingAccount.balanceUpdateTime.valueOf()) {
+            // Update current balances if this block is later than the previous balance update height
+            if ((tx?.timestamp || new Date()).valueOf() > existingAccount.balanceUpdateTime.valueOf()) {
+                const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings, nativeAssets } = await getBalancesForAccount(config, address);
+
+                update = {
+                    ...update,
+                    heldBalanceInBondingDenom,
+                    delegations,
+                    totalDelegatedBalance,
+                    unbondings,
+                    totalUnbondingBalance,
+                    totalBalanceInBondingDenom,
+                    balanceUpdateTime,
+                    nativeAssets
+                }
+            }
+
+            const updatedAccount = await Accounts.findByIdAndUpdate(existingAccount._id, update, { new: true, lean: true });
+            return updatedAccount!;
+        } else {
+            // otherwise add non-existant accounts
+            const {data} = await axios.get<LcdAuthAccount>(`${config.lcd}/cosmos/auth/v1beta1/accounts/${address}`);
+            const baseAccount: BaseAccountDetails = data.account["@type"] === '/cosmos.auth.v1beta1.ModuleAccount' ? data.account.base_account : data.account;
             const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings, nativeAssets } = await getBalancesForAccount(config, address);
 
-            update = {
-                ...update,
+            const newAccount: Account = {
+                chainId,
+                address,
+                accountType: data.account["@type"],
+                pubKeyType: baseAccount.pub_key?.["@type"],
+                pubKeyBase64: baseAccount.pub_key?.key,
+                accountNumber: baseAccount.account_number,
+                label: undefined,
+                
+                firstTransactionHash: tx?.hash,
+                firstTransactionBlock: tx?.blockHeight,
+                firstTransactionTime: tx?.timestamp,
+
                 heldBalanceInBondingDenom,
                 delegations,
                 totalDelegatedBalance,
@@ -115,45 +148,16 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
                 totalUnbondingBalance,
                 totalBalanceInBondingDenom,
                 balanceUpdateTime,
-                nativeAssets
-            }
+
+                nativeAssets,
+                tokenAssets: [],
+            };
+            const createdAccount = await Accounts.create(newAccount);
+            const { _id, ...clean } = createdAccount.toObject();
+            return clean;
         }
-
-        const updatedAccount = await Accounts.findByIdAndUpdate(existingAccount._id, update, { new: true, lean: true });
-        return updatedAccount!;
-    } else {
-        // otherwise add non-existant accounts
-        const {data} = await axios.get<LcdAuthAccount>(`${config.lcd}/cosmos/auth/v1beta1/accounts/${address}`);
-        const baseAccount: BaseAccountDetails = data.account["@type"] === '/cosmos.auth.v1beta1.ModuleAccount' ? data.account.base_account : data.account;
-        const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings, nativeAssets } = await getBalancesForAccount(config, address);
-
-        const newAccount: Account = {
-            chainId,
-            address,
-            accountType: data.account["@type"],
-            pubKeyType: baseAccount.pub_key?.["@type"],
-            pubKeyBase64: baseAccount.pub_key?.key,
-            accountNumber: baseAccount.account_number,
-            label: undefined,
-            
-            firstTransactionHash: tx?.hash,
-            firstTransactionBlock: tx?.blockHeight,
-            firstTransactionTime: tx?.timestamp,
-
-            heldBalanceInBondingDenom,
-            delegations,
-            totalDelegatedBalance,
-            unbondings,
-            totalUnbondingBalance,
-            totalBalanceInBondingDenom,
-            balanceUpdateTime,
-
-            nativeAssets,
-            tokenAssets: [],
-        };
-        const createdAccount = await Accounts.create(newAccount);
-        const { _id, ...clean } = createdAccount.toObject();
-        return clean;
+    } catch (err: any) {
+        console.error(`Failed to import account ${address} on ${chainId}:`, err)
     }
 }
 

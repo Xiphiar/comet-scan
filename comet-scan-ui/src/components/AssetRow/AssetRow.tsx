@@ -5,7 +5,7 @@ import { weiFormatNice } from "../../utils/coin";
 import { Coin } from "../../interfaces/models/blocks.interface";
 import { getDenomDetails } from "../../utils/denoms";
 
-const AssetRow: FC<{ coin: Coin, chain: FrontendChainConfig }> = ({ coin, chain }) => {
+const AssetRow: FC<{ coin: Coin, chain: FrontendChainConfig }> = ({ coin }) => {
     const denomDetails = getDenomDetails(coin.denom);
     console.log(denomDetails)
     const formattedAmount = weiFormatNice(coin.amount, denomDetails.decimals);

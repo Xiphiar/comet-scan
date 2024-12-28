@@ -50,6 +50,7 @@ const importAccountsForChain = async (chainId: string) => {
         console.log(`Done importing accounts on ${chainId}!`)
     } catch (err: any) {
         console.error(`Failed to import accounts on ${chainId}:`, err.toString())
+        console.trace(err);
     }
 }
 

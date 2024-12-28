@@ -59,8 +59,8 @@ const twelveHourMs = threeHoursMs * 4;
     await runUpdateTasks();
     await updateContractExecutedCountsForAllChains();
 
-    setInterval(runImportTasks, oneMinuteMs * 3)
-    setInterval(runUpdateTasks, tenMinuteMs * 2)
+    setInterval(runImportTasks, oneMinuteMs)
+    setInterval(runUpdateTasks, tenMinuteMs)
     setInterval(updateContractExecutedCountsForAllChains, tenMinuteMs * 3)
     setInterval(updateContractsForAllChains, twelveHourMs * 2)
 })();

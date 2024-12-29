@@ -54,6 +54,7 @@ const ValidatorsListPage: FC = () => {
             <ValidatorsCard
                 validators={data.validators}
                 activeValidators={data.stakingMetrics.activeValidators}
+                totalBonded={parseInt(data.stakingMetrics.bonded.amount)}
                 chain={chain}
                 title='Active Validators'
                 className='d-flex flex-column gap-2'

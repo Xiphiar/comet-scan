@@ -55,7 +55,7 @@ const OverviewPage: FC = () => {
             </div>
             <div className='d-flex flex-wrap'>
                 <div className='col col-12 col-lg-6'>
-                    <ValidatorsCard validators={data.topValidators} activeValidators={data.metrics.activeValidators} chain={chain} title='Top Validators' />
+                    <ValidatorsCard validators={data.topValidators} activeValidators={data.metrics.activeValidators} totalBonded={parseInt(data.metrics.bonded.amount)} chain={chain} title='Top Validators' />
                 </div>
                 <div className='col col-12 col-lg-6'>
                     <ProposalsCard proposals={data.recentProposals} totalProposals={data.metrics.totalProposals} chain={chain} />

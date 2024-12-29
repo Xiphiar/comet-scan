@@ -151,6 +151,7 @@ export const getStakingMetrics = async (chainId: string): Promise<StakingMetrics
 
     const data = {
         activeValidators,
+        bonded,
         bondRate,
         inflationRate,
         nominalApr,

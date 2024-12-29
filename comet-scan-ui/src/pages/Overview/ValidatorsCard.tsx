@@ -11,12 +11,13 @@ import KeybaseAvatar from "../../components/Avatar/KeybaseAvatar";
 interface Props {
     validators: Validator[];
     activeValidators: number;
+    totalBonded: number;
     chain: FrontendChainConfig;
     title: string;
     className?: string;
 }
 
-const ValidatorsCard: FC<Props> = ({ validators, activeValidators, chain, className, title }) => {
+const ValidatorsCard: FC<Props> = ({ validators, activeValidators, chain, className, title, totalBonded }) => {
     if (!validators.length) {
         return (
             <Card className={`${className}`}>
@@ -32,10 +33,22 @@ const ValidatorsCard: FC<Props> = ({ validators, activeValidators, chain, classN
             <div className='mb-2'>
                 <h3>{title}</h3>
                 <div style={{fontSize: '75%', color: 'var(--gray)', marginBottom: '8px'}}>{activeValidators || '...'} Active Validators</div>
+                <div className='d-flex mt-1 mb-1'>
+                    <div className='col col-8 col-md-7'>
+                        Validator
+                    </div>
+                    <div className='col col-2 col-md-2 d-none d-md-block'>
+                        Commission
+                    </div>
+                    <div className='col col-4 col-md-3 align-items-end text-end'>
+                        Voting Power
+                    </div>
+                </div>
+                <div style={{borderBottom: '1px solid var(--light-gray)'}} />
             </div>
             { validators.map((val, i) =>
                 <Fragment key={val.operatorAddress}>
-                    <ValidatorCard validator={val} chain={chain} position={i} />
+                    <ValidatorCard validator={val} chain={chain} position={i} totalBonded={totalBonded} />
                     {i + 1 < validators.length && <div style={{borderBottom: '1px solid var(--light-grey)'}} /> }
                 </Fragment>
             )}
@@ -45,17 +58,25 @@ const ValidatorsCard: FC<Props> = ({ validators, activeValidators, chain, classN
 
 export default ValidatorsCard;
 
-const ValidatorCard: FC<{ position: number, validator: Validator, chain: FrontendChainConfig }> = ({ position, validator, chain }) => {
+const ValidatorCard: FC<{ position: number, validator: Validator, chain: FrontendChainConfig, totalBonded: number }> = ({ position, validator, chain, totalBonded }) => {
+    const vpPercent = parseInt(validator.delegatedAmount) / totalBonded;
+    const commissionPercent = parseFloat(validator.commission.rates[0].rate) * 100
     return (
         <Link
             to={`/${chain.id}/validators/${validator.operatorAddress}`}
-            className={`${styles.dataRow} ${styles.valRow}`}
+            className={`${styles.valRow}`}
         >
-            <h5>#{position + 1}</h5>
-            <KeybaseAvatar identity={validator.descriptions[0]?.identity} moniker={validator.descriptions[0]?.moniker} />
-            <div>{validator.descriptions.length ? validator.descriptions[0].moniker : validator.operatorAddress}</div>
-            <div className='flex-grow-1 align-items-end'>
-                <h6>{weiFormatNice(validator.delegatedAmount, chain.bondingDecimals)} {chain.bondingDisplayDenom}</h6>
+            <div className='col  col-8 col-md-7 d-flex gap-2'>
+                <h5>#{position + 1}</h5>
+                <KeybaseAvatar identity={validator.descriptions[0]?.identity} moniker={validator.descriptions[0]?.moniker} />
+                <div>{validator.descriptions.length ? validator.descriptions[0].moniker : validator.operatorAddress}</div>
+            </div>
+            <div className='col  col-2 col-md-2 d-none d-md-flex'>
+                <div>{commissionPercent.toFixed()}%</div>
+            </div>
+            <div className='col col-4 col-md-3 align-items-end text-end d-flex flex-column'>
+                <div>{weiFormatNice(validator.delegatedAmount, chain.bondingDecimals)} {chain.bondingDisplayDenom}</div>
+                <div>{(vpPercent * 100).toFixed()}%</div>
             </div>
         </Link>
     )

@@ -29,6 +29,7 @@ export interface OverviewPageResponse {
 
 export interface StakingMetrics {
   activeValidators: number;
+  bonded: Amount;
   bondRate: number;
   inflationRate: number;
   nominalApr: number;

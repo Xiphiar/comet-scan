@@ -1,5 +1,5 @@
 import { api, APIError, ErrCode } from "encore.dev/api";
-import { dayMs, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb } from "../common/dbQueries";
+import { dayMs, get24hBlocksCount, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
 import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
@@ -16,6 +16,7 @@ import { WasmContract } from "../interfaces/models/contracts.interface";
 import Contracts from "../models/contracts.model";
 import Codes from "../models/codes.model";
 import { addContractStats } from "../common/contracts";
+import { Validator } from "../interfaces/models/validators.interface";
 
 export const getOverview = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/overview" },
@@ -90,12 +91,15 @@ export const getBlocksPage = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/blocks" },
   async ({ chainId }: { chainId: string }): Promise<BlocksPageResponse> => {
     const blocks = await Blocks.find({ chainId }, { _id: false, __v: false }).sort('-timestamp').limit(30).lean();
-    const dailyBlocks = await get24hTransactionsCount(chainId);
+    const dailyBlocks = await get24hBlocksCount(chainId);
+
+    const validators = await Validators.find({ chainId }, { _id: false, __v: false}).lean();
 
     const blocksWithProposers: BlockWithProposer[] = [];
     for (const block of blocks) {
       const proposerHex = block.block.result.block.header.proposer_address;
-      const proposer = await Validators.findOne({ hexAddress: proposerHex }, { _id: false, __v: false}).lean();
+      // const proposer = await Validators.findOne({ hexAddress: proposerHex }, { _id: false, __v: false}).lean();
+      const proposer = validators.find(v => v.hexAddress === proposerHex) as Validator;
       blocksWithProposers.push({ ...block, proposer })
     }
 

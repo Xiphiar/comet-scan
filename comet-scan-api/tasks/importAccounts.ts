@@ -105,6 +105,7 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
 
             // Update current balances if this block is later than the previous balance update height
             if ((tx?.timestamp || new Date()).valueOf() > existingAccount.balanceUpdateTime.valueOf()) {
+                console.log('Updating Balances for', address, 'on', chainId);
                 const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings, nativeAssets } = await getBalancesForAccount(config, address);
 
                 update = {
@@ -118,7 +119,11 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
                     balanceUpdateTime,
                     nativeAssets
                 }
+            } else {
+                console.log('NOT Updating Balances for', address, 'on', chainId);
             }
+
+            if (!Object.keys(update).length) return existingAccount;
 
             const updatedAccount = await Accounts.findByIdAndUpdate(existingAccount._id, update, { new: true, lean: true });
             return updatedAccount!;

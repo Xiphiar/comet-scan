@@ -13,7 +13,7 @@ const RecentBlocksPage: FC = () => {
     const { chain: chainLookupId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<BlocksPageResponse>(getRecentBlocksPage(chain.chainId));
+    const { data, error } = useAsync<BlocksPageResponse>(getRecentBlocksPage(chain.chainId));
 
     if (!chain) {
         return (
@@ -25,7 +25,7 @@ const RecentBlocksPage: FC = () => {
     const title = `Blocks`
 
     if (!data) {
-        return <ContentLoading chain={chain} title={title} />
+        return <ContentLoading chain={chain} title={title} error={error} />
     }
 
     return (

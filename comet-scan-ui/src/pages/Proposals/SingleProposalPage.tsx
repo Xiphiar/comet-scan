@@ -14,7 +14,7 @@ const SingleProposalPage: FC = () => {
     const { chain: chainLookupId, proposalId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<SingleProposalPageResponse>(getSingleProposalPage(chain.chainId, proposalId));
+    const { data, error } = useAsync<SingleProposalPageResponse>(getSingleProposalPage(chain.chainId, proposalId));
 
     if (!chain) {
         return (
@@ -25,7 +25,7 @@ const SingleProposalPage: FC = () => {
     }
 
     if (!data) {
-        return <ContentLoading chain={chain} title={`Proposal ${proposalId}`} />
+        return <ContentLoading chain={chain} title={`Proposal ${proposalId}`} error={error} />
     }
 
     const proposerDetails = data.proposingValidator?.descriptions.length ? data.proposingValidator.descriptions[0] : undefined;

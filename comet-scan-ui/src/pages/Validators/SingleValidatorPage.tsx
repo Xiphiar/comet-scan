@@ -15,7 +15,7 @@ const SingleValidatorPage: FC = () => {
     const { chain: chainLookupId, operatorAddress } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<SingleValidatorPageResponse>(getSingleValidatorPage(chain.chainId, operatorAddress));
+    const { data, error } = useAsync<SingleValidatorPageResponse>(getSingleValidatorPage(chain.chainId, operatorAddress));
     const currentDetails = data?.validator.descriptions.length ? data.validator.descriptions[0] : undefined;
 
     if (!chain) {
@@ -27,7 +27,7 @@ const SingleValidatorPage: FC = () => {
     }
 
     if (!data) {
-        return <ContentLoading chain={chain} title='Validator' />
+        return <ContentLoading chain={chain} title='Validator' error={error} />
     }
 
     console.log('ABAAB',data.validator.selfBondedAmount)

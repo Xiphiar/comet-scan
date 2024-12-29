@@ -13,7 +13,7 @@ const SingleContractPage: FC = () => {
     const { chain: chainLookupId, contractAddress } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<SingleContractPageResponse>(getSingleContractPage(chain.chainId, contractAddress));
+    const { data, error } = useAsync<SingleContractPageResponse>(getSingleContractPage(chain.chainId, contractAddress));
     const title = `Contract`;
 
     if (!chain) {
@@ -25,7 +25,7 @@ const SingleContractPage: FC = () => {
     }
 
     if (!data) {
-        return <ContentLoading chain={chain} title={title} />
+        return <ContentLoading chain={chain} title={title} error={error} />
     }
  
     return (

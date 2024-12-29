@@ -15,7 +15,7 @@ const SingleBlockPage: FC = () => {
     const { chain: chainLookupId, blockHeight } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<SingleBlockPageResponse>(getSingleBlockPage(chain.chainId, blockHeight));
+    const { data, error } = useAsync<SingleBlockPageResponse>(getSingleBlockPage(chain.chainId, blockHeight));
 
     if (!chain) {
         return (
@@ -26,7 +26,7 @@ const SingleBlockPage: FC = () => {
     }
 
     if (!data) {
-        return <ContentLoading chain={chain} title={`Block ${blockHeight}`} />
+        return <ContentLoading chain={chain} title={`Block ${blockHeight}`} error={error} />
     }
 
     const proposerDetails = data.proposer?.descriptions.length ? data.proposer.descriptions[0] : undefined;

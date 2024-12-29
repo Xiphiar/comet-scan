@@ -14,7 +14,7 @@ const RecentTransactionsPage: FC = () => {
     const { chain: chainLookupId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<TransactionsPageResponse>(getRecentTransactionsPage(chain.chainId));
+    const { data, error } = useAsync<TransactionsPageResponse>(getRecentTransactionsPage(chain.chainId));
 
     if (!chain) {
         return (
@@ -26,7 +26,7 @@ const RecentTransactionsPage: FC = () => {
     const title = `Transactions`
 
     if (!data) {
-        return <ContentLoading chain={chain} title={title} />
+        return <ContentLoading chain={chain} title={title} error={error} />
     }
 
     return (

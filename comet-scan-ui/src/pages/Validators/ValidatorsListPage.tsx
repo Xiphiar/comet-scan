@@ -14,7 +14,7 @@ const ValidatorsListPage: FC = () => {
     const { chain: chainLookupId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<ValidatorsPageResponse>(getValidatorsPage(chain.chainId));
+    const { data, error } = useAsync<ValidatorsPageResponse>(getValidatorsPage(chain.chainId));
 
     if (!chain) {
         return (
@@ -25,7 +25,7 @@ const ValidatorsListPage: FC = () => {
     }
 
     if (!data) {
-        return <ContentLoading chain={chain} title='Validators' />
+        return <ContentLoading chain={chain} title='Validators' error={error} />
     }
 
     console.log('data.stakingMetrics', data.stakingMetrics)

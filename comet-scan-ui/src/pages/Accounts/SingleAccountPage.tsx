@@ -16,7 +16,7 @@ const SingleAccountPage: FC = () => {
     const { chain: chainLookupId, accountAddress } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<SingleAccountPageResponse>(getSingleAccountPage(chain.chainId, accountAddress));
+    const { data, error } = useAsync<SingleAccountPageResponse>(getSingleAccountPage(chain.chainId, accountAddress));
     const title = `Account`;
 
     if (!chain) {
@@ -28,7 +28,7 @@ const SingleAccountPage: FC = () => {
     }
 
     if (!data) {
-        return <ContentLoading chain={chain} title={title} />
+        return <ContentLoading chain={chain} title={title} error={error} />
     }
  
     return (

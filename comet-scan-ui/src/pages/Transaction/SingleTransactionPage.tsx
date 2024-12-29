@@ -15,7 +15,7 @@ const SingleTransactionPage: FC = () => {
     const { chain: chainLookupId, transactionHash } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<SingleTransactionPageResponse>(getSingleTransactionPage(chain.chainId, transactionHash));
+    const { data, error } = useAsync<SingleTransactionPageResponse>(getSingleTransactionPage(chain.chainId, transactionHash));
 
     if (!chain) {
         return (
@@ -26,7 +26,7 @@ const SingleTransactionPage: FC = () => {
     }
 
     if (!data) {
-        return <ContentLoading chain={chain} title={`Transaction ${truncateString(transactionHash)}`} />
+        return <ContentLoading chain={chain} title={`Transaction ${truncateString(transactionHash)}`} error={error} />
     }
 
     const feeAmount = data.transaction.transaction.tx.auth_info.fee.amount.find(coin => coin.denom === chain.bondingDenom)?.amount || '0'; 

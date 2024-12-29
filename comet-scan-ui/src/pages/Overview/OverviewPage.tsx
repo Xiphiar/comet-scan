@@ -15,7 +15,7 @@ const OverviewPage: FC = () => {
     const { chain: chainLookupId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data } = useAsync<OverviewPageResponse>(getOverviewPage(chain.chainId));
+    const { data, error } = useAsync<OverviewPageResponse>(getOverviewPage(chain.chainId));
 
     if (!chain) {
         return (
@@ -26,7 +26,7 @@ const OverviewPage: FC = () => {
     }
 
     if (!data) {
-        return <ContentLoading chain={chain} title='Overview' />
+        return <ContentLoading chain={chain} title='Overview' error={error} />
     }
 
     // const supply = parseFloat(weiToCoin(result.metrics.supply.amount, result.metrics.supply.denomDecimals)).toLocaleString(undefined, { maximumFractionDigits: 0 })

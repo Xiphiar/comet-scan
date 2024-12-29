@@ -48,8 +48,46 @@ export const get24hTransactionsCount = async (chainId: string): Promise<number> 
 }
 
 export const get24hBlocksCount = async (chainId: string) => {
+    const cacheKey = `24h-blocks-count-${chainId}`;
+    const cached = Cache.get<number>(cacheKey);
+    if (cached) return cached;
+
     const oneDayAgo = new Date(new Date().valueOf() - dayMs);
-    return await Blocks.countDocuments({ chainId, timestamp: { $gte: oneDayAgo }})
+    const result = await Blocks.countDocuments({ chainId, timestamp: { $gte: oneDayAgo }});
+    Cache.set<number>(cacheKey, result, 3600);
+    return result;
+}
+
+export const get24hContractExecutionsCount = async (chainId: string, contractAddress: string): Promise<number> => {
+    const cacheKey = `24h-executions-count-${chainId}-${contractAddress}`;
+    const cached = Cache.get<number>(cacheKey);
+    if (cached) return cached;
+
+    const oneDayAgo = new Date(new Date().valueOf() - dayMs);
+    const result = await Transactions.find({ chainId, executedContracts: contractAddress, timestamp: { $gte: oneDayAgo } }).countDocuments();
+    Cache.set<number>(cacheKey, result, 3600);
+    return result;
+}
+
+export const get24hTotalExecutionsCount = async (chainId: string): Promise<number> => {
+    const cacheKey = `24h-executions-count-${chainId}-total`;
+    const cached = Cache.get<number>(cacheKey);
+    if (cached) return cached;
+
+    const oneDayAgo = new Date(new Date().valueOf() - dayMs);
+    const result = await Transactions.find({ chainId, 'executedContracts.0': { $exists: true}, timestamp: { $gte: oneDayAgo } }).countDocuments();
+    Cache.set<number>(cacheKey, result, 3600);
+    return result;
+}
+
+export const getTotalExecutionsCount = async (chainId: string): Promise<number> => {
+    const cacheKey = `total-executions-count-${chainId}`;
+    const cached = Cache.get<number>(cacheKey);
+    if (cached) return cached;
+
+    const result = await Transactions.find({ chainId, 'executedContracts.0': { $exists: true} }).countDocuments();
+    Cache.set<number>(cacheKey, result, 3600);
+    return result;
 }
 
 // Sorted by proposal ID, highest to smallest

@@ -1,5 +1,5 @@
 import { api, APIError, ErrCode } from "encore.dev/api";
-import { dayMs, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getProposalsFromDb, getTopValidatorsFromDb, getValidatorsFromDb } from "../common/dbQueries";
+import { dayMs, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
 import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
@@ -250,7 +250,7 @@ export const getContractsPage = api(
     const oneDayAgo = new Date(now.valueOf() - dayMs);
     const contractsWithStats: ContractWithStats[] = []
     for (const contract of contracts) {
-      const dailyExecutions = await Transactions.find({ chainId, executedContracts: contract.contractAddress, timestamp: { $gte: oneDayAgo } }).countDocuments();
+      const dailyExecutions = await get24hContractExecutionsCount(chainId, contract.contractAddress);
       const code = await Codes.findOne({ chainId, codeId: contract.codeId }).lean();
 
       contractsWithStats.push({
@@ -260,8 +260,8 @@ export const getContractsPage = api(
       })
     }
 
-    const dailyExecutions = await Transactions.find({ chainId, 'executedContracts.0': { $exists: true}, timestamp: { $gte: oneDayAgo } }).countDocuments();
-    const totalExecutions = await Transactions.find({ chainId, 'executedContracts.0': { $exists: true} }).countDocuments();
+    const dailyExecutions = await get24hTotalExecutionsCount(chainId);
+    const totalExecutions = await getTotalExecutionsCount(chainId);
 
     return {
       contracts: contractsWithStats,

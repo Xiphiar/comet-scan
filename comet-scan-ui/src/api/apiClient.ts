@@ -2,7 +2,7 @@ import axios from "axios";
 
 const http = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
-  timeout: 20_000,
+  timeout: 60_000,
   transitional: {
     clarifyTimeoutError: true,
   }

@@ -35,22 +35,18 @@ const SingleProposalPage: FC = () => {
     const percentYes = Number(data.proposal.tally.yes) / totalYesNo;
     const turnoutPercent = totalWithAbstain / Number(data.bonded.amount)
     return (
-        <div className='d-flex flex-column gap-2 mx-4'>
+        <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title={`Proposal ${proposalId}`} />
-            <div className='d-flex gap-2 w-full'>
-                <Card className='col'>
+            <div className='d-flex flex-wrap w-full'>
+                <Card className='col col-12 col-sm-4'>
                     <h5>Submitted</h5>
                     {new Date(data.proposal.submitTime).toLocaleString()}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-12 col-sm-4'>
                     <h5>Status</h5>
                     {formatProposalStatus(data.proposal.status)}
                 </Card>
-                {/* <Card className='col'>
-                    <h5>Voted Yes</h5>
-                    {(percentYes * 100).toFixed(2)}%
-                </Card> */}
-                <Card className='col'>
+                <Card className='col col-12 col-sm-4'>
                     <h5>Turout</h5>
                     {(turnoutPercent * 100).toFixed(2)}%
                 </Card>
@@ -106,20 +102,20 @@ const SingleProposalPage: FC = () => {
                     </div>
                 </div>
             </Card>
-            <div className='d-flex gap-2 w-full'>
-                <Card className='col'>
+            <div className='d-flex flex-wrap w-full'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Yes</h5>
                     {((parseInt(data.proposal.tally.yes) / totalWithAbstain) * 100).toFixed(2)}%
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>No</h5>
                     {((parseInt(data.proposal.tally.no) / totalWithAbstain) * 100).toFixed(2)}%
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Veto</h5>
                     {((parseInt(data.proposal.tally.no_with_veto) / totalWithAbstain) * 100).toFixed(2)}%
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Abstain</h5>
                     {((parseInt(data.proposal.tally.abstain) / totalWithAbstain) * 100).toFixed(2)}%
                 </Card>

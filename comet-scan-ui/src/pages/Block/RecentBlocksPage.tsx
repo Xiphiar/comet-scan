@@ -29,9 +29,9 @@ const RecentBlocksPage: FC = () => {
     }
 
     return (
-        <div className='d-flex flex-column gap-2 mx-4'>
+        <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title={title} />
-            {/* <div className='d-flex gap-2 w-full'>
+            {/* <div className='d-flex w-full'>
                 <Card className='col'>
                     <h5>Time</h5>
                     {new Date(data.block.timestamp).toLocaleString()}
@@ -49,39 +49,35 @@ const RecentBlocksPage: FC = () => {
                     {weiFormatNice(data.block.totalFees.find(f => f.denom === chain.bondingDenom)?.amount || '0', chain.bondingDecimals)} {chain.bondingDisplayDenom}
                 </Card>
             </div> */}
-            <div className='d-flex flex-wrap gap-2'>
-                <div className='col'>
-                    <Card>
-                        <h3>Recent Blocks</h3>
-                        {!!data.blocks.length &&
-                            <div className='d-flex mt-4 mb-1'>
-                                <div className='col col-2'>
-                                    Height
-                                </div>
-                                <div className='col col-2'>
-                                    Hash
-                                </div>
-                                <div className='col col-2'>
-                                    Transactions
-                                </div>
-                                <div className='col col-4'>
-                                    Proposer
-                                </div>
-                                <div className='col col-2'>
-                                    Time
-                                </div>
-                            </div>
-                        }
-                        {data.blocks.map((tx) =><>
-                            <div style={{borderBottom: '1px solid var(--light-gray)'}} />
-                            <BlockRow block={tx} chain={chain} />
-                        </>)}
-                        {!data.blocks.length && <div className='py-4 w-full text-center'>
-                            No blocks found.
-                        </div>}
-                    </Card>
-                </div>
-            </div>
+            <Card className='col'>
+                <h3>Recent Blocks</h3>
+                {!!data.blocks.length &&
+                    <div className='d-flex mt-4 mb-1'>
+                        <div className='col col-2'>
+                            Height
+                        </div>
+                        <div className='col col-2'>
+                            Hash
+                        </div>
+                        <div className='col col-2'>
+                            Transactions
+                        </div>
+                        <div className='col col-4'>
+                            Proposer
+                        </div>
+                        <div className='col col-2'>
+                            Time
+                        </div>
+                    </div>
+                }
+                {data.blocks.map((tx) =><>
+                    <div style={{borderBottom: '1px solid var(--light-gray)'}} />
+                    <BlockRow block={tx} chain={chain} />
+                </>)}
+                {!data.blocks.length && <div className='py-4 w-full text-center'>
+                    No blocks found.
+                </div>}
+            </Card>
         </div>
     )
 }

@@ -31,22 +31,22 @@ const SingleTransactionPage: FC = () => {
 
     const feeAmount = data.transaction.transaction.tx.auth_info.fee.amount.find(coin => coin.denom === chain.bondingDenom)?.amount || '0'; 
     return (
-        <div className='d-flex flex-column gap-2 mx-4'>
+        <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title={`Transaction ${truncateString(transactionHash)}`} />
-            <div className='d-flex gap-2 w-full'>
-                <Card className='col'>
+            <div className='d-flex flex-wrap w-full'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Time</h5>
                     {new Date(data.transaction.timestamp).toLocaleString()}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Status</h5>
                     {data.transaction.succeeded ? 'Succeeded' : <span style={{color: 'red'}}>Failed</span>}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Gas Used</h5>
                     {data.transaction.gasUsed.toLocaleString()} / {data.transaction.gasLimit.toLocaleString()}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Fee</h5>
                     {weiFormatNice(feeAmount, chain.bondingDecimals)} {chain.bondingDisplayDenom}
                 </Card>

@@ -30,8 +30,8 @@ const MainPage: FC<Props> = ({isLoading, loadingError}) => {
             : 
                 <div className='d-flex flex-wrap mt-4 justify-content-center w-100 px-4'>
                     { chains.map(chain =>
-                        <Link to={`/${chain.id}`} className='d-flex flex-column col col-6 col-md-2 text-black'>
-                            <Card className={`${styles.chainCard} d-flex flex-column align-items-center justify-content-center gap-2 text-center flex-grow-1 m-2`}>
+                        <Link to={`/${chain.id}`} className='d-flex col col-6 col-md-3 col-lg-2 text-black'>
+                            <Card className='flex-grow-1' conentClassName={`${styles.chainCard}`} >
                                 <img src={`/logos/${chain.logoFile}`} style={{height: '64px'}} />
                                 <h3>{chain.name}</h3>
                             </Card>

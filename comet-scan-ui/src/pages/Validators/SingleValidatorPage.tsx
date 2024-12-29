@@ -33,7 +33,7 @@ const SingleValidatorPage: FC = () => {
     console.log('ABAAB',data.validator.selfBondedAmount)
  
     return (
-        <div className='d-flex flex-column gap-2 mx-4'>
+        <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title='Validator' />
             <Card>
                 <div>
@@ -65,36 +65,24 @@ const SingleValidatorPage: FC = () => {
                     }
                 </div>
             </Card>
-            <div className='d-flex gap-2 w-full'>
-                <Card className='col'>
+            <div className='d-flex flex-wrap w-full'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Total Bonded</h5>
                     {weiFormatNice(data.validator.delegatedAmount, chain.bondingDecimals)} {chain.bondingDisplayDenom} (#{data.rank})
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Self Bonded</h5>
                     {weiFormatNice(data.validator.selfBondedAmount, chain.bondingDecimals)} {chain.bondingDisplayDenom}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Voting Power</h5>
                     {data.votingPower * 100}%
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Commission Rate</h5>
                     {parseFloat(data.validator.commission.rates[0].rate) * 100}%
                 </Card>
             </div>
-            {/* <div className='d-flex flex-wrap gap-2'>
-                <div className='col col-12 col-md-6'>
-                    <Card>
-                        TODO
-                    </Card>
-                </div>
-                <div className='col'>
-                    <Card>
-                        TODO
-                    </Card>
-                </div>
-            </div> */}
         </div>
     )
 }

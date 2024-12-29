@@ -33,31 +33,31 @@ const OverviewPage: FC = () => {
     const supply = weiFormatNice(data.metrics.supply.amount, data.metrics.supply.denomDecimals)
     const inflation = data.metrics.inflationRate * 100
     return (
-        <div className='d-flex flex-column gap-2 mx-4'>
+        <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title='Overview' />
-            <div className='d-flex gap-2 w-full'>
-                <Card className='col'>
+            <div className='d-flex w-full flex-wrap'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Block Height</h5>
                     {data.metrics.height.toLocaleString() || '...'}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Daily Transactions</h5>
                     {data.metrics.dailyTransactions?.toLocaleString?.() || '...'}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Total Supply</h5>
                     {supply || '...'} {chain.bondingDisplayDenom}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Inflation</h5>
                     {inflation?.toFixed(2) || '...'}%
                 </Card>
             </div>
-            <div className='d-flex flex-wrap gap-2'>
-                <div className='col'>
+            <div className='d-flex flex-wrap'>
+                <div className='col col-12 col-lg-6'>
                     <ValidatorsCard validators={data.topValidators} activeValidators={data.metrics.activeValidators} chain={chain} title='Top Validators' />
                 </div>
-                <div className='col col-12 col-md-6'>
+                <div className='col col-12 col-lg-6'>
                     <ProposalsCard proposals={data.recentProposals} totalProposals={data.metrics.totalProposals} chain={chain} />
                 </div>
             </div>

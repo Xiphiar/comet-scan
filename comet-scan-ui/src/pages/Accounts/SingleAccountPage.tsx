@@ -32,9 +32,9 @@ const SingleAccountPage: FC = () => {
     }
  
     return (
-        <div className='d-flex flex-column gap-2 mx-4'>
+        <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title={title} />
-            <div className='d-flex flex-wrap gap-2'>
+            <div className='d-flex flex-wrap'>
                 <Card className="col">
                     <h3>Overview</h3>
                     <div style={{borderBottom: '1px solid var(--light-gray)', paddingTop: '8px'}} />

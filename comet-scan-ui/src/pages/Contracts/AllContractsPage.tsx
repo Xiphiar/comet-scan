@@ -30,18 +30,18 @@ const AllContractsPage: FC = () => {
     }
 
     return (
-        <div className='d-flex flex-column gap-2 mx-4'>
+        <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title={title} />
-            <div className='d-flex gap-2 w-full'>
-                <Card className='col'>
+            <div className='d-flex w-full flex-wrap'>
+                <Card className='col col-12 col-sm-4'>
                     <h5>Total Contracts</h5>
                     {data.totalContracts.toLocaleString()}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-12 col-sm-4'>
                     <h5>Total Executions</h5>
                     {data.totalExecutions.toLocaleString()}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-12 col-sm-4'>
                     <h5>Daily Executions</h5>
                     {data.dailyExecutions.toLocaleString()}
                 </Card>
@@ -50,39 +50,35 @@ const AllContractsPage: FC = () => {
                     {data.}
                 </Card> */}
             </div>
-            <div className='d-flex flex-wrap gap-2'>
-                <div className='col'>
-                    <Card>
-                        <h3>Top Contracts</h3>
-                        {!!data.contracts.length &&
-                            <div className='d-flex mt-4 mb-1'>
-                                <div className='col col-5 col-md-4'>
-                                    Label
-                                </div>
-                                <div className='col col-5 col-md-3'>
-                                    Address
-                                </div>
-                                <div className='col col-2 col-md-1'>
-                                    Code ID
-                                </div>
-                                <div className='col col-2 d-none d-md-block'>
-                                    Created
-                                </div>
-                                <div className='col col-2 d-none d-md-block'>
-                                    Executions
-                                </div>
-                            </div>
-                        }
-                        {data.contracts.map((contract) =><>
-                            <div style={{borderBottom: '1px solid var(--light-gray)'}} />
-                            <ContractRow contract={contract} chain={chain} />
-                        </>)}
-                        {!data.contracts.length && <div className='py-4 w-full text-center'>
-                            No contracts found.
-                        </div>}
-                    </Card>
-                </div>
-            </div>
+            <Card className='col'>
+                <h3>Top Contracts</h3>
+                {!!data.contracts.length &&
+                    <div className='d-flex mt-4 mb-1'>
+                        <div className='col col-5 col-md-4'>
+                            Label
+                        </div>
+                        <div className='col col-5 col-md-3'>
+                            Address
+                        </div>
+                        <div className='col col-2 col-md-1'>
+                            Code ID
+                        </div>
+                        <div className='col col-2 d-none d-md-block'>
+                            Created
+                        </div>
+                        <div className='col col-2 d-none d-md-block'>
+                            Executions
+                        </div>
+                    </div>
+                }
+                {data.contracts.map((contract) =><>
+                    <div style={{borderBottom: '1px solid var(--light-gray)'}} />
+                    <ContractRow contract={contract} chain={chain} />
+                </>)}
+                {!data.contracts.length && <div className='py-4 w-full text-center'>
+                    No contracts found.
+                </div>}
+            </Card>
         </div>
     )
 }

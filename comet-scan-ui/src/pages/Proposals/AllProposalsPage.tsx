@@ -29,9 +29,9 @@ const AllProposalsPage: FC = () => {
     }
 
     return (
-        <div className='d-flex flex-column gap-2 mx-4'>
+        <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title={title} />
-            {/* <div className='d-flex gap-2 w-full'>
+            {/* <div className='d-flex w-full'>
                 <Card className='col'>
                     <h5>Time</h5>
                     {new Date(data.proposal.timestamp).toLocaleString()}
@@ -49,39 +49,35 @@ const AllProposalsPage: FC = () => {
                     {weiFormatNice(data.proposal.totalFees.find(f => f.denom === chain.bondingDenom)?.amount || '0', chain.bondingDecimals)} {chain.bondingDisplayDenom}
                 </Card>
             </div> */}
-            <div className='d-flex flex-wrap gap-2'>
-                <div className='col'>
-                    <Card>
-                        <h3>All Proposals</h3>
-                        {!!data.proposals.length &&
-                            <div className='d-flex mt-4 mb-1'>
-                                <div className='col col-1'>
-                                    ID
-                                </div>
-                                <div className='col flex-grow-1'>
-                                    Title
-                                </div>
-                                <div className='col col-2'>
-                                    Type
-                                </div>
-                                <div className='col col-1'>
-                                    Status
-                                </div>
-                                <div className='col col-2 text-end'>
-                                    Ends
-                                </div>
-                            </div>
-                        }
-                        {data.proposals.map((tx) =><>
-                            <div style={{borderBottom: '1px solid var(--light-gray)'}} />
-                            <ProposalRow proposal={tx} chain={chain} />
-                        </>)}
-                        {!data.proposals.length && <div className='py-4 w-full text-center'>
-                            No proposals found.
-                        </div>}
-                    </Card>
-                </div>
-            </div>
+            <Card className='col'>
+                <h3>All Proposals</h3>
+                {!!data.proposals.length &&
+                    <div className='d-flex mt-4 mb-1'>
+                        <div className='col col-1'>
+                            ID
+                        </div>
+                        <div className='col flex-grow-1'>
+                            Title
+                        </div>
+                        <div className='col col-2'>
+                            Type
+                        </div>
+                        <div className='col col-1'>
+                            Status
+                        </div>
+                        <div className='col col-2 text-end'>
+                            Ends
+                        </div>
+                    </div>
+                }
+                {data.proposals.map((tx) =><>
+                    <div style={{borderBottom: '1px solid var(--light-gray)'}} />
+                    <ProposalRow proposal={tx} chain={chain} />
+                </>)}
+                {!data.proposals.length && <div className='py-4 w-full text-center'>
+                    No proposals found.
+                </div>}
+            </Card>
         </div>
     )
 }

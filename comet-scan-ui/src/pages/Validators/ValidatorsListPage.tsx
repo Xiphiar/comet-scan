@@ -31,22 +31,22 @@ const ValidatorsListPage: FC = () => {
     console.log('data.stakingMetrics', data.stakingMetrics)
  
     return (
-        <div className='d-flex flex-column gap-2 mx-4'>
+        <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title='Validators' />
-            <div className='d-flex gap-2 w-full'>
-                <Card className='col'>
+            <div className='d-flex flex-wrap w-full'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Active Validators</h5>
                     {data.stakingMetrics.activeValidators}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Staking APR</h5>
                     {(data.stakingMetrics.nominalApr * 100).toFixed(2)}%
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Bond Rate</h5>
                     {(data.stakingMetrics.bondRate * 100).toFixed(2)}%
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3'>
                     <h5>Unbonding Time</h5>
                     {secondsToDhms(data.stakingMetrics.unbondingPeriodSeconds)}
                 </Card>
@@ -58,7 +58,6 @@ const ValidatorsListPage: FC = () => {
                 title='Active Validators'
                 className='d-flex flex-column gap-2'
             />
-            <div></div>
         </div>
     )
 }

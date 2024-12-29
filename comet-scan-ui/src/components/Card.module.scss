@@ -6,4 +6,8 @@
     border-width: .5px .5px .5px .5px;
     border-color: #ededed;
     background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
 }

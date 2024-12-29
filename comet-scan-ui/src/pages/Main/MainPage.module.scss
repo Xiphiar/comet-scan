@@ -1,6 +1,9 @@
 .chainCard {
     transition: background-color 0.2s ease;
-    color: var(--very-dark-gray)
+    color: var(--very-dark-gray);
+    display: flex;
+    align-items: center;
+    text-align: center;
 }
 
 .chainCard:hover {

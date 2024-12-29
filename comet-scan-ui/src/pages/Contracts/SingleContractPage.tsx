@@ -29,7 +29,7 @@ const SingleContractPage: FC = () => {
     }
  
     return (
-        <div className='d-flex flex-column gap-2 mx-4'>
+        <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title={title} />
             <Card>
                 <h3>Overview</h3>

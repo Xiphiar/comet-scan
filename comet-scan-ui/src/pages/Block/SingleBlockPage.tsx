@@ -31,22 +31,22 @@ const SingleBlockPage: FC = () => {
 
     const proposerDetails = data.proposer?.descriptions.length ? data.proposer.descriptions[0] : undefined;
     return (
-        <div className='d-flex flex-column gap-2 mx-4'>
+        <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title={`Block ${blockHeight}`} />
-            <div className='d-flex gap-2 w-full'>
-                <Card className='col'>
+            <div className='d-flex flex-wrap w-full'>
+                <Card className='col col-6 col-md-3 flex-grow-1'>
                     <h5>Time</h5>
                     {new Date(data.block.timestamp).toLocaleString()}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3 flex-grow-1'>
                     <h5>Transactions</h5>
                     {data.transactions.length}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3 flex-grow-1'>
                     <h5>Gas Used</h5>
                     {data.block.totalGasUsed.toLocaleString()}
                 </Card>
-                <Card className='col'>
+                <Card className='col col-6 col-md-3 flex-grow-1'>
                     <h5>Total Fee</h5>
                     {weiFormatNice(data.block.totalFees.find(f => f.denom === chain.bondingDenom)?.amount || '0', chain.bondingDecimals)} {chain.bondingDisplayDenom}
                 </Card>
@@ -96,36 +96,32 @@ const SingleBlockPage: FC = () => {
                     </div>
                 </div>
             </Card>
-            <div className='d-flex flex-wrap gap-2'>
-                <div className='col'>
-                    <Card>
-                        <h3>Transactions</h3>
-                        {!!data.transactions.length &&
-                            <div className='d-flex mt-4 mb-1'>
-                                <div className='col col-2'>
-                                    Hash
-                                </div>
-                                <div className='col col-6'>
-                                    Type
-                                </div>
-                                <div className='col col-2'>
-                                    Amount
-                                </div>
-                                <div className='col col-2'>
-                                    Fee
-                                </div>
-                            </div>
-                        }
-                        {data.transactions.map((tx) =><>
-                            <div style={{borderBottom: '1px solid var(--light-gray)'}} />
-                            <TransactionRow transaction={tx} chain={chain} />
-                        </>)}
-                        {!data.transactions.length && <div className='py-4 w-full text-center'>
-                            No transactions found.
-                        </div>}
-                    </Card>
-                </div>
-            </div>
+            <Card>
+                <h3>Transactions</h3>
+                {!!data.transactions.length &&
+                    <div className='d-flex mt-4 mb-1'>
+                        <div className='col col-2'>
+                            Hash
+                        </div>
+                        <div className='col col-6'>
+                            Type
+                        </div>
+                        <div className='col col-2'>
+                            Amount
+                        </div>
+                        <div className='col col-2'>
+                            Fee
+                        </div>
+                    </div>
+                }
+                {data.transactions.map((tx) =><>
+                    <div style={{borderBottom: '1px solid var(--light-gray)'}} />
+                    <TransactionRow transaction={tx} chain={chain} />
+                </>)}
+                {!data.transactions.length && <div className='py-4 w-full text-center'>
+                    No transactions found.
+                </div>}
+            </Card>
         </div>
     )
 }

@@ -30,14 +30,14 @@ const ValidatorsCard: FC<Props> = ({ validators, activeValidators, chain, classN
     }
     return (
         <Card className={`${className}`}>
-            <div className='mb-2'>
+            <div>
                 <h3>{title}</h3>
                 <div style={{fontSize: '75%', color: 'var(--gray)', marginBottom: '8px'}}>{activeValidators || '...'} Active Validators</div>
                 <div className='d-flex mt-1 mb-1'>
                     <div className='col col-8 col-md-7'>
                         Validator
                     </div>
-                    <div className='col col-2 col-md-2 d-none d-md-block'>
+                    <div className='col col-2 col-md-2 text-end d-none d-md-block'>
                         Commission
                     </div>
                     <div className='col col-4 col-md-3 align-items-end text-end'>
@@ -66,17 +66,17 @@ const ValidatorCard: FC<{ position: number, validator: Validator, chain: Fronten
             to={`/${chain.id}/validators/${validator.operatorAddress}`}
             className={`${styles.valRow}`}
         >
-            <div className='col  col-8 col-md-7 d-flex gap-2'>
+            <div className='col col-8 col-md-7 d-flex gap-2'>
                 <h5>#{position + 1}</h5>
                 <KeybaseAvatar identity={validator.descriptions[0]?.identity} moniker={validator.descriptions[0]?.moniker} />
                 <div>{validator.descriptions.length ? validator.descriptions[0].moniker : validator.operatorAddress}</div>
             </div>
-            <div className='col  col-2 col-md-2 d-none d-md-flex'>
-                <div>{commissionPercent.toFixed()}%</div>
+            <div className='col col-2 col-md-2 align-items-end text-end d-none d-md-block'>
+                {commissionPercent.toLocaleString(undefined, { maximumFractionDigits: 2})}%
             </div>
             <div className='col col-4 col-md-3 align-items-end text-end d-flex flex-column'>
                 <div>{weiFormatNice(validator.delegatedAmount, chain.bondingDecimals)} {chain.bondingDisplayDenom}</div>
-                <div>{(vpPercent * 100).toFixed()}%</div>
+                <div>{(vpPercent * 100).toLocaleString(undefined, {maximumFractionDigits: 2})}%</div>
             </div>
         </Link>
     )

@@ -31,24 +31,6 @@ const AllProposalsPage: FC = () => {
     return (
         <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title={title} />
-            {/* <div className='d-flex w-full'>
-                <Card className='col'>
-                    <h5>Time</h5>
-                    {new Date(data.proposal.timestamp).toLocaleString()}
-                </Card>
-                <Card className='col'>
-                    <h5>Proposals</h5>
-                    {data.proposals.length}
-                </Card>
-                <Card className='col'>
-                    <h5>Gas Used</h5>
-                    {data.proposal.totalGasUsed.toLocaleString()}
-                </Card>
-                <Card className='col'>
-                    <h5>Total Fee</h5>
-                    {weiFormatNice(data.proposal.totalFees.find(f => f.denom === chain.bondingDenom)?.amount || '0', chain.bondingDecimals)} {chain.bondingDisplayDenom}
-                </Card>
-            </div> */}
             <Card className='col'>
                 <h3>All Proposals</h3>
                 {!!data.proposals.length &&
@@ -56,16 +38,16 @@ const AllProposalsPage: FC = () => {
                         <div className='col col-1'>
                             ID
                         </div>
-                        <div className='col flex-grow-1'>
+                        <div className='col-5 col-md-7 flex-grow-1'>
                             Title
                         </div>
                         <div className='col col-2'>
                             Type
                         </div>
-                        <div className='col col-1'>
+                        <div className='col col-2'>
                             Status
                         </div>
-                        <div className='col col-2 text-end'>
+                        <div className='col col-2 d-none d-sm-block text-end'>
                             Ends
                         </div>
                     </div>

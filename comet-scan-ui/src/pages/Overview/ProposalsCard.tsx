@@ -21,9 +21,27 @@ const ProposalsCard: FC<{ chain: FrontendChainConfig, proposals: Proposal[], tot
     }
     return (
         <Card className={`${className}`}>
-            <div className='mb-2'>
+            <div>
                 <h3>Recent Proposals</h3>
                 <div style={{fontSize: '75%', color: 'var(--gray)', marginBottom: '8px'}}>{totalProposals || '...'} Total Proposals</div>
+                <div className='d-flex mt-1 mb-1'>
+                    <div className='col col-1'>
+                        ID
+                    </div>
+                    <div className='col col-7 col-sm-5'>
+                        Title
+                    </div>
+                    <div className='col col-2 col-sm-2'>
+                        Type
+                    </div>
+                    <div className='col col-2 col-sm-2'>
+                        Status
+                    </div>
+                    <div className='col col-2 d-none d-sm-block text-end'>
+                        Ends
+                    </div>
+                </div>
+                <div style={{borderBottom: '1px solid var(--light-gray)'}} />
             </div>
             { proposals.map((prop, i) =>
                 <Fragment key={prop.id}>
@@ -49,10 +67,10 @@ export const ProposalRow: FC<{ chain: FrontendChainConfig, proposal: Proposal }>
             <div className='col col-1'>
                 <h5>#{proposal.id}</h5>
             </div>
-            <div className='col'>{proposal.title}</div>
+            <div className='col col-7 col-sm-5'>{proposal.title}</div>
             <div className='col col-2'>{formatProposalType(proposal.proposalType)}</div>
-            <div className='col col-1'>{formatProposalStatus(proposal.status)}</div>
-            <div className='col col-2 align-items-end'>
+            <div className='col col-2'>{formatProposalStatus(proposal.status)}</div>
+            <div className='col col-2 d-none d-sm-flex text-end align-items-end'>
                 <div style={{fontWeight: 700}}>{endTime.toLocaleDateString()}</div><br />
                 {endTime.toLocaleTimeString()}
             </div>

@@ -5,8 +5,8 @@ const parseError = (error: any): string | undefined => {
 
     if (axios.isAxiosError(error)) {
 
-      if (error.code === 'ETIMEDOUT') return 'BonusBlock API connection timed out.'
-      if (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') return 'BonusBlock API connection failed.'
+      if (error.code === 'ETIMEDOUT') return 'API connection timed out.'
+      if (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') return 'API connection failed.'
       
       if (error.response) {
         // The request was made and the server responded with a status code

@@ -5,6 +5,7 @@ import Blocks from "../models/blocks";
 import Proposals from "../models/proposals";
 import Transactions from "../models/transactions";
 import Validators from "../models/validators";
+import { Cache } from "./cache";
 
 export const getLatestBlock = async (chainId: string): Promise<Block | null> => {
     const block = await Blocks.findOne({ chainId }, { _id: false, __v: false }).sort('-height').lean();
@@ -35,9 +36,15 @@ export const getActiveValidatorsCount = async (chainId: string): Promise<number>
 export const minuteMs = 60 * 1000;
 export const hourMs = minuteMs * 60;
 export const dayMs = hourMs * 24;
-export const get24hTransactionsCount = async (chainId: string) => {
+export const get24hTransactionsCount = async (chainId: string): Promise<number> => {
+    const cacheKey = `24h-txs-count-${chainId}`;
+    const cached = Cache.get<number>(cacheKey);
+    if (cached) return cached;
+
     const oneDayAgo = new Date(new Date().valueOf() - dayMs);
-    return await Transactions.countDocuments({ chainId, timestamp: { $gte: oneDayAgo }})
+    const result = await Transactions.countDocuments({ chainId, timestamp: { $gte: oneDayAgo }})
+    Cache.set<number>(cacheKey, result, 3600);
+    return result;
 }
 
 export const get24hBlocksCount = async (chainId: string) => {

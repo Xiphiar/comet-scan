@@ -20,7 +20,7 @@ export const getTotalSupply = async (chainId: string): Promise<Amount> => {
             denom: chainConfig.bondingDenom,
             denomDecimals: chainConfig.bondingDecimals,
         }
-        Cache.set(`${chainId}-total-supply`, data);
+        Cache.set(`${chainId}-total-supply`, data, 300);
         return data;
     } else {
         const client = await getSecretWasmClient(chainConfig.chainId);
@@ -30,7 +30,7 @@ export const getTotalSupply = async (chainId: string): Promise<Amount> => {
             denom: chainConfig.bondingDenom,
             denomDecimals: chainConfig.bondingDecimals,
         }
-        Cache.set(`${chainId}-total-supply`, data);
+        Cache.set(`${chainId}-total-supply`, data, 300);
         return data;
     }
 
@@ -56,7 +56,7 @@ export const getTotalBonded = async (chainId: string): Promise<Amount> => {
         denomDecimals: chainConfig.bondingDecimals,
     }
     
-    Cache.set(`${chainId}-total-bonded`, data);
+    Cache.set(`${chainId}-total-bonded`, data, 300);
     return data;
 }
 
@@ -72,7 +72,7 @@ export const getInflation = async (chainId: string): Promise<number> => {
     const response = await client.query.mint.inflation({}) as unknown as { inflation: string };
 
     const data = parseFloat(response.inflation || '0');
-    Cache.set(`${chainId}-inflation`, data, 600);
+    Cache.set(`${chainId}-inflation`, data, 3600);
     return data;
 }
 

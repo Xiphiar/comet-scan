@@ -88,7 +88,7 @@ export const importAccountsForBlock = async (chainId: string, blockHeight: numbe
     }
 }
 
-export const importAccount = async (chainId: string, address: string, tx?: Transaction): Promise<Account | undefined> => {
+export const importAccount = async (chainId: string, address: string, tx?: Transaction): Promise<Account | null> => {
     const config = getChainConfig(chainId);
     try {
         const existingAccount = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
@@ -160,6 +160,7 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
         }
     } catch (err: any) {
         console.error(`Failed to import account ${address} on ${chainId}:`, err)
+        return null;
     }
 }
 

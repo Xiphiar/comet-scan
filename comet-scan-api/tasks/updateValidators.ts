@@ -85,7 +85,7 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
                 }
             }
 
-            await Validators.findByIdAndUpdate(existingValidator._id, update)
+            await Validators.findByIdAndUpdate(existingValidator._id, { $set: update })
         } else {
             const newVal: Validator = {
                 chainId: chain.chainId,

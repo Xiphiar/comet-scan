@@ -109,7 +109,7 @@ const updateSecretWasmContracts = async (config: ChainConfig) => {
                     }
                 }
 
-                await Contracts.findByIdAndUpdate(existingContract._id, update);
+                await Contracts.findByIdAndUpdate(existingContract._id, { $set: update });
             } else {
                 /////////////////////////
                 // Insert new contract //

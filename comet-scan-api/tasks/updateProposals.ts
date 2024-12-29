@@ -72,7 +72,7 @@ export const updateProposalsForChain_v1beta1 = async (chain: ChainConfig) => {
             }
         }
 
-        await Proposals.findOneAndUpdate({ chainId: chain.chainId, id: prop.proposal_id }, newProp, { upsert: true })
+        await Proposals.findOneAndUpdate({ chainId: chain.chainId, id: prop.proposal_id }, {$set: newProp}, { upsert: true })
     }
 }
 
@@ -123,7 +123,7 @@ export const updateProposalsForChain_v1 = async (chain: ChainConfig) => {
             }
         }
 
-        await Proposals.findOneAndUpdate({ chainId: chain.chainId, id: prop.id }, newProp, { upsert: true })
+        await Proposals.findOneAndUpdate({ chainId: chain.chainId, id: prop.id }, {$set: newProp}, { upsert: true })
     }
 }
 

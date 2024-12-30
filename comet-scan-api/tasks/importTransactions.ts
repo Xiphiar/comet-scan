@@ -4,7 +4,7 @@ import Blocks from "../models/blocks";
 import KvStore, { KV } from "../models/kv"
 import { getChainConfig } from "../config/chains";
 import axios from "axios";
-import { LcdTxSearchResponse } from "../interfaces/lcdTxResponse";
+import { LcdTxSearchResponse, LcdTxSearchResult, LcdTxSearchTx } from "../interfaces/lcdTxResponse";
 import Transactions from "../models/transactions";
 import { Block } from "../interfaces/models/blocks.interface";
 import { processBlock } from "./importBlocks";
@@ -35,14 +35,16 @@ const importTransactions = async (chainId: string) => {
             document = await KvStore.create({ chainId, key, value: highestProcessed.toString() });
         }
 
+        console.log(`Need to import transactions for ${highestBlockInDb.height - highestProcessed} blocks on ${chainId}`)
+
         while (highestProcessed < highestBlockInDb.height) {
             await importTransactionsForBlock(chainId, highestProcessed + 1);
             highestProcessed++
             await KvStore.findByIdAndUpdate(document?._id, { value: highestProcessed.toString() })
         }
         console.log(`Done importing transactions on ${chainId}!`)
-    } catch (err) {
-        console.error(`Failed to import transactions on ${chainId}:`, err)
+    } catch (err: any) {
+        console.error(`Failed to import transactions on ${chainId}:`, err.toString())
     }
 }
 
@@ -61,13 +63,27 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
     if (!block.transactionsCount) return;
 
     // const txs = await client.query.txsQuery(`tx.height=${blockHeight}`);
-    const {data: txs} = await axios.get<LcdTxSearchResponse>(`${config.lcd}/cosmos/tx/v1beta1/txs?${config.govVersion === 'v1beta1' ? 'events' : 'query'}=tx.height%3D${blockHeight}`);
-    if (txs.txs.length !== block.transactionsCount) throw `Block ${blockHeight} on ${chainId} has ${block.transactionsCount} transactions but ${txs.txs.length} were returned by LCD.`
+    const allTxs: LcdTxSearchTx[] = [];
+    const allResults: LcdTxSearchResult[] = [];
+    const url = `${config.lcd}/cosmos/tx/v1beta1/txs?${config.govVersion === 'v1beta1' ? 'events' : 'query'}=tx.height%3D${blockHeight}&pagination.limit%3D100`;
+    let pageUrl = url;
+    while (true) {
+        const {data} = await axios.get<LcdTxSearchResponse>(pageUrl);
+        if (data.txs.length !== data.tx_responses.length) {
+            throw `Block ${blockHeight} on ${chainId} has ${data.txs.length} txs but ${data.tx_responses.length} tx_results were returned by LCD.`
+        }
+        allTxs.push(...data.txs);
+        allResults.push(...data.tx_responses);
+        if (data.txs.length < 100) break;
+        pageUrl = `${url}&pagination.offset=${allTxs.length}`
+    }
+    
+    if (allTxs.length !== block.transactionsCount) throw `Block ${blockHeight} on ${chainId} has ${block.transactionsCount} transactions but ${allTxs.length} were returned by LCD.`
 
 
-    for (const index in txs.txs) {
-        const tx = txs.txs[index];
-        const txResponse = txs.tx_responses[index];
+    for (const index in allTxs) {
+        const tx = allTxs[index];
+        const txResponse = allResults[index];
 
         // Generate list of signer addresses
         const signers: string[] = [];

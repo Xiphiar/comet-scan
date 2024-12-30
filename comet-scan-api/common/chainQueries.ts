@@ -171,19 +171,26 @@ export interface DenomTraceResponse {
 }
 
 export const getDenomTrace = async (chainId: string, denomHash: string): Promise<string> => {
-    const key = `${chainId}-denom-trace-${denomHash}`;
+    try {
+        const key = `${chainId}-denom-trace-${denomHash}`;
 
-    const chainConfig = Chains.find(c => c.chainId === chainId);
-    if (!chainConfig) throw `Chain ${chainId} not found in config.`
+        const chainConfig = Chains.find(c => c.chainId === chainId);
+        if (!chainConfig) throw `Chain ${chainId} not found in config.`
 
-    const cached = Cache.get<string>(key);
-    if (cached) return cached;
+        const cached = Cache.get<string>(key);
+        if (cached) return cached;
 
-    const {data} = await axios.get<DenomTraceResponse>(`${chainConfig.lcd}/ibc/apps/transfer/v1/denom_traces/${denomHash}`)
-    const denom = data.denom_trace.base_denom;
-    
-    Cache.set(key, denom);
-    return denom;
+        const cleanHash = denomHash.replace('ibc/', '');
+        const url = `${chainConfig.lcd}/ibc/${chainConfig.ibcVersion === 'v1' ? 'apps' : 'applications'}/transfer/${chainConfig.ibcVersion}/denom_traces/${cleanHash}`;
+        const {data} = await axios.get<DenomTraceResponse>(url);
+        const denom = data.denom_trace.base_denom;
+        
+        Cache.set(key, denom);
+        return denom;
+    } catch (err: any) {
+        console.error(`Failed to get Denom Trace on ${chainId}:`, err.toString());
+        throw err;
+    }
 }
 
 export const getSecretTokenInfo = async (chainId: string, contract_address: string, code_hash?: string): Promise<TokenInfoResponse> => {

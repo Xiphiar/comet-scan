@@ -11,6 +11,7 @@ const SecretNetwork: ChainConfig = {
     logoFile: 'secret.png',
     prefix: 'secret',
     govVersion: 'v1beta1',
+    ibcVersion: 'v1',
     sdkVersion: 'pre-50',
     rpc: 'https://secret-4.api.trivium.network:26657',
     lcd: 'https://secret-4.api.trivium.network:1317',
@@ -28,6 +29,7 @@ const SecretNetworkPulsar3: ChainConfig = {
     logoFile: 'secret.png',
     prefix: 'secret',
     govVersion: 'v1',
+    ibcVersion: 'v1',
     sdkVersion: '50',
     rpc: 'https://pulsar-3.api.trivium.network:26657',
     lcd: 'https://pulsar-3.api.trivium.network:1317',
@@ -45,6 +47,7 @@ const Jackal: ChainConfig = {
     logoFile: 'jackal.svg',
     prefix: 'jkl',
     govVersion: 'v1beta1',
+    ibcVersion: 'v1',
     sdkVersion: 'pre-50',
     rpc: 'https://jackal.api.trivium.network:26657',
     lcd: 'https://jackal.api.trivium.network:1317',
@@ -52,10 +55,31 @@ const Jackal: ChainConfig = {
     features: ['cosmwasm']
 }
 
+const Sentinel: ChainConfig = {
+    id: 'sentinel',
+    chainId: 'sentinelhub-2',
+    name: 'Sentinel',
+    bondingDenom: 'udvpn',
+    bondingDecimals: 6,
+    bondingDisplayDenom: 'DVPN',
+    logoFile: 'sentinel.svg',
+    prefix: 'sent',
+    govVersion: 'v1beta1',
+    ibcVersion: 'v1',
+    sdkVersion: 'pre-50',
+    // rpc: 'http://192.168.1.238:40657',
+    // lcd: 'http://192.168.1.238:40317',
+    rpc: 'https://rpc-sentinel.chainvibes.com:443',
+    lcd: 'https://api.noncompliant.network:443',
+    startHeight: 19_550_000,
+    features: ['cosmwasm']
+}
+
 const Chains: ChainConfig[] = [
     SecretNetwork,
     SecretNetworkPulsar3,
-    Jackal
+    Jackal,
+    Sentinel
 ];
 
 Chains.forEach(chain => {

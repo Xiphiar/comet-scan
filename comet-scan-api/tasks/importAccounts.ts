@@ -2,7 +2,7 @@ import { Transaction } from "../interfaces/models/transactions.interface";
 import Blocks from "../models/blocks";
 import KvStore from "../models/kv"
 import { getChainConfig } from "../config/chains";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Transactions from "../models/transactions";
 import { Block, Coin } from "../interfaces/models/blocks.interface";
 import Accounts from "../models/accounts.model";
@@ -50,7 +50,7 @@ const importAccountsForChain = async (chainId: string) => {
         console.log(`Done importing accounts on ${chainId}!`)
     } catch (err: any) {
         console.error(`Failed to import accounts on ${chainId}:`, err.toString())
-        console.trace(err);
+        // console.trace(err);
     }
 }
 
@@ -127,6 +127,10 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
         } else {
             // otherwise add non-existant accounts
             const {data} = await axios.get<LcdAuthAccount>(`${config.lcd}/cosmos/auth/v1beta1/accounts/${address}`);
+            if (data.account["@type"] !== '/cosmos.auth.v1beta1.BaseAccount' && data.account["@type"] !== '/cosmos.auth.v1beta1.ModuleAccount') {
+                console.log(`Found unknown account type ${data.account["@type"]} on ${chainId}`);
+                return null;
+            }
             const baseAccount: BaseAccountDetails = data.account["@type"] === '/cosmos.auth.v1beta1.ModuleAccount' ? data.account.base_account : data.account;
             const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings, nativeAssets } = await getBalancesForAccount(config, address);
 
@@ -159,7 +163,7 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
             return clean;
         }
     } catch (err: any) {
-        console.error(`Failed to import account ${address} on ${chainId}:`, err)
+        console.error(`Failed to import account ${address} on ${chainId}:`, err.toString())
         return null;
     }
 }

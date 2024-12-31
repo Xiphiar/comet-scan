@@ -16,7 +16,7 @@ import { WasmContract } from "../interfaces/models/contracts.interface";
 import Contracts from "../models/contracts.model";
 import Codes from "../models/codes.model";
 import { addContractStats } from "../common/contracts";
-import { Validator } from "../interfaces/models/validators.interface";
+import { ProposerInfo, Validator } from "../interfaces/models/validators.interface";
 
 export const getOverview = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/overview" },
@@ -99,7 +99,11 @@ export const getBlocksPage = api(
     for (const block of blocks) {
       const proposerHex = block.block.result.block.header.proposer_address;
       // const proposer = await Validators.findOne({ hexAddress: proposerHex }, { _id: false, __v: false}).lean();
-      const proposer = validators.find(v => v.hexAddress === proposerHex) as Validator;
+      const proposerValidator = validators.find(v => v.hexAddress === proposerHex) as Validator;
+      const proposer: ProposerInfo = {
+        operatorAddress: proposerValidator.operatorAddress,
+        latestDescription: proposerValidator.descriptions.length ? proposerValidator.descriptions[0] : undefined,
+      }
       blocksWithProposers.push({ ...block, proposer })
     }
 

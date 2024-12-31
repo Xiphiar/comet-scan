@@ -9,7 +9,7 @@ import { weiFormatNice } from "../../utils/coin";
 import { SingleBlockPageResponse } from "../../interfaces/responses/explorerApiResponses";
 import { getSingleBlockPage } from "../../api/pagesApi";
 import TransactionRow from "../../components/TransactionRow/TransactionRow";
-import KeybaseAvatar from "../../components/Avatar/KeybaseAvatar";
+import ValidatorAvatar from "../../components/Avatar/KeybaseAvatar";
 
 const SingleBlockPage: FC = () => {
     const { chain: chainLookupId, blockHeight } = useParams();
@@ -83,12 +83,12 @@ const SingleBlockPage: FC = () => {
                         <div className='col-3 font-weight-bold'>Proposer</div>
                         <div className='col d-flex gap-2 align-items-center'>
                             { data.proposer ? <Link to={`/${chainLookupId}/validators/${data.proposer.operatorAddress}`} className='d-flex gap-2 align-items-center'>
-                                <KeybaseAvatar identity={proposerDetails?.identity} moniker={proposerDetails?.moniker} />
+                                <ValidatorAvatar avatarUrl={proposerDetails?.keybaseAvatarUrl} moniker={proposerDetails?.moniker} />
                                 {proposerDetails?.moniker || data.proposer?.operatorAddress || data.block.block.result.block.header.proposer_address}
                             </Link>
                             :
                             <>
-                                <KeybaseAvatar identity={proposerDetails?.identity} moniker={proposerDetails?.moniker} />
+                                <ValidatorAvatar avatarUrl={proposerDetails?.keybaseAvatarUrl} moniker={proposerDetails?.moniker} />
                                 {proposerDetails?.moniker || data.proposer?.operatorAddress || data.block.block.result.block.header.proposer_address}
                             </>}
 

@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { weiFormatNice } from "../../utils/coin";
 import { Validator } from "../../interfaces/models/validators.interface";
-import KeybaseAvatar from "../../components/Avatar/KeybaseAvatar";
+import ValidatorAvatar from "../../components/Avatar/KeybaseAvatar";
 
 interface Props {
     validators: Validator[];
@@ -68,7 +68,7 @@ const ValidatorCard: FC<{ position: number, validator: Validator, chain: Fronten
         >
             <div className='col col-8 col-md-7 d-flex gap-2'>
                 <h5>#{position + 1}</h5>
-                <KeybaseAvatar identity={validator.descriptions[0]?.identity} moniker={validator.descriptions[0]?.moniker} />
+                <ValidatorAvatar avatarUrl={validator.descriptions[0]?.keybaseAvatarUrl} moniker={validator.descriptions[0]?.moniker} />
                 <div>{validator.descriptions.length ? validator.descriptions[0].moniker : validator.operatorAddress}</div>
             </div>
             <div className='col col-2 col-md-2 align-items-end text-end d-none d-md-block'>

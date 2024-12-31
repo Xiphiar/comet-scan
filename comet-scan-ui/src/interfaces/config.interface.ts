@@ -10,6 +10,7 @@ export interface FrontendChainConfig {
     logoFile?: string;
     prefix: string;
     govVersion: 'v1' | 'v1beta1',
+    ibcVersion: 'v1' | 'v1beta1',
     sdkVersion: 'pre-50' | '50',
     features: ChainFeature[],
 }

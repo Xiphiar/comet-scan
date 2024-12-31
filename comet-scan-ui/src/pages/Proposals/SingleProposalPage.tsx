@@ -7,7 +7,7 @@ import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import { SingleProposalPageResponse } from "../../interfaces/responses/explorerApiResponses";
 import { getSingleProposalPage } from "../../api/pagesApi";
-import KeybaseAvatar from "../../components/Avatar/KeybaseAvatar";
+import ValidatorAvatar from "../../components/Avatar/KeybaseAvatar";
 import { formatProposalStatus } from "../../utils/format";
 
 const SingleProposalPage: FC = () => {
@@ -92,7 +92,7 @@ const SingleProposalPage: FC = () => {
                         <div className='col d-flex gap-2 align-items-center'>
                             { data.proposingValidator ?
                                 <Link to={`/${chainLookupId}/validators/${data.proposingValidator.operatorAddress}`} className='d-flex gap-2 align-items-center'>
-                                    <KeybaseAvatar identity={proposerDetails?.identity} moniker={proposerDetails?.moniker} />
+                                    <ValidatorAvatar avatarUrl={proposerDetails?.keybaseAvatarUrl} moniker={proposerDetails?.moniker} />
                                     {proposerDetails?.moniker || data.proposingValidator?.operatorAddress}
                                 </Link>
                             : data.proposal.proposer ?

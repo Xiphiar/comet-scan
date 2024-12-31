@@ -10,6 +10,7 @@ import { sha256 } from "@noble/hashes/sha256";
 import { consensusPubkeyToHexAddress } from "../common/addresses";
 import { ChainConfig } from "../interfaces/config.interface";
 import { importAccount } from "./importAccounts";
+import { getKeybaseAvatar } from "../common/keybase";
 
 export const updateValidatorsForChain = async (chain: ChainConfig) => {
     console.log(`Updating validators on ${chain.chainId}`)
@@ -47,39 +48,52 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
                 status: validator.status as any || 'BOND_STATUS_UNBONDED',
             };
 
-            // TODO check if commission is new and add a document instead of replacing
-            if (validator.commission) {
-                update = {
-                    ...update,
-                    commission: {
-                        max_change_rate: validator.commission?.commission_rates?.max_change_rate || '0',
-                        max_rate: validator.commission?.commission_rates?.max_rate || '0',
-                        rates: [{
-                            rate: validator.commission?.commission_rates?.rate || '0',
-                            updateTime: new Date(validator.commission.update_time as string || 0),
-                        }],
+            if (validator.commission?.commission_rates?.rate) {
+                const sortedExistingCommissions = existingValidator.commission.rates.sort((a, b) => b.updateTime.valueOf() - a.updateTime.valueOf());
+                const newestExistingCommission = sortedExistingCommissions[0];
+
+                if (newestExistingCommission.rate !== validator.commission.commission_rates.rate)
+                    update = {
+                        ...update,
+                        commission: {
+                            max_change_rate: validator.commission?.commission_rates?.max_change_rate || '0',
+                            max_rate: validator.commission?.commission_rates?.max_rate || '0',
+                            rates: [
+                                {
+                                    rate: validator.commission?.commission_rates?.rate || '0',
+                                    updateTime: new Date(validator.commission.update_time as string || 0),
+                                },
+                                ...sortedExistingCommissions,
+                            ],
+                        }
                     }
-                }
             }
 
             if (validator.description) {
-                const sortedDescriptions = existingValidator.descriptions.sort((a, b) => b.updateTime.valueOf() - a.updateTime.valueOf());
-                const newestDescription = sortedDescriptions[0];
+                const sortedExistingDescriptions = existingValidator.descriptions.sort((a, b) => b.updateTime.valueOf() - a.updateTime.valueOf());
+                const newestExistingDescription = sortedExistingDescriptions[0];
+                let keybaseAvatarUrl = newestExistingDescription.keybaseAvatarUrl;
+
+                if (validator.description.identity !== newestExistingDescription.identity) {
+                    console.log('Refreshing keybase avatar', validator.description.moniker)
+                    keybaseAvatarUrl = await getKeybaseAvatar(validator.description.identity);
+                }
                 if (
-                    validator.description.details !== newestDescription.details
-                    || validator.description.identity !== newestDescription.identity
-                    || validator.description.moniker !== newestDescription.moniker
-                    || validator.description.security_contact !== newestDescription.security_contact
-                    || validator.description.website !== newestDescription.website
+                    validator.description.details !== newestExistingDescription.details
+                    || validator.description.identity !== newestExistingDescription.identity
+                    || validator.description.moniker !== newestExistingDescription.moniker
+                    || validator.description.security_contact !== newestExistingDescription.security_contact
+                    || validator.description.website !== newestExistingDescription.website
                 ) {
                     update = {
                         ...update,
                         descriptions: [
                             {
                                 ...validator.description,
+                                keybaseAvatarUrl,
                                 updateTime: new Date(),
                             },
-                            ...sortedDescriptions,
+                            ...sortedExistingDescriptions,
                         ]
                     }
                 }
@@ -87,6 +101,7 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
 
             await Validators.findByIdAndUpdate(existingValidator._id, { $set: update })
         } else {
+            const keybaseAvatarUrl = await getKeybaseAvatar(validator.description?.identity);
             const newVal: Validator = {
                 chainId: chain.chainId,
                 commission: {
@@ -109,6 +124,7 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
                     moniker: validator.description?.moniker,
                     security_contact: validator.description?.security_contact,
                     website: validator.description?.website,
+                    keybaseAvatarUrl,
                 }],
                 jailingEvents: [],
                 status: validator.status as any,

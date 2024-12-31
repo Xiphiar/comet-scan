@@ -1,6 +1,6 @@
 import { RpcBlockResponse } from "../rpcBlockResponse";
 import { RpcBlockResultsResponse } from "../rpcBlockResultsResponse";
-import { Validator } from "./validators.interface";
+import { ProposerInfo, Validator } from "./validators.interface";
 
 export interface Coin {
     readonly denom: string;
@@ -22,5 +22,5 @@ export interface Block {
 }
 
 export interface BlockWithProposer extends Block {
-    proposer: Validator | null;
+    proposer: ProposerInfo | null;
 }

@@ -12,14 +12,7 @@ export interface Validator {
         type?: string;
         key?: string; //Base64
     }
-    descriptions: {
-        details?: string;
-        identity?: string;
-        moniker?: string;
-        security_contact?: string;
-        website?: string;
-        updateTime: Date;
-    }[],
+    descriptions: ValidatorDescription[],
     jailingEvents: {
         jailTime: Date;
         unjailTime: Date;
@@ -38,3 +31,19 @@ export interface Validator {
 }
 
 export type ValidatorBondStatus = 'BOND_STATUS_BONDED' | 'BOND_STATUS_UNBONDED' | 'BOND_STATUS_UNBONDING';
+
+export interface ValidatorDescription {
+    details?: string;
+    identity?: string;
+    keybaseAvatarUrl: string | undefined;
+    moniker?: string;
+    security_contact?: string;
+    website?: string;
+    updateTime: Date;
+};
+
+// Minimal amount of info needed to display proposer info for blocks and proposals
+export interface ProposerInfo {
+    operatorAddress: string;
+    latestDescription: ValidatorDescription | undefined;
+}

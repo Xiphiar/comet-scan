@@ -9,7 +9,7 @@ import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import styles from './SingleValidatorPage.module.scss';
 import { weiFormatNice } from "../../utils/coin";
-import KeybaseAvatar from "../../components/Avatar/KeybaseAvatar";
+import ValidatorAvatar from "../../components/Avatar/KeybaseAvatar";
 
 const SingleValidatorPage: FC = () => {
     const { chain: chainLookupId, operatorAddress } = useParams();
@@ -38,7 +38,7 @@ const SingleValidatorPage: FC = () => {
             <Card>
                 <div>
                     <div className='d-flex align-items-center gap-2'>
-                        <KeybaseAvatar identity={currentDetails?.identity} moniker={currentDetails?.moniker} size='70px' />
+                        <ValidatorAvatar avatarUrl={currentDetails?.keybaseAvatarUrl} moniker={currentDetails?.moniker} size='70px' />
                         <h2>{currentDetails?.moniker || data.validator.operatorAddress}</h2>
                     </div>
                     {!!currentDetails.details && <p>{currentDetails.details}</p>}

@@ -42,6 +42,10 @@ const validatorSchema = new mongoose.Schema<Validator>({
         type: [{}],
         required: true,
     },
+    jailed: {
+        type: Boolean,
+        required: true,
+    },
     jailingEvents: {
         type: [{}],
         required: true,

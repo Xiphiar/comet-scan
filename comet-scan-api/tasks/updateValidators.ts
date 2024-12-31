@@ -45,6 +45,7 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
                 delegatedAmount: validator.tokens,
                 delegatorShares: validator.delegator_shares,
                 selfBondedAmount,
+                jailed: validator.jailed || false,
                 status: validator.status as any || 'BOND_STATUS_UNBONDED',
             };
 
@@ -78,6 +79,7 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
                     console.log('Refreshing keybase avatar', validator.description.moniker)
                     keybaseAvatarUrl = await getKeybaseAvatar(validator.description.identity);
                 }
+
                 if (
                     validator.description.details !== newestExistingDescription.details
                     || validator.description.identity !== newestExistingDescription.identity
@@ -126,6 +128,7 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
                     website: validator.description?.website,
                     keybaseAvatarUrl,
                 }],
+                jailed: validator.jailed || false,
                 jailingEvents: [],
                 status: validator.status as any,
                 minimumSelfDelegation: validator.min_self_delegation || '1',

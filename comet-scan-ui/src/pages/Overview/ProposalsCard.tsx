@@ -8,7 +8,7 @@ import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { Link } from "react-router-dom";
 import { formatProposalStatus, formatProposalType } from "../../utils/format";
 
-const ProposalsCard: FC<{ chain: FrontendChainConfig, proposals: Proposal[], totalProposals: number, className?: string }> = ({ chain, proposals, totalProposals, className }) => {
+const ProposalsCard: FC<{ chain: FrontendChainConfig, proposals: Proposal[], totalProposals: number, className?: string, showMoreLink?: true }> = ({ chain, proposals, totalProposals, className, showMoreLink }) => {
     if (!proposals.length) {
         return (
             <Card className={`${className}`}>
@@ -22,8 +22,15 @@ const ProposalsCard: FC<{ chain: FrontendChainConfig, proposals: Proposal[], tot
     return (
         <Card className={`${className}`}>
             <div>
-                <h3>Recent Proposals</h3>
-                <div style={{fontSize: '75%', color: 'var(--gray)', marginBottom: '8px'}}>{totalProposals || '...'} Total Proposals</div>
+                <div className='d-flex justify-content-between align-items-center' style={{marginBottom: '12px'}}>
+                    <div>
+                        <h3>Recent Proposals</h3>
+                        <div style={{fontSize: '75%', color: 'var(--gray)'}}>{totalProposals || '...'} Total Proposals</div>
+                    </div>
+                    { showMoreLink === true &&
+                        <Link className='blackLink' style={{fontSize: '24px'}} to={`/${chain.id}/proposals`}>➜</Link>
+                    }
+                </div>
                 <div className='d-flex mt-1 mb-1'>
                     <div className='col col-1'>
                         ID

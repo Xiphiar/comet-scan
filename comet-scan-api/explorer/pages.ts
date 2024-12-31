@@ -50,10 +50,23 @@ export const getOverview = api(
   }
 );
 
-export const getValidators = api(
+export const getActiveValidators = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/validators" },
   async ({ chainId }: { chainId: string }): Promise<ValidatorsPageResponse> => {
-    const validators = await getValidatorsFromDb(chainId, 'BOND_STATUS_BONDED');
+    const validators = await getValidatorsFromDb(chainId, ['BOND_STATUS_BONDED']);
+    const stakingMetrics = await getStakingMetrics(chainId);
+
+    return {
+      validators,
+      stakingMetrics,
+    };
+  }
+);
+
+export const getInactiveValidators = api(
+  { expose: true, method: "GET", path: "/explorer/:chainId/validators/inactive" },
+  async ({ chainId }: { chainId: string }): Promise<ValidatorsPageResponse> => {
+    const validators = await getValidatorsFromDb(chainId, ['BOND_STATUS_UNBONDED', 'BOND_STATUS_UNBONDED']);
     const stakingMetrics = await getStakingMetrics(chainId);
 
     return {
@@ -69,7 +82,7 @@ export const getSingleValidator = api(
     const validator = await Validators.findOne({ operatorAddress }, { _id: false, __v: false }).lean();
     if (!validator) throw new APIError(ErrCode.NotFound, "Validator not found"); 
 
-    const allValidators = await getValidatorsFromDb(chainId, 'BOND_STATUS_BONDED');
+    const allValidators = await getValidatorsFromDb(chainId, ['BOND_STATUS_BONDED']);
 
     const bonded = await getTotalBonded(chainId);
 

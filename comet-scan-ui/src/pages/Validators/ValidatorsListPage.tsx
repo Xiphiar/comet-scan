@@ -2,7 +2,7 @@ import { FC } from "react";
 import { useParams } from "react-router-dom";
 import useAsync from "../../hooks/useAsync";
 import { ValidatorsPageResponse } from "../../interfaces/responses/explorerApiResponses";
-import { getValidatorsPage } from "../../api/pagesApi";
+import { getInactiveValidatorsPage, getValidatorsPage } from "../../api/pagesApi";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
@@ -10,12 +10,18 @@ import { secondsToDhms } from "../../utils/time";
 import ValidatorsCard from "../Overview/ValidatorsCard";
 import useConfig from "../../hooks/useConfig";
 
-const ValidatorsListPage: FC = () => {
+const ValidatorsListPage: FC<{inactive?: boolean}> = ({inactive}) => {
     const { chain: chainLookupId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data, error } = useAsync<ValidatorsPageResponse>(getValidatorsPage(chain.chainId));
+    const { data, error } = useAsync<ValidatorsPageResponse>(
+        inactive ? getInactiveValidatorsPage(chain.chainId) : getValidatorsPage(chain.chainId),
+        {
+            updateOn: [inactive]
+        }
+    );
 
+    console.log('inactive', inactive)
     if (!chain) {
         return (
             <div>
@@ -53,11 +59,13 @@ const ValidatorsListPage: FC = () => {
             </div>
             <ValidatorsCard
                 validators={data.validators}
-                activeValidators={data.stakingMetrics.activeValidators}
+                totalValidators={data.validators.length}
+                rankOffset={inactive ? data.stakingMetrics.activeValidators : 0}
                 totalBonded={parseInt(data.stakingMetrics.bonded.amount)}
                 chain={chain}
-                title='Active Validators'
+                title={inactive ? 'Inactive Validators' : 'Active Validators'}
                 className='d-flex flex-column gap-2'
+                active={!inactive}
             />
         </div>
     )

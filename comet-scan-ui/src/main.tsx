@@ -61,6 +61,10 @@ const router = createBrowserRouter([
         element: <ValidatorsListPage />,
       },
       {
+        path: 'validators/inactive',
+        element: <ValidatorsListPage inactive={true} />,
+      },
+      {
         path: 'validators/:operatorAddress',
         element: <SingleValidatorPage />,
       },

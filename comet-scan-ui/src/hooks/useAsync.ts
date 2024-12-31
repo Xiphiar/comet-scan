@@ -21,6 +21,7 @@ const useAsync = <T>(promise: Promise<T>, config?: Config): Returns<T> => {
 
     const refresh = async () => {
         try {
+            setResult(undefined);
             const data = await promise;
             setResult(data);
         } catch (e: unknown) {

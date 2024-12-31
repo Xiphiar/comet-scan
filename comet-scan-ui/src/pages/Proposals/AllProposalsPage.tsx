@@ -38,7 +38,7 @@ const AllProposalsPage: FC = () => {
                         <div className='col col-1'>
                             ID
                         </div>
-                        <div className='col-5 col-md-7 flex-grow-1'>
+                        <div className='col-5'>
                             Title
                         </div>
                         <div className='col col-2'>

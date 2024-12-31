@@ -30,7 +30,12 @@ const SingleValidatorPage: FC = () => {
         return <ContentLoading chain={chain} title='Validator' error={error} />
     }
 
-    console.log('ABAAB',data.validator.selfBondedAmount)
+    const statusBadge = data.validator.jailed && data.validator.selfBondedAmount !== '0' ?
+        <div className='badge bg-danger'>Jailed</div>
+    : data.validator.status === 'BOND_STATUS_UNBONDING' || data.validator.status === 'BOND_STATUS_UNBONDED' ?
+        <div className='badge bg-info'>Inactive</div>
+    : <></>
+    const active = data.validator.status === 'BOND_STATUS_BONDED' && !data.validator.jailed;
  
     return (
         <div className='d-flex flex-column mx-4'>
@@ -40,6 +45,7 @@ const SingleValidatorPage: FC = () => {
                     <div className='d-flex align-items-center gap-2'>
                         <ValidatorAvatar avatarUrl={currentDetails?.keybaseAvatarUrl} moniker={currentDetails?.moniker} size='70px' />
                         <h2>{currentDetails?.moniker || data.validator.operatorAddress}</h2>
+                        {statusBadge}
                     </div>
                     {!!currentDetails.details && <p>{currentDetails.details}</p>}
                 </div>
@@ -68,7 +74,7 @@ const SingleValidatorPage: FC = () => {
             <div className='d-flex flex-wrap w-full'>
                 <Card className='col col-6 col-md-3'>
                     <h5>Total Bonded</h5>
-                    {weiFormatNice(data.validator.delegatedAmount, chain.bondingDecimals)} {chain.bondingDisplayDenom} (#{data.rank})
+                    {weiFormatNice(data.validator.delegatedAmount, chain.bondingDecimals)} {chain.bondingDisplayDenom} {active && `(#${data.rank})`}
                 </Card>
                 <Card className='col col-6 col-md-3'>
                     <h5>Self Bonded</h5>

@@ -24,6 +24,17 @@ export const getValidatorsPage = async (chainId: string): Promise<ValidatorsPage
     return data;
 }
 
+export const getInactiveValidatorsPage = async (chainId: string): Promise<ValidatorsPageResponse> => {
+    const {data} = await http.get(`/explorer/${chainId}/validators/inactive`,
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+    return data;
+}
+
 export const getSingleValidatorPage = async (chainId: string, operatorAddress: string): Promise<SingleValidatorPageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/validators/${operatorAddress}`,
         {

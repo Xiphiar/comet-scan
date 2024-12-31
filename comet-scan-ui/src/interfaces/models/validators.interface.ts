@@ -13,6 +13,7 @@ export interface Validator {
         key?: string; //Base64
     }
     descriptions: ValidatorDescription[],
+    jailed: boolean,
     jailingEvents: {
         jailTime: Date;
         unjailTime: Date;

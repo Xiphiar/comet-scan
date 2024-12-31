@@ -13,8 +13,17 @@ export const getLatestBlock = async (chainId: string): Promise<Block | null> => 
 }
 
 // Sorted by delegated amount, highest to smallest
-export const getValidatorsFromDb = async (chainId: string, status?: ValidatorBondStatus): Promise<Validator[]> => {
-    return await Validators.find({ chainId, status }, { __v: false, _id: false })
+export const getValidatorsFromDb = async (chainId: string, statuses?: ValidatorBondStatus[]): Promise<Validator[]> => {
+    let filter: any = {
+        chainId,
+    }
+    if (statuses?.length) filter = {
+        ...filter,
+        status: {
+            $in: statuses,
+        }
+    }
+    return await Validators.find(filter, { __v: false, _id: false })
         .sort({delegatedAmount: -1})
         .collation({locale: "en_US", numericOrdering: true})
         .lean();

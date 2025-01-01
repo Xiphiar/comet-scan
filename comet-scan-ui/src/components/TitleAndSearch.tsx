@@ -53,7 +53,7 @@ const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string}> = ({chain,
 
     const onBlur = async () => {
         // Sleep for a small amount of time before hiding the results, otherwise result links can't be clicked
-        await sleep(50);
+        await sleep(150);
         setFocused(false);
     }
 
@@ -124,7 +124,12 @@ const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string}> = ({chain,
             { (!!searchInput.length && focused) &&
                 <Card className={styles.searchResults} conentClassName={styles.searchResultsContent}>
                     { searchResults.map(sr =>
-                        <Link to={sr.link} key={sr.link} className={styles.searchLink}>{sr.title}</Link>
+                        <Link
+                            to={sr.link}
+                            key={sr.link}
+                            className={styles.searchLink}
+                            onClick={() => setSearchInput('')}
+                        >{sr.title}</Link>
                     )}
                     { !searchResults.length &&
                         <div style={{padding: '12px'}}>Unknown Search Input</div>

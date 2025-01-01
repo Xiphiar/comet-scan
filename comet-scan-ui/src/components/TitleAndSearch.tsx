@@ -1,15 +1,107 @@
-import { FC, useState } from "react";
+import { FC, ReactElement, useRef, useState } from "react";
 import styles from './TitleAndSearch.module.scss'
-import { FrontendChainConfig } from "../interfaces/config.interface";
+import { ChainConfig, FrontendChainConfig } from "../interfaces/config.interface";
+import { fromBech32, normalizeBech32 } from "@cosmjs/encoding";
+import useConfig from "../hooks/useConfig";
+import { Link } from "react-router-dom";
+import Card from "./Card";
+import sleep from "../utils/sleep";
+
+const txHashRegex = /[0-9A-Fa-f]/g;
+
+
+type ParsedBech32 = {
+    type: 'ADDRESS' | 'VALIDATOR',
+    prefix: string;
+    chain: FrontendChainConfig;
+}
+const parseBech32 = (addr: string, chains: FrontendChainConfig[]): ParsedBech32 | undefined => {
+    try {
+        const {prefix} = fromBech32(addr);
+        if (prefix.includes('pub')) return undefined;
+        if (prefix.includes('valcons')) return undefined;
+
+        const cleanPrefix = prefix.replace('valoper', '');
+        const chain = chains.find(c => c.prefix === cleanPrefix);
+        if (!chain) return undefined;
+
+        if (prefix.includes('valoper')) return {
+            type: 'VALIDATOR',
+            prefix: cleanPrefix,
+            chain,
+        }
+        return {
+            type: 'ADDRESS',
+            prefix,
+            chain,
+        }
+    } catch {
+        return undefined;
+    }
+}
+
+interface SearchResult {
+    title: string | ReactElement;
+    link: string;
+}
 
 const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string}> = ({chain, title}) => {
+    const {chains} = useConfig();
+    const searchInputElement = useRef(null)
     const [searchInput, setSearchInput] = useState('');
+    const [focused, setFocused] = useState(false);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onBlur = async () => {
+        // Sleep for a small amount of time before hiding the results, otherwise result links can't be clicked
+        await sleep(50);
+        setFocused(false);
+    }
+
     const handleSearch = async (e?: any) => {
         e?.preventDefault?.();
-        alert('todo')
+        // alert('todo')
     }
+
+    let searchResults: SearchResult[] = [];
+    if (searchInput.length) {
+        // Check if block
+        if (!isNaN(searchInput as any)) {
+            searchResults.push({
+                title: `${chain.name} Block ${parseInt(searchInput).toLocaleString()}`,
+                link: `/${chain.id}/blocks/${parseInt(searchInput)}`
+            })
+        }
+
+        // Check if TX hash
+        if (txHashRegex.test(searchInput) && searchInput.length === 64) {
+            searchResults.push({
+                title: `${chain.name} Transaction ${searchInput.toUpperCase()}`,
+                link: `/${chain.id}/transactions/${searchInput.toUpperCase()}`
+            })
+        }
+
+        // Check if Bech32 Address
+        const data = parseBech32(searchInput, chains);
+        if (data && data.type === 'VALIDATOR') {
+            searchResults.push({
+                title: `${data.chain.name} Validator ${searchInput}`,
+                link: `/${data.chain.id}/validators/${searchInput}`
+            })
+        }
+
+        if (data && data.type === 'ADDRESS') {
+            searchResults.push({
+                title: `${data.chain.name} Account ${searchInput}`,
+                link: `/${data.chain.id}/accounts/${searchInput}`
+            })
+            if (data.chain.features.includes('cosmwasm') || data.chain.features.includes('secretwasm')) {
+                searchResults.push({
+                    title: `${data.chain.name} Contract ${searchInput}`,
+                    link: `/${data.chain.id}/contracts/${searchInput}`
+                })
+            }
+        }
+    } else searchResults = []
 
     return (
         <div className={styles.titleAndSearchWrapper}>
@@ -18,8 +110,27 @@ const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string}> = ({chain,
                 <h1 style={{display: 'block', fontFamily: 'Bunken Tech'}}>{chain.name} {title}</h1>
             </div>
             <form onSubmit={handleSearch}>
-                <input type='text' placeholder='Search for an address, transaction, or block' value={searchInput} onChange={e => setSearchInput(e.target.value)} />
+                <input
+                    type='text'
+                    ref={searchInputElement}
+                    tabIndex={1}
+                    placeholder='Search for an address, transaction, or block'
+                    value={searchInput}
+                    onChange={e => setSearchInput(e.target.value.trim())}
+                    onFocus={() => setFocused(true)}
+                    onBlur={onBlur}
+                />
             </form>
+            { (!!searchInput.length && focused) &&
+                <Card className={styles.searchResults} conentClassName={styles.searchResultsContent}>
+                    { searchResults.map(sr =>
+                        <Link to={sr.link} key={sr.link} className={styles.searchLink}>{sr.title}</Link>
+                    )}
+                    { !searchResults.length &&
+                        <div style={{padding: '12px'}}>Unknown Search Input</div>
+                    }
+                </Card>
+            }
         </div>
     )
 }

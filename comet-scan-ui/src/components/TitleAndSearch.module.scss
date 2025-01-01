@@ -1,4 +1,5 @@
 .titleAndSearchWrapper {
+    position: relative;
     width: fit-content;
     display: flex;
     flex-direction: column;
@@ -11,4 +12,28 @@
             width: 100%;
         }
     }
+}
+
+.searchResults {
+    position: absolute;
+    width: 100%;
+    left: 4px;
+    bottom: 0px;
+    transform: translateY(calc(100% - 12px));
+    margin: 0px
+}
+
+.searchResultsContent {
+    padding: 0px;
+    // box-shadow: 3px 3px 7px 1px #fff;
+    border: 1px solid var(--light-gray)
+}
+
+.searchLink {
+    color: black;
+    padding: 12px;
+}
+.searchLink:hover {
+    background-color: var(--main);
+    color: black;
 }

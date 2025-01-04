@@ -42,6 +42,8 @@ const importAccountsForChain = async (chainId: string) => {
             document = await KvStore.create({ chainId, key, value: highestProcessed.toString() });
         }
 
+        console.log(`Need to import accounts for ${highestBlockInDb.height - highestProcessed} blocks on ${chainId}`)
+
         while (highestProcessed < highestBlockInDb.height) {
             await importAccountsForBlock(chainId, highestProcessed + 1);
             highestProcessed++

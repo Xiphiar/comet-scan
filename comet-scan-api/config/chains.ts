@@ -12,7 +12,7 @@ const SecretNetwork: ChainConfig = {
     prefix: 'secret',
     govVersion: 'v1beta1',
     ibcVersion: 'v1',
-    sdkVersion: 'pre-50',
+    sdkVersion: '50',
     rpc: 'https://secret-4.api.trivium.network:26657',
     lcd: 'https://secret-4.api.trivium.network:1317',
     startHeight: 17_550_000,

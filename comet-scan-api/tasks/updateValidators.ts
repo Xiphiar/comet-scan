@@ -145,6 +145,9 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
 
         await importAccount(chain.chainId, accountAddress)
     }
+
+    
+    console.log(`Done updating validators on ${chain.chainId}`)
 }
 
 // let UPDATING = false;

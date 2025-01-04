@@ -65,7 +65,7 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
     // const txs = await client.query.txsQuery(`tx.height=${blockHeight}`);
     const allTxs: LcdTxSearchTx[] = [];
     const allResults: LcdTxSearchResult[] = [];
-    const url = `${config.lcd}/cosmos/tx/v1beta1/txs?${config.govVersion === 'v1beta1' ? 'events' : 'query'}=tx.height%3D${blockHeight}&pagination.limit%3D100`;
+    const url = `${config.lcd}/cosmos/tx/v1beta1/txs?${config.sdkVersion === 'pre-50' ? 'events' : 'query'}=tx.height%3D${blockHeight}&pagination.limit%3D100`;
     let pageUrl = url;
     while (true) {
         const {data} = await axios.get<LcdTxSearchResponse>(pageUrl);

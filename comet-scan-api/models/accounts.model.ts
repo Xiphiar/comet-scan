@@ -89,6 +89,8 @@ const accountsSchema = new mongoose.Schema<Account>({
     }
 });
 
+accountsSchema.index({ chainId: 1, address: 1 });
+
 const Accounts = mongoose.model<Account>('Accounts', accountsSchema);
 
 export default Accounts;

@@ -59,10 +59,12 @@ const importAccountsForChain = async (chainId: string) => {
 export const importAccountsForBlock = async (chainId: string, blockHeight: number) => {
     // console.log(`Importing accounts for block ${blockHeight} on ${chainId}`)
     const config = getChainConfig(chainId);
-    let block: Block | null = await Blocks.findOne({ height: blockHeight }).lean();
+    if (!config) throw `Config not found for ${chainId}`;
+
+    let block: Block | null = await Blocks.findOne({ chainId, height: blockHeight }).lean();
     if (!block) {
         await processBlock(chainId, config.rpc, blockHeight);
-        block = await Blocks.findOne({ height: blockHeight }).lean();
+        block = await Blocks.findOne({ chainId, height: blockHeight }).lean();
     }
     if (!block) {
         throw `Block ${blockHeight} not found in DB for ${chainId}`;
@@ -92,6 +94,8 @@ export const importAccountsForBlock = async (chainId: string, blockHeight: numbe
 
 export const importAccount = async (chainId: string, address: string, tx?: Transaction): Promise<Account | null> => {
     const config = getChainConfig(chainId);
+    if (!config) throw `Config not found for ${chainId}`;
+
     try {
         const existingAccount = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
         if (existingAccount) {

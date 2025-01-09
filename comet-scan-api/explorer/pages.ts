@@ -17,6 +17,7 @@ import Contracts from "../models/contracts.model";
 import Codes from "../models/codes.model";
 import { addContractStats } from "../common/contracts";
 import { ProposerInfo, Validator } from "../interfaces/models/validators.interface";
+import ContractVerifications from "../models/contractVerifications.model";
 
 export const getOverview = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/overview" },
@@ -250,6 +251,7 @@ export const getSingleAccount = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/accounts/:address" },
   async ({ chainId, address }: { chainId: string, address: string }): Promise<SingleAccountPageResponse> => {
     const config = getChainConfig(chainId);
+    if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
 
     let account: Account | null = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
     // if (!account) throw new APIError(ErrCode.NotFound, 'Account not found.');
@@ -311,12 +313,13 @@ export const getContractsPage = api(
     const contractsWithStats: ContractWithStats[] = []
     for (const contract of contracts) {
       const dailyExecutions = await get24hContractExecutionsCount(chainId, contract.contractAddress);
-      const code = await Codes.findOne({ chainId, codeId: contract.codeId }).lean();
+      // const code = await Codes.findOne({ chainId, codeId: contract.codeId }).lean();
+      const verification = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
 
       contractsWithStats.push({
         contract,
         dailyExecutions,
-        verified: code?.verified || false,
+        verified: !!verification,
       })
     }
     console.timeEnd('Contracts With Stats')
@@ -351,6 +354,8 @@ export const getSingleContract = api(
     const code = await Codes.findOne({ chainId, codeId: contract.codeId }, { _id: false, __v: false }).lean();
     if (!code) throw new APIError(ErrCode.NotFound, 'Contract code not found');
 
+    const verification = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
+
     const recentTransactions = await Transactions.find({ chainId, executedContracts: contractAddress }, { _id: false, __v: false }).sort({height: -1}).limit(20).lean();
 
     const now = new Date();
@@ -362,6 +367,7 @@ export const getSingleContract = api(
       code,
       recentTransactions,
       dailyExecutions,
+      verification: verification || undefined,
     }
   }
 );

@@ -51,7 +51,7 @@ const SingleContractPage: FC = () => {
                     </div>
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Verified</div>
-                        <div className='col'>{data.code.verified ? 'Yes' : 'No'}</div>
+                        <div className='col'>{data.verification ? 'Yes' : 'No'}</div>
                     </div>
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Created Height</div>

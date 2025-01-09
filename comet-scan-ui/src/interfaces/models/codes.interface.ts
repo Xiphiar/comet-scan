@@ -5,5 +5,4 @@ export interface WasmCode {
     creator?: string;
     source?: string;
     builder?: string;
-    verified: boolean;
 }

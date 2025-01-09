@@ -28,10 +28,6 @@ const codesSchema = new mongoose.Schema<WasmCode>({
         type: String,
         required: false,
     },
-    verified: {
-        type: Boolean,
-        required: true,
-    },
 });
 
 const Codes = mongoose.model<WasmCode>('Codes', codesSchema);

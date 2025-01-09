@@ -88,8 +88,8 @@ Chains.forEach(chain => {
 
 export default Chains;
 
-export const getChainConfig = (chainId: string): ChainConfig => {
+export const getChainConfig = (chainId: string): ChainConfig | undefined => {
     const config = Chains.find(c => c.chainId === chainId);
-    if (!config) throw `Chain config not found for ${chainId}`;
+    // if (!config) throw `Chain config not found for ${chainId}`;
     return config;
 }

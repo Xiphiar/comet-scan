@@ -5,6 +5,7 @@ import { WasmContract } from "../models/contracts.interface";
 import { Proposal, ProposalWithProposingValidator } from "../models/proposals.interface";
 import { Transaction } from "../models/transactions.interface";
 import { Validator } from "../models/validators.interface";
+import { ContractVerification } from "../verification.interface";
 
 export interface Amount {
   amount: string;
@@ -103,4 +104,5 @@ export interface SingleContractPageResponse {
   code: WasmCode,
   recentTransactions: Transaction[],
   dailyExecutions: number;
+  verification: ContractVerification | undefined;
 }

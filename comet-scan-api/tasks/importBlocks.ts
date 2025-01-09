@@ -36,28 +36,21 @@ const importBlocks = async ({chainId, rpc, startHeight: _startHeight = 0}: Chain
         // Find missing heights since configures _startHeight
         // console.log('Looking for missing blocks...')
         highestInDb = await Blocks.findOne({ chainId }).sort('-height').lean();
-        // console.log('Heighest height after import:', highestInDb?.height);
-        const _existingHeights = await Blocks.aggregate([
-            { 
-                $group: { 
-                    _id: null, 
-                    heights: { $push: "$height" } 
-                }
-            },
-            { 
-                $addFields: { 
-                    // missing: { $setDifference: [ { $range: [ 15321001, 17111985 ] }, "$nos" ] } 
-                    // range: { $range: [ _startHeight, highestInDb?.height ] }, 
-                } 
-            }
-        ])
-        const existingHeights: number[] = _existingHeights[0].heights;
-        const missingHeights: number[] = [];
-        for (let i = _startHeight; i < (highestInDb?.height || _startHeight+1); i++) {
-            if (!existingHeights.includes(i)) missingHeights.push(i)
-        }
-        // console.log('Missing', missingHeights.length, 'blocks!')
-        await processList(missingHeights, chainId, rpc);
+
+        // const _existingHeights = await Blocks.aggregate([
+        //     { 
+        //         $group: { 
+        //             _id: null, 
+        //             heights: { $push: "$height" } 
+        //         }
+        //     }
+        // ])
+        // const existingHeights: number[] = _existingHeights[0].heights;
+        // const missingHeights: number[] = [];
+        // for (let i = _startHeight; i < (highestInDb?.height || _startHeight+1); i++) {
+        //     if (!existingHeights.includes(i)) missingHeights.push(i)
+        // }        
+        // await processList(missingHeights, chainId, rpc);
 
         console.log(`Done importing blocks on ${chainId}!`)
 

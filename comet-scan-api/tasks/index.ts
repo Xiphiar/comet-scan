@@ -76,13 +76,13 @@ const twelveHourMs = threeHoursMs * 4;
 
     // await addExecutedContractsToTransactions('secret-4')
 
-    // await runImportTasks();
-    // await runUpdateTasks();
-    // await updateContractExecutedCountsForAllChains();
-    // updateContractsForAllChains();
+    await runImportTasks();
+    await runUpdateTasks();
+    await updateContractExecutedCountsForAllChains();
+    updateContractsForAllChains();
 
-    // setInterval(runImportTasks, oneMinuteMs)
-    // setInterval(runUpdateTasks, tenMinuteMs)
-    // setInterval(updateContractExecutedCountsForAllChains, tenMinuteMs * 3)
-    // setInterval(updateContractsForAllChains, twelveHourMs * 2)
+    setInterval(runImportTasks, oneMinuteMs)
+    setInterval(runUpdateTasks, tenMinuteMs)
+    setInterval(updateContractExecutedCountsForAllChains, tenMinuteMs * 3)
+    setInterval(updateContractsForAllChains, twelveHourMs * 2)
 })();

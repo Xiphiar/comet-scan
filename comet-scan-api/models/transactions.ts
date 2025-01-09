@@ -5,7 +5,6 @@ const transactionsSchema = new mongoose.Schema<Transaction>({
     chainId: {
         type: String,
         required: true,
-        index: true,
     },
     hash: {
         type: String,
@@ -15,7 +14,7 @@ const transactionsSchema = new mongoose.Schema<Transaction>({
     blockHeight: {
         type: Number,
         required: true,
-        index: true,
+        index: -1,
     },
     blockHash: {
         type: String,
@@ -24,7 +23,6 @@ const transactionsSchema = new mongoose.Schema<Transaction>({
     timestamp: {
         type: Date,
         required: true,
-        index: true,
     },
     signers: {
         type: [String],
@@ -73,6 +71,8 @@ const transactionsSchema = new mongoose.Schema<Transaction>({
         required: true,
     },
 });
+
+transactionsSchema.index({ chainId: 1, blockHeight: -1, timestamp: -1 });
 
 const Transactions = mongoose.model<Transaction>('Transactions', transactionsSchema);
 

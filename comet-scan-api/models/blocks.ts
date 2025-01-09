@@ -5,12 +5,10 @@ const blocksSchema = new mongoose.Schema<Block>({
     chainId: {
         type: String,
         required: true,
-        index: true,
     },
     height: {
         type: Number,
         required: true,
-        index: true,
     },
     hash: {
         type: String,
@@ -20,7 +18,6 @@ const blocksSchema = new mongoose.Schema<Block>({
     timestamp: {
         type: Date,
         required: true,
-        index: true,
     },
     block: {
         type: {},
@@ -51,6 +48,8 @@ const blocksSchema = new mongoose.Schema<Block>({
         required: true,
     },
 });
+
+blocksSchema.index({ chainId: 1, height: -1, timestamp: -1 });
 
 const Blocks = mongoose.model<Block>('Blocks', blocksSchema);
 

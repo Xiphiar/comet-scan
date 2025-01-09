@@ -48,10 +48,11 @@ const twelveHourMs = threeHoursMs * 4;
 
 (async()=>{
     await connectToDb();
-    // await Transactions.syncIndexes();
-    // await Blocks.syncIndexes();
+    await Transactions.syncIndexes();
+    await Blocks.syncIndexes();
     // await Accounts.syncIndexes();
     // await SecretContracts.syncIndexes();
+    console.log('Indexes Synced');
 
     // await addExecutedContractsToTransactions('secret-4')
 

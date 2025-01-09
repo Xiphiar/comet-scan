@@ -10,7 +10,7 @@ type Props = {
 
 const Card: FC<PropsWithChildren<Props>> = ({children, className, conentClassName, style, gap = '8px'}) => {
     return (
-        <div className={`d-flex flex-column ${className}`} /*style={{padding: gap}}*/>
+        <div className={`${styles.cardWrapper} ${className}`} /*style={{padding: gap}}*/>
             <div className={`${styles.card} ${conentClassName}`} style={{
                 margin: gap,
                 ...style

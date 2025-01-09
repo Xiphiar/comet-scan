@@ -21,16 +21,38 @@ import { ProposerInfo, Validator } from "../interfaces/models/validators.interfa
 export const getOverview = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/overview" },
   async ({ chainId }: { chainId: string }): Promise<OverviewPageResponse> => {
+    console.time('Latest Block');
     const latestBlock = await getLatestBlock(chainId);
     if (!latestBlock) throw `Chain ${chainId} not in DB.`
+    console.timeEnd('Latest Block');
 
+    console.time('24h Txs');
     const dailyTransactions = await get24hTransactionsCount(chainId);
+    console.timeEnd('24h Txs');
+
+    console.time('Supply');
     const supply = await getTotalSupply(chainId);
+    console.timeEnd('Supply');
+
+    console.time('Bonded');
     const bonded = await getTotalBonded(chainId);
+    console.timeEnd('Bonded');
+
+    console.time('Inflation');
     const inflationRate = await getInflation(chainId);
+    console.timeEnd('Inflation');
+
+    console.time('Proposals');
     const proposals = await getProposalsFromDb(chainId);
+    console.timeEnd('Proposals');
+
+    console.time('Top Vals');
     const topValidators = await getTopValidatorsFromDb(chainId, 5);
+    console.timeEnd('Top Vals');
+
+    console.time('Active Vals');
     const activeValidators = await getActiveValidatorsCount(chainId);
+    console.timeEnd('Active Vals');
 
     return {
       metrics: {
@@ -53,8 +75,13 @@ export const getOverview = api(
 export const getActiveValidators = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/validators" },
   async ({ chainId }: { chainId: string }): Promise<ValidatorsPageResponse> => {
+    console.time('Get Validators')
     const validators = await getValidatorsFromDb(chainId, ['BOND_STATUS_BONDED']);
+    console.timeEnd('Get Validators')
+
+    console.time('Get Staking Metrics')
     const stakingMetrics = await getStakingMetrics(chainId);
+    console.timeEnd('Get Staking Metrics')
 
     return {
       validators,
@@ -103,11 +130,16 @@ export const getSingleValidator = api(
 export const getBlocksPage = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/blocks" },
   async ({ chainId }: { chainId: string }): Promise<BlocksPageResponse> => {
+    console.time('Recent Blocks')
     const blocks = await Blocks.find({ chainId }, { _id: false, __v: false }).sort('-timestamp').limit(30).lean();
+    console.timeEnd('Recent Blocks')
+
+    console.time('Daily Blocks')
     const dailyBlocks = await get24hBlocksCount(chainId);
+    console.timeEnd('Daily Blocks')
 
+    console.time('Blocks With Proposers')
     const validators = await Validators.find({ chainId }, { _id: false, __v: false}).lean();
-
     const blocksWithProposers: BlockWithProposer[] = [];
     for (const block of blocks) {
       const proposerHex = block.block.result.block.header.proposer_address;
@@ -119,6 +151,7 @@ export const getBlocksPage = api(
       }
       blocksWithProposers.push({ ...block, proposer })
     }
+    console.timeEnd('Blocks With Proposers')
 
     return {
       blocks: blocksWithProposers,
@@ -263,10 +296,16 @@ export const getContractsPage = api(
     let contracts: WasmContract[] = [];
     let totalContracts = 0;
     if (config.features.includes('secretwasm') || config.features.includes('cosmwasm')) {
+      console.time('Top Contracts')
       contracts = await Contracts.find({ chainId }, { _id: false, __v: false }).sort({ executions: -1}).limit(30).lean();
+      console.timeEnd('Top Contracts')
+
+      console.time('Total Contracts')
       totalContracts = await Contracts.find({ chainId }).countDocuments();
+      console.timeEnd('Total Contracts')
     }
 
+    console.time('Contracts With Stats')
     const now = new Date();
     const oneDayAgo = new Date(now.valueOf() - dayMs);
     const contractsWithStats: ContractWithStats[] = []
@@ -280,9 +319,15 @@ export const getContractsPage = api(
         verified: code?.verified || false,
       })
     }
+    console.timeEnd('Contracts With Stats')
 
+    console.time('Daily Executions')
     const dailyExecutions = await get24hTotalExecutionsCount(chainId);
+    console.timeEnd('Daily Executions')
+
+    console.time('Total Executions')
     const totalExecutions = await getTotalExecutionsCount(chainId);
+    console.timeEnd('Total Executions')
 
     return {
       contracts: contractsWithStats,

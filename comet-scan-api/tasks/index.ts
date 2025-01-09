@@ -70,16 +70,14 @@ const twelveHourMs = threeHoursMs * 4;
     await connectToDb();
     await Transactions.syncIndexes();
     await Blocks.syncIndexes();
-    // await Accounts.syncIndexes();
+    await Accounts.syncIndexes();
     // await SecretContracts.syncIndexes();
     console.log('Indexes Synced');
 
-    // await addExecutedContractsToTransactions('secret-4')
-
-    await runImportTasks();
-    await runUpdateTasks();
-    await updateContractExecutedCountsForAllChains();
-    updateContractsForAllChains();
+    runImportTasks();
+    // await runUpdateTasks();
+    // await updateContractExecutedCountsForAllChains();
+    // updateContractsForAllChains();
 
     setInterval(runImportTasks, oneMinuteMs)
     setInterval(runUpdateTasks, tenMinuteMs)

@@ -32,7 +32,7 @@ export const verifySecretWasmContract = api<{chainId: string} & VerifyParams, St
 
 export const checkVerificationStatus = api(
     { expose: true, method: "GET", path: "/verify/status/:taskId" },
-    async ({ taskId }: { taskId: number | string }): Promise<TaskStatus> => {
+    async ({ taskId }: { taskId: string }): Promise<TaskStatus> => {
         if (!process.env.SECRETWASM_VERIFICATION_API) throw new APIError(ErrCode.Internal, 'Verification API not ready');
         const {data} = await axios.get<TaskStatus>(`${process.env.SECRETWASM_VERIFICATION_API}/status/${taskId}`);
         return data;

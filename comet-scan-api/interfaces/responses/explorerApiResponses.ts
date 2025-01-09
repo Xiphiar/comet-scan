@@ -106,3 +106,9 @@ export interface SingleContractPageResponse {
   dailyExecutions: number;
   verification: ContractVerification | undefined;
 }
+
+export interface SingleCodePageResponse {
+  code: WasmCode,
+  contracts: ContractWithStats[],
+  verification: ContractVerification | undefined;
+}

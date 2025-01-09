@@ -25,6 +25,8 @@ import MainPage from './pages/Main/MainPage.tsx';
 import SingleAccountPage from './pages/Accounts/SingleAccountPage.tsx';
 import AllContractsPage from './pages/Contracts/AllContractsPage.tsx';
 import SingleContractPage from './pages/Contracts/SingleContractPage.tsx';
+import SingleCodePage from './pages/Codes/SingleCodePage.tsx';
+import VerifyCodePage from './pages/Codes/VerifyCodePage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -91,6 +93,18 @@ const router = createBrowserRouter([
       {
         path: 'contracts/:contractAddress',
         element: <SingleContractPage />,
+      },
+      {
+        path: 'codes/:codeId',
+        element: <SingleCodePage />,
+      },
+      {
+        path: 'codes/:codeId/verify',
+        element: <VerifyCodePage />,
+      },
+      {
+        path: 'codes/:codeId/verify/:taskId',
+        element: <VerifyCodePage />,
       }
     ]
   },

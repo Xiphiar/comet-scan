@@ -1,7 +1,7 @@
 import { api, APIError, ErrCode } from "encore.dev/api";
 import { dayMs, get24hBlocksCount, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
-import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats } from "../interfaces/responses/explorerApiResponses";
+import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
 import Blocks from "../models/blocks";
 import Transactions from "../models/transactions";
@@ -371,6 +371,33 @@ export const getSingleContract = api(
       code,
       recentTransactions,
       dailyExecutions,
+      verification: verification || undefined,
+    }
+  }
+);
+
+export const getSingleCode = api(
+  { expose: true, method: "GET", path: "/explorer/:chainId/codes/:codeId" },
+  async ({ chainId, codeId }: { chainId: string, codeId: string }): Promise<SingleCodePageResponse> => {
+    const config = getChainConfig(chainId);
+    if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
+    if (!config.features.includes('secretwasm') && !config.features.includes('cosmwasm')) throw new APIError(ErrCode.Unimplemented, 'Cosmwasm not enabled for this chain');
+
+    const code = await Codes.findOne({ chainId, codeId: codeId }, { _id: false, __v: false }).lean();
+    if (!code) throw new APIError(ErrCode.NotFound, 'Contract code not found');
+
+    let verification: any = await ContractVerifications.findOne({ chain_id: chainId, code_id: codeId, verified: true }, { _id: false, __v: false }).lean();
+    if (verification) verification = {
+      ...verification,
+      code_zip: verification.code_zip.buffer.toString('base64'),
+    }
+
+    const _contracts = await Contracts.find({ chainId, codeId }, { _id: false, __v: false }).lean();
+    const contracts = await addContractStats(chainId, _contracts);
+
+    return {
+      code,
+      contracts,
       verification: verification || undefined,
     }
   }

@@ -22,7 +22,7 @@ export interface VerifyParams {
 export interface TaskStatus {
     id: number,
     command: string,
-    status: string,
+    status: any,
     created_at: string, // ISO date string
     start: string | null, // ISO date string
     end: string | null, // ISO date string

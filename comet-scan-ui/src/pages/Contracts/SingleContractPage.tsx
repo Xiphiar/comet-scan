@@ -61,11 +61,19 @@ const SingleContractPage: FC = () => {
                     </div>
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Code ID</div>
-                        <div className='col'>{data.contract.codeId}</div>
+                        <div className='col'>
+                            <Link to={`/${chainLookupId}/codes/${data.contract.codeId}`}>{data.contract.codeId}</Link>
+                        </div>
                     </div>
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Verified</div>
-                        <div className='col'>{data.verification ? 'Yes' : 'No'}</div>
+                        <div className='col d-flex gap-4'>
+                            {data.verification ? 'Yes' : 'No'}
+                            { !data.verification &&
+                                <Link to={`/${chainLookupId}/codes/${data.code.codeId}/verify`}>Verify this Code</Link>
+                            }
+                        </div>
+       
                     </div>
                     { !!data.verification?.code_zip &&
                         <div className='d-flex'>

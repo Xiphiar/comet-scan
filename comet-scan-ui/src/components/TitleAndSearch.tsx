@@ -3,7 +3,7 @@ import styles from './TitleAndSearch.module.scss'
 import { ChainConfig, FrontendChainConfig } from "../interfaces/config.interface";
 import { fromBech32, normalizeBech32 } from "@cosmjs/encoding";
 import useConfig from "../hooks/useConfig";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Card from "./Card";
 import sleep from "../utils/sleep";
 
@@ -15,15 +15,22 @@ type ParsedBech32 = {
     prefix: string;
     chain: FrontendChainConfig;
 }
-const parseBech32 = (addr: string, chains: FrontendChainConfig[]): ParsedBech32 | undefined => {
+const parseBech32 = (addr: string, chains: FrontendChainConfig[], currentChain: FrontendChainConfig): ParsedBech32 | undefined => {
     try {
         const {prefix} = fromBech32(addr);
         if (prefix.includes('pub')) return undefined;
         if (prefix.includes('valcons')) return undefined;
 
         const cleanPrefix = prefix.replace('valoper', '');
-        const chain = chains.find(c => c.prefix === cleanPrefix);
-        if (!chain) return undefined;
+
+        // This is fucky, TODO something more reliable
+        const matchedChains = chains.filter(c => c.prefix === cleanPrefix);
+        console.log(matchedChains)
+        if (!matchedChains.length) return undefined;
+        let chain = matchedChains[0];
+        if (matchedChains.length > 1) {
+            chain = currentChain;
+        }
 
         if (prefix.includes('valoper')) return {
             type: 'VALIDATOR',
@@ -81,7 +88,7 @@ const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string}> = ({chain,
         }
 
         // Check if Bech32 Address
-        const data = parseBech32(searchInput, chains);
+        const data = parseBech32(searchInput, chains, chain);
         if (data && data.type === 'VALIDATOR') {
             searchResults.push({
                 title: `${data.chain.name} Validator ${searchInput}`,

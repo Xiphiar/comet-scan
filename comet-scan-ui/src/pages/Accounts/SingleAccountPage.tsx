@@ -65,19 +65,23 @@ const SingleAccountPage: FC = () => {
                         </div>
                     </div>
                 </Card>
-                <Card className='col'>
+                <Card className='col d-flex flex-column' style={{justifyContent: 'flex-start'}}>
                     <h3>Assets</h3>
                     <div style={{borderBottom: '1px solid var(--light-gray)', paddingTop: '8px'}} />
                     {/* TODO fix shitty scrolling. maybe use pages instead */}
-                    <div style={{overflowY: 'scroll', height: 'calc(100% - 24px)', paddingRight: '8px'}}>
-                        {data.account.nativeAssets.map((coin, i) =><>
-                            <AssetRow coin={coin} chain={chain} />
-                            { i < data.account.nativeAssets.length - 1 && <div style={{borderBottom: '1px solid var(--light-gray)'}} />}
-                        </>)}
-                    </div>
-                    {!data.account.nativeAssets.length && <div className='py-4 w-full text-center'>
-                        No assets found.
-                    </div>}
+
+                    {data.account.nativeAssets.length ?
+                        <div style={{overflowY: 'scroll', height: 'calc(100% - 24px)', paddingRight: '8px'}}>
+                            {data.account.nativeAssets.map((coin, i) =><>
+                                <AssetRow coin={coin} chain={chain} />
+                                { i < data.account.nativeAssets.length - 1 && <div style={{borderBottom: '1px solid var(--light-gray)'}} />}
+                            </>)}
+                        </div>
+                    :
+                        <div className='py-4 w-full text-center'>
+                            No assets found.
+                        </div>
+                    }
                 </Card>
             </div>
             <Card>

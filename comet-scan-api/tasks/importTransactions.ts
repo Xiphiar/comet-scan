@@ -51,10 +51,12 @@ const importTransactions = async (chainId: string) => {
 export const importTransactionsForBlock = async (chainId: string, blockHeight: number) => {
     // console.log(`Importing transactions for block ${blockHeight} on ${chainId}`)
     const config = getChainConfig(chainId);
-    let block: Block | null = await Blocks.findOne({ height: blockHeight }).lean();
+    if (!config) throw `Config not found for ${chainId}`;
+
+    let block: Block | null = await Blocks.findOne({ chainId, height: blockHeight }).lean();
     if (!block) {
         await processBlock(chainId, config.rpc, blockHeight);
-        block = await Blocks.findOne({ height: blockHeight }).lean();
+        block = await Blocks.findOne({ chainId, height: blockHeight }).lean();
         // throw `Block ${blockHeight} not found in DB for ${chainId}`;
     }
     if (!block) {
@@ -162,6 +164,7 @@ export const addExecutedContractsToTransactions = async (chainId: string) => {
     try {
         console.log('Migrating transactions on', chainId)
         const config = getChainConfig(chainId);
+        if (!config) throw `Config not found for ${chainId}`;
 
         const txs = await Transactions.find({ chainId, executedContracts: { $exists: false } });
         

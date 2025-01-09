@@ -354,7 +354,11 @@ export const getSingleContract = api(
     const code = await Codes.findOne({ chainId, codeId: contract.codeId }, { _id: false, __v: false }).lean();
     if (!code) throw new APIError(ErrCode.NotFound, 'Contract code not found');
 
-    const verification = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
+    let verification: any = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
+    if (verification) verification = {
+      ...verification,
+      code_zip: verification.code_zip.buffer.toString('base64'),
+    }
 
     const recentTransactions = await Transactions.find({ chainId, executedContracts: contractAddress }, { _id: false, __v: false }).sort({height: -1}).limit(20).lean();
 

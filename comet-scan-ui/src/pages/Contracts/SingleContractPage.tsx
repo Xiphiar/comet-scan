@@ -27,6 +27,20 @@ const SingleContractPage: FC = () => {
     if (!data) {
         return <ContentLoading chain={chain} title={title} error={error} />
     }
+
+    const handleDownloadCode = async () => {
+        try {
+            if (!data.verification?.code_zip) throw 'Contract not verified';
+
+            const link = document.createElement('a');
+            link.innerHTML = 'Download cope ZIP';
+            link.download = 'code.zip';
+            link.href = 'data:application/zip;base64,' + data.verification.code_zip;
+            link.click();
+        } catch (err: any) {
+            alert(`TODO handle error: ${err.toString()}`)
+        }
+    }
  
     return (
         <div className='d-flex flex-column mx-4'>
@@ -53,6 +67,14 @@ const SingleContractPage: FC = () => {
                         <div className='col-3 font-weight-bold'>Verified</div>
                         <div className='col'>{data.verification ? 'Yes' : 'No'}</div>
                     </div>
+                    { !!data.verification?.code_zip &&
+                        <div className='d-flex'>
+                            <div className='col-3 font-weight-bold'>Source Code</div>
+                            <div className='col'>
+                                <button type='button' className='buttonLink' onClick={handleDownloadCode}>Download</button>
+                            </div>
+                        </div>
+                    }
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Created Height</div>
                         <div className='col'>

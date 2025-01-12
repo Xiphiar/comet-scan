@@ -94,7 +94,7 @@ export const getActiveValidators = api(
 export const getInactiveValidators = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/validators/inactive" },
   async ({ chainId }: { chainId: string }): Promise<ValidatorsPageResponse> => {
-    const validators = await getValidatorsFromDb(chainId, ['BOND_STATUS_UNBONDED', 'BOND_STATUS_UNBONDED']);
+    const validators = await getValidatorsFromDb(chainId, ['BOND_STATUS_UNBONDED', 'BOND_STATUS_UNBONDED', 'BOND_STATUS_UNBONDING']);
     const stakingMetrics = await getStakingMetrics(chainId);
 
     return {

@@ -10,6 +10,7 @@ import { SingleTransactionPageResponse } from "../../interfaces/responses/explor
 import { getSingleTransactionPage } from "../../api/pagesApi";
 import MessageRow from "../../components/MessageRow/messageRow";
 import { truncateString } from "../../utils/format";
+import { parseMessages } from "../../utils/messageParsing";
 
 const SingleTransactionPage: FC = () => {
     const { chain: chainLookupId, transactionHash } = useParams();
@@ -30,6 +31,10 @@ const SingleTransactionPage: FC = () => {
     }
 
     const feeAmount = data.transaction.transaction.tx.auth_info.fee.amount.find(coin => coin.denom === chain.bondingDenom)?.amount || '0'; 
+    console.log(data.transaction.transaction.tx_response)
+    const parsedMessages = parseMessages(chain, data.transaction.transaction);
+
+
     return (
         <div className='d-flex flex-column mx-4'>
             <TitleAndSearch chain={chain} title={`Transaction ${truncateString(transactionHash)}`} />
@@ -89,10 +94,10 @@ const SingleTransactionPage: FC = () => {
                     </div>
                 </div>
             </Card>
-            <Card className='d-flex flex-column gap-3'>
+            <Card conentClassName='d-flex flex-column gap-2'>
                 <h3>Messages</h3>
-                {data.transaction.transaction.tx.body.messages.map((_, i) =><>
-                    <MessageRow transaction={data.transaction} messageIndex={i} />
+                {parsedMessages.map((msg, i) =><>
+                    <MessageRow message={msg} messageIndex={i} key={`${msg.title}${i}`} />
                 </>)}
             </Card>
         </div>

@@ -1,24 +1,14 @@
+import { ReactElement } from "react";
+import { Coin } from "../interfaces/models/blocks.interface";
 import { ProposalStatus } from "../interfaces/models/proposals.interface";
+import { getDenomDetails } from "./denoms";
+import { weiFormatNice } from "./coin";
 
 export const truncateString = (str: string, charactersToKeep = 6) => {
     if (str.length < charactersToKeep * 2) return str;
     const start = str.substring(0, charactersToKeep);
     const end = str.substring(str.length - charactersToKeep);
     return `${start}...${end}`
-}
-
-export const formatTxType = (txType: string) => {
-    switch(txType) {
-        case '/secret.compute.v1beta1.MsgExecuteContract': return 'Execute Contract';
-        case '/ibc.core.client.v1.MsgUpdateClient': return 'Update IBC Client';
-        case '/ibc.core.channel.v1.MsgAcknowledgement': return 'IBC Packet Acknowledgement';
-        case '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward': return 'Claim Rewards';
-        case '/cosmos.staking.v1beta1.MsgDelegate': return 'Delegate';
-        case '/cosmos.bank.v1beta1.MsgSend': return 'Send Coins';
-        case '/cosmos.gov.v1beta1.MsgSubmitProposal': return 'Submit Proposal';
-        case '/cosmos.gov.v1.MsgSubmitProposal': return 'Submit Proposal';
-        default: return txType;
-    }
 }
 
 export const formatProposalStatus = (status: ProposalStatus) => {
@@ -60,4 +50,19 @@ export const stringToColor = (str?: string) => {
       colour += value.toString(16).padStart(2, '0')
     }
     return colour
-  }
+}
+
+export const formatCoin = (coin: Coin): string => {
+    console.log('Coin', coin)
+    const details = getDenomDetails(coin.denom);
+
+    return `${weiFormatNice(coin.amount, details.decimals)} ${details.symbol}`
+}
+
+export const formatAmounts = (coins: Coin[]): ReactElement => <div>
+    {coins.map((coin: Coin) => {
+        return <div>{formatCoin(coin)}</div>
+    })}
+</div> 
+
+export const formatCoins = formatAmounts;

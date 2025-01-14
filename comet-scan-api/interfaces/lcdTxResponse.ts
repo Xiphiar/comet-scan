@@ -1,3 +1,26 @@
+export type LogEvent = {
+  type: string
+  attributes: {
+    key: string
+    value: string
+  }[]
+}
+
+export type MsgLog = {
+  msg_index: number
+  log: string
+  events: LogEvent[]
+}
+
+export type TxEvent = {
+  type: string
+  attributes: {
+    key: string
+    value: string
+    index: boolean
+  }[]
+}
+
 export type LcdTxResponse = {
     tx: {
       body: {
@@ -39,29 +62,12 @@ export type LcdTxResponse = {
       code: number
       data: string
       raw_log: string
-      logs: {
-        msg_index: number
-        log: string
-        events: {
-          type: string
-          attributes: {
-            key: string
-            value: string
-          }[]
-        }[]
-      }[]
+      logs: MsgLog[]
       info: string
       gas_wanted: string
       gas_used: string
       timestamp: string
-      events: {
-        type: string
-        attributes: {
-          key: string
-          value: string
-          index: boolean
-        }[]
-      }[]
+      events: TxEvent[]
     }
 }
 

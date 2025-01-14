@@ -140,3 +140,12 @@ h1 {
 .blackLink:hover {
   color: var(--main);
 }
+
+.detailsOpenHide[open] {
+  summary {
+      color: transparent;
+  }
+  summary::marker {
+      color: black;
+  }
+}

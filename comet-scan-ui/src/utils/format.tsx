@@ -2,7 +2,7 @@ import { ReactElement } from "react";
 import { Coin } from "../interfaces/models/blocks.interface";
 import { ProposalStatus } from "../interfaces/models/proposals.interface";
 import { getDenomDetails } from "./denoms";
-import { weiFormatNice } from "./coin";
+import { weiFormatFixed, weiFormatNice } from "./coin";
 
 export const truncateString = (str: string, charactersToKeep = 6) => {
     if (str.length < charactersToKeep * 2) return str;
@@ -24,9 +24,9 @@ export const formatProposalStatus = (status: ProposalStatus) => {
 
 export const formatProposalType = (type: string) => {
     switch(type) {
-        case '/cosmos.upgrade.v1beta1.SoftwareUpgradeProposal': return 'Upgrade';
-        case '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade': return 'Upgrade';
-        case '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal': return 'Spend';
+        case '/cosmos.upgrade.v1beta1.SoftwareUpgradeProposal': return 'Software Upgrade';
+        case '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade': return 'Software Upgrade';
+        case '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal': return 'Community Pool Spend';
         case '/cosmos.params.v1beta1.ParameterChangeProposal': return 'Parameter Change';
         case '/cosmos.consensus.v1.MsgUpdateParams': return 'Parameter Change';
         case '/cosmos.gov.v1beta1.TextProposal': return 'Text';

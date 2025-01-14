@@ -266,17 +266,7 @@ export const parseMessages = (config: FrontendChainConfig, tx: LcdTxResponse, sk
                 return {
                     title: formatTxType(msg['@type']),
                     content: Object.keys(msg).map(key => {
-                        // let value = msg[key];
-                        // if (typeof value === 'object') value = JSON.stringify(value, undefined, 2);
-        
-                        // if (value.length > 64) value = (
-                        //     <details>
-                        //         <summary data-open="Close" data-close="Show">{truncateString(value, 30)}</summary>
-                        //         <div className='text-break'>{value}</div>
-                        //     </details>
-                        // )
                         const value = defaultKeyContent(msg[key])
-
                         return [key, value]
                     }),
                     amounts: [],
@@ -289,11 +279,11 @@ export const parseMessages = (config: FrontendChainConfig, tx: LcdTxResponse, sk
     return parsed;
 }
 
-const defaultKeyContent = (value: any): string => {
+export const defaultKeyContent = (value: any): string => {
     if (typeof value === 'object') value = JSON.stringify(value, undefined, 2);
 
     if (value.length > 64) value = (
-        <details>
+        <details className='detailsOpenHide'>
             <summary data-open="Close" data-close="Show">{truncateString(value, 30)}</summary>
             <div className='text-break'>{value}</div>
         </details>

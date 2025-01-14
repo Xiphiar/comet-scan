@@ -309,11 +309,9 @@ export const getContractsPage = api(
 
     console.time('Contracts With Stats')
     const now = new Date();
-    const oneDayAgo = new Date(now.valueOf() - dayMs);
     const contractsWithStats: ContractWithStats[] = []
     for (const contract of contracts) {
       const dailyExecutions = await get24hContractExecutionsCount(chainId, contract.contractAddress);
-      // const code = await Codes.findOne({ chainId, codeId: contract.codeId }).lean();
       const verification = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
 
       contractsWithStats.push({

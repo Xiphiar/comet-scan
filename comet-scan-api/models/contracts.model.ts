@@ -53,9 +53,11 @@ const contractsSchema = new mongoose.Schema<WasmContract>({
     executions: {
         type: Number,
         required: true,
-        index: true,
+        // index: true,
     }
 });
+
+contractsSchema.index({ chainId: 1, executions: -1 });
 
 const Contracts = mongoose.model<WasmContract>('Contracts', contractsSchema);
 

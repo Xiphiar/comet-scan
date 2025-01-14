@@ -44,7 +44,7 @@ const VerifyCodePage: FC = () => {
 
     if (taskId) {
         return (
-            <div className='d-flex flex-column mx-4'>
+            <div className='d-flex flex-column'>
                 <TitleAndSearch chain={chain} title={title} />
                 <Card conentClassName='align-items-center p-4 gap-4'>
                     { (data.status === 'Running') && <>
@@ -87,7 +87,7 @@ const VerifyCodePage: FC = () => {
     }
  
     return (
-        <div className='d-flex flex-column mx-4'>
+        <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={title} />
             <Card conentClassName='p-4'>
                 <div className='text-center'>

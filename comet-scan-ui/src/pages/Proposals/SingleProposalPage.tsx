@@ -39,7 +39,7 @@ const SingleProposalPage: FC = () => {
     const turnoutPercent = totalWithAbstain / Number(data.bonded.amount)
     const parsedContent = parseProposal(chain, data.proposal.proposal);
     return (
-        <div className='d-flex flex-column mx-4'>
+        <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={`Proposal ${proposalId}`} />
             <div className='d-flex flex-wrap w-full'>
                 <Card className='col col-12 col-sm-4'>

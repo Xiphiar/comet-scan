@@ -31,7 +31,7 @@ const MainLayout: FC = () => {
                 </div>
             </header>
             <div style={{display: 'flex', justifyContent: 'center'}}>
-                <div style={{width: '100%', maxWidth: '1400px'}}>
+                <div style={{width: '100%', maxWidth: '1400px'}} className='px-md-4'>
                     <Outlet />
                 </div>
             </div>

@@ -38,7 +38,7 @@ const SingleValidatorPage: FC = () => {
     const active = data.validator.status === 'BOND_STATUS_BONDED' && !data.validator.jailed;
  
     return (
-        <div className='d-flex flex-column mx-4'>
+        <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title='Validator' />
             <Card>
                 <div>

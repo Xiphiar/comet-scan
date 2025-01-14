@@ -29,7 +29,7 @@ const RecentBlocksPage: FC = () => {
     }
 
     return (
-        <div className='d-flex flex-column mx-4'>
+        <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={title} />
             {/* <div className='d-flex w-full'>
                 <Card className='col'>
@@ -53,19 +53,19 @@ const RecentBlocksPage: FC = () => {
                 <h3>Recent Blocks</h3>
                 {!!data.blocks.length &&
                     <div className='d-flex mt-4 mb-1'>
-                        <div className='col col-2'>
+                        <div className='col col-2 col-lg-2'>
                             Height
                         </div>
-                        <div className='col col-2'>
+                        <div className='col col-2 d-none d-lg-block'>
                             Hash
                         </div>
-                        <div className='col col-2'>
+                        <div className='col col-2 col-lg-2'>
                             Transactions
                         </div>
-                        <div className='col col-4'>
+                        <div className='col col-6 col-lg-2'>
                             Proposer
                         </div>
-                        <div className='col col-2'>
+                        <div className='col col-2 col-lg-2'>
                             Time
                         </div>
                     </div>

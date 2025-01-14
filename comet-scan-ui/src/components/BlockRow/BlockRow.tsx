@@ -13,14 +13,14 @@ const BlockRow: FC<{ block: BlockWithProposer, chain: FrontendChainConfig }> = (
             className={styles.dataRow}
             // style={position + 1 < total ? {borderBottom: '1px solid var(--light-grey)'} : undefined }
         >
-            <div className='col col-2'>{block.height.toLocaleString()}</div>
-            <div className='col col-2'>{truncateString(block.hash)}</div>
-            <div className='col col-2'>{block.transactionsCount}</div>
-            <div className='col col-4 d-flex flex-row gap-2 align-items-center'>
+            <div className='col col-2 col-lg-2'>{block.height.toLocaleString()}</div>
+            <div className='d-none d-lg-block col col-2'>{truncateString(block.hash)}</div>
+            <div className='col col-2 col-lg-2'>{block.transactionsCount}</div>
+            <div className='col col-6 col-lg-4 d-flex flex-row gap-2 align-items-center'>
                 <ValidatorAvatar avatarUrl={block.proposer?.latestDescription.keybaseAvatarUrl} moniker={block.proposer?.latestDescription.moniker} />
                 {block.proposer?.latestDescription.moniker || block.proposer?.operatorAddress}
             </div>
-            <div className='col col-2'>{new Date(block.timestamp).toLocaleString()}</div>
+            <div className='col col-2 col-lg-2'>{new Date(block.timestamp).toLocaleString()}</div>
         </Link>
     )
 }

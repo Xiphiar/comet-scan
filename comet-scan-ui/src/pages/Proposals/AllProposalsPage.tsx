@@ -29,25 +29,25 @@ const AllProposalsPage: FC = () => {
     }
 
     return (
-        <div className='d-flex flex-column mx-4'>
+        <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={title} />
             <Card className='col'>
                 <h3>All Proposals</h3>
                 {!!data.proposals.length &&
                     <div className='d-flex mt-4 mb-1'>
-                        <div className='col col-1'>
+                        <div className='col col-2 col-sm-1'>
                             ID
                         </div>
-                        <div className='col-5'>
+                        <div className='col col-7 col-sm-6 col-md-4'>
                             Title
                         </div>
-                        <div className='col col-2'>
+                        <div className='col col-3'>
                             Type
                         </div>
-                        <div className='col col-2'>
+                        <div className='col col-2 col-sm-2 d-none d-sm-block text-end text-md-start'>
                             Status
                         </div>
-                        <div className='col col-2 d-none d-sm-block text-end'>
+                        <div className='col col-2 d-none d-md-block text-end'>
                             Ends
                         </div>
                     </div>

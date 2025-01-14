@@ -1,6 +1,6 @@
 .avatarWrapper {
     border-radius: 50%;
-    overflow: hidden;
+    overflow: clip;
 
     > img {
         height: 100%;

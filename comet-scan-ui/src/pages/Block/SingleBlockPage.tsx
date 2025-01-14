@@ -31,7 +31,7 @@ const SingleBlockPage: FC = () => {
 
     const proposerDetails = data.proposer?.descriptions.length ? data.proposer.descriptions[0] : undefined;
     return (
-        <div className='d-flex flex-column mx-4'>
+        <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={`Block ${blockHeight}`} />
             <div className='d-flex flex-wrap w-full'>
                 <Card className='col col-6 col-md-3 flex-grow-1'>
@@ -100,16 +100,16 @@ const SingleBlockPage: FC = () => {
                 <h3>Transactions</h3>
                 {!!data.transactions.length &&
                     <div className='d-flex mt-4 mb-1'>
-                        <div className='col col-2'>
+                        <div className='col col-4 col-md-2'>
                             Hash
                         </div>
-                        <div className='col col-6'>
+                        <div className='col col-6 col-md-6'>
                             Type
                         </div>
-                        <div className='col col-2'>
+                        <div className='col col-2 col-md-2'>
                             Amount
                         </div>
-                        <div className='col col-2'>
+                        <div className='d-none d-md-block col col-2'>
                             Fee
                         </div>
                     </div>

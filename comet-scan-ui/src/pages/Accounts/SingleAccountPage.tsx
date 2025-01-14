@@ -32,7 +32,7 @@ const SingleAccountPage: FC = () => {
     }
  
     return (
-        <div className='d-flex flex-column mx-4'>
+        <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={title} />
             <div className='d-flex flex-wrap'>
                 <Card className="col">
@@ -88,16 +88,16 @@ const SingleAccountPage: FC = () => {
                 <h3>Recent Transactions</h3>
                 {!!data.recentTransactions.length &&
                     <div className='d-flex mt-4 mb-1'>
-                        <div className='col col-2'>
+                        <div className='col col-4 col-md-2'>
                             Hash
                         </div>
-                        <div className='col col-6'>
+                        <div className='col col-6 col-md-6'>
                             Type
                         </div>
-                        <div className='col col-2'>
+                        <div className='col col-2 col-md-2'>
                             Amount
                         </div>
-                        <div className='col col-2'>
+                        <div className='d-none d-md-block col col-2'>
                             Fee
                         </div>
                     </div>
@@ -120,7 +120,7 @@ const SingleAccountPage: FC = () => {
                         <div className='col col-5 col-md-3'>
                             Address
                         </div>
-                        <div className='col col-2 col-md-1'>
+                        <div className='col col-2 col-md-1 text-end text-md-start'>
                             Code ID
                         </div>
                         <div className='col col-2 d-none d-md-block'>
@@ -150,7 +150,7 @@ const SingleAccountPage: FC = () => {
                         <div className='col col-5 col-md-3'>
                             Address
                         </div>
-                        <div className='col col-2 col-md-1'>
+                        <div className='col col-2 col-md-1 text-end text-md-start'>
                             Code ID
                         </div>
                         <div className='col col-2 d-none d-md-block'>

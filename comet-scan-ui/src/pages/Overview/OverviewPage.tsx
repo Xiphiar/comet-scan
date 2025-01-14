@@ -33,7 +33,7 @@ const OverviewPage: FC = () => {
     const supply = weiFormatNice(data.metrics.supply.amount, data.metrics.supply.denomDecimals)
     const inflation = data.metrics.inflationRate * 100
     return (
-        <div className='d-flex flex-column mx-4'>
+        <div className='d-flex flex-column mx-md-4'>
             <TitleAndSearch chain={chain} title='Overview' />
             <div className='d-flex w-full flex-wrap'>
                 <Card className='col col-6 col-md-3'>

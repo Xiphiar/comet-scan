@@ -32,19 +32,19 @@ const ProposalsCard: FC<{ chain: FrontendChainConfig, proposals: Proposal[], tot
                     }
                 </div>
                 <div className='d-flex mt-1 mb-1'>
-                    <div className='col col-1'>
+                    <div className='col col-2 col-sm-1'>
                         ID
                     </div>
-                    <div className='col col-7 col-sm-5'>
+                    <div className='col col-7 col-sm-6 col-md-4'>
                         Title
                     </div>
-                    <div className='col col-2 col-sm-2'>
+                    <div className='col col-3'>
                         Type
                     </div>
-                    <div className='col col-2 col-sm-2'>
+                    <div className='col col-2 col-sm-2 d-none d-sm-block text-end text-md-start'>
                         Status
                     </div>
-                    <div className='col col-2 d-none d-sm-block text-end'>
+                    <div className='col col-2 d-none d-md-block text-end'>
                         Ends
                     </div>
                 </div>
@@ -71,13 +71,13 @@ export const ProposalRow: FC<{ chain: FrontendChainConfig, proposal: Proposal }>
             to={`/${chain.id}/proposals/${proposal.id}`}
             className={`${styles.dataRow} ${styles.propRow}`}
         >
-            <div className='col col-1'>
+            <div className='col col-2 col-sm-1'>
                 <h5>#{proposal.id}</h5>
             </div>
-            <div className='col col-7 col-sm-5 twoLineLimit'>{proposal.title}</div>
-            <div className='col col-2'>{formatProposalType(proposal.proposalType)}</div>
-            <div className='col col-2'>{formatProposalStatus(proposal.status)}</div>
-            <div className='col col-2 d-none d-sm-flex text-end align-items-end'>
+            <div className='col col-7 col-sm-6 col-md-4 twoLineLimit'>{proposal.title}</div>
+            <div className='col col-3'>{formatProposalType(proposal.proposalType)}</div>
+            <div className='col col-2 col-sm-2 d-none d-sm-block text-end text-md-start'>{formatProposalStatus(proposal.status)}</div>
+            <div className='col col-2 d-none d-md-flex text-end align-items-end'>
                 <div style={{fontWeight: 700}}>{endTime.toLocaleDateString()}</div><br />
                 {endTime.toLocaleTimeString()}
             </div>

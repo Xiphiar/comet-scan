@@ -37,7 +37,7 @@ const ValidatorsListPage: FC<{inactive?: boolean}> = ({inactive}) => {
     console.log('data.stakingMetrics', data.stakingMetrics)
  
     return (
-        <div className='d-flex flex-column mx-4'>
+        <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title='Validators' />
             <div className='d-flex flex-wrap w-full'>
                 <Card className='col col-6 col-md-3'>

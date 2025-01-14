@@ -44,7 +44,7 @@ const SingleCodePage: FC = () => {
     }
  
     return (
-        <div className='d-flex flex-column mx-4'>
+        <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={title} />
             <Card>
                 <h3>Overview</h3>
@@ -107,7 +107,7 @@ const SingleCodePage: FC = () => {
                         <div className='col col-5 col-md-3'>
                             Address
                         </div>
-                        <div className='col col-2 col-md-1'>
+                        <div className='col col-2 col-md-1 text-end text-md-start'>
                             Code ID
                         </div>
                         <div className='col col-2 d-none d-md-block'>

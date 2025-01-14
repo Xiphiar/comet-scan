@@ -20,10 +20,10 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
             className={styles.dataRow}
             // style={position + 1 < total ? {borderBottom: '1px solid var(--light-grey)'} : undefined }
         >
-            <div className='col col-2'>{truncateString(transaction.hash, 8)}</div>
-            <div className='col col-6'>{formatTxType(txType)}</div>
-            <div className='col col-2'>{formatAmounts(allAmounts)}</div>
-            <div className='col col-2'>{weiFormatNice(fee, chain.bondingDecimals)} {chain.bondingDisplayDenom}</div>
+            <div className='col col-4 col-md-2'>{truncateString(transaction.hash, 4)}</div>
+            <div className='col col-6 col-md-6'>{formatTxType(txType)}</div>
+            <div className='col col-2 col-md-2'>{formatAmounts(allAmounts)}</div>
+            <div className='d-none d-md-block col col-2'>{weiFormatNice(fee, chain.bondingDecimals)} {chain.bondingDisplayDenom}</div>
         </Link>
     )
 }

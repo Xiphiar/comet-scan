@@ -11,9 +11,9 @@ const ContractRow: FC<{ contract: ContractWithStats, chain: FrontendChainConfig 
             className='dataRow'
             // style={position + 1 < total ? {borderBottom: '1px solid var(--light-grey)'} : undefined }
         >
-            <div className='col col-5 col-md-4'>{truncateString(contract.label, 18)}</div>
-            <div className='col col-5 col-md-3'>{truncateString(contract.contractAddress, 10)}</div>
-            <div className='col col-2 col-md-1'>{contract.codeId}</div>
+            <div className='col col-5 col-md-4 twoLineLimit'>{truncateString(contract.label, 18)}</div>
+            <div className='col col-5 col-md-3'>{truncateString(contract.contractAddress, 8)}</div>
+            <div className='col col-2 col-md-1 text-end text-md-start'>{contract.codeId}</div>
             <div className='col col-2 d-none d-md-block'>{contract.created?.block_height || 'Unknown'}</div>
             <div className='col col-2 d-none d-md-block'>{contract.executions.toLocaleString()}</div>
         </Link>

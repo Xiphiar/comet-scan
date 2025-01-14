@@ -195,13 +195,3 @@ input {
   max-height: 2em;
   line-height: 1em;
 }
-.twoLineLimit:after {
-  /* background: white; */
-  bottom: 0;
-  position: absolute;
-  right: 0;
-  float: right;
-  content: '\2026';
-  margin-left: -3rem;
-  width: 1rem;
-}

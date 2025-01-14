@@ -5,6 +5,7 @@ import Validators from "../models/validators";
 import { getSecretWasmClient } from "./cosmWasmClient";
 import { Cache } from "./cache";
 import { NftContractInfoResponse, TokenInfoResponse } from "../interfaces/secretQueryResponses";
+import { Coin } from "../interfaces/models/blocks.interface";
 
 export const getTotalSupply = async (chainId: string): Promise<Amount> => {
     const chainConfig = Chains.find(c => c.chainId === chainId);
@@ -13,30 +14,20 @@ export const getTotalSupply = async (chainId: string): Promise<Amount> => {
     const cached = Cache.get<Amount>(`${chainId}-total-supply`);
     if (cached) return cached;
 
-    if (chainConfig.sdkVersion === '50') {
-        const {data: _data} = await axios.get(`${chainConfig.lcd}/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.bondingDenom}`);
-        const data = {
-            amount: _data?.amount?.amount || '0',
-            denom: chainConfig.bondingDenom,
-            denomDecimals: chainConfig.bondingDecimals,
+    // const {data: _data} = await axios.get(`${chainConfig.lcd}/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.bondingDenom}`);
+    const {data: _data}: { data: { supply: Coin[] }} = await axios.get(`${chainConfig.lcd}/cosmos/bank/v1beta1/supply`, {
+        params: {
+            'pagination.limit': 1000,
         }
-        Cache.set(`${chainId}-total-supply`, data, 300);
-        return data;
-    } else {
-        const client = await getSecretWasmClient(chainConfig.chainId);
-        const response = await client.query.bank.supplyOf({ denom: chainConfig.bondingDenom });
-        const data = {
-            amount: response.amount?.amount || '0',
-            denom: chainConfig.bondingDenom,
-            denomDecimals: chainConfig.bondingDecimals,
-        }
-        Cache.set(`${chainId}-total-supply`, data, 300);
-        return data;
+    });
+    const bondingDenom = _data.supply.find((d: any) => d.denom === chainConfig.bondingDenom);
+    const data = {
+        amount: bondingDenom?.amount || '0',
+        denom: chainConfig.bondingDenom,
+        denomDecimals: chainConfig.bondingDecimals,
     }
-
-
-
-
+    Cache.set(`${chainId}-total-supply`, data, 300);
+    return data;
 }
 
 export const getTotalBonded = async (chainId: string): Promise<Amount> => {

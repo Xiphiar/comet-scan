@@ -37,7 +37,7 @@ const ValidatorsCard: FC<Props> = ({ validators, totalValidators, rankOffset = 0
                 <div className='d-flex justify-content-between align-items-center' style={{marginBottom: '12px'}}>
                     <div>
                         <h3>{title}</h3>
-                        <div style={{fontSize: '75%', color: 'var(--gray)'}}>{totalValidators} {active === false ? 'Inactive' : 'Active'} Validators</div>
+                        <div style={{fontSize: '75%', color: 'var(--secondary-text-color)'}}>{totalValidators} {active === false ? 'Inactive' : 'Active'} Validators</div>
                     </div>
                     { active === false &&
                         <Link className='button' to={`/${chain.id}/validators`}>Show Active</Link>

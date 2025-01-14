@@ -1,9 +1,11 @@
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 
-  color: #FFF;
+  --xlight-gray: #dadada;
+  --xlight-grey: #dadada;
 
-  --main: #1985a1;
+  --light-gray: #c5c3c6;
+  --light-grey: #c5c3c6;
 
   --gray: #4c5c68;
   --grey: #4c5c68;
@@ -14,13 +16,38 @@
   --very-dark-gray: #2d2f31;
   --very-dark-grey: #2d2f31;
 
-  --light-gray: #c5c3c6;
-  --light-grey: #c5c3c6;
+}
 
-  --xlight-gray: #dadada;
-  --xlight-grey: #dadada;
+.theme-light {
+  --main: #1985a1;
+
+  color: #000;
+  --text-color: #000;
+  --secondary-text-color: var(--gray);
 
   --bg: #eee;
+  --nav-bg: var(--xlight-gray);
+  --nav-bottom-border: transparent;
+  --card-bg: #fff;
+  --card-border: #ededed;
+  --input-border: var(--light-gray);
+  --shadow-color: #00000014;
+}
+
+.theme-dark {
+  --main: #22b8dd;
+  
+  color: #FFF;
+  --text-color: #FFF;
+  --secondary-text-color: var(--light-gray);
+
+  --bg: rgb(51, 51, 51, 1);
+  --nav-bg: rgb(51, 51, 51, 1);
+  --nav-bottom-border: var(--gray);
+  --card-bg: rgb(51, 51, 51, 1);
+  --card-border: rgb(237, 237, 237);
+  --input-border: var(--card-border);
+  --shadow-color: #c5c3c614;
 }
 
 @font-face {
@@ -77,11 +104,9 @@ h1 {
   background-color: var(--main);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  color: black;
+  color: var(--text-color);
 }
 .button:hover, button:hover {
-  /* border-color: #646cff; */
-  color: black;
   text-decoration: underline;
 }
 .button:focus, button:focus,
@@ -93,7 +118,7 @@ h1 {
   color: white;
 }
 
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
@@ -104,7 +129,7 @@ h1 {
   button {
     background-color: #f9f9f9;
   }
-}
+} */
 
 .wide, .w-full {
   width: 100%;
@@ -118,9 +143,7 @@ h1 {
   height: 48px;
   width: 100%;
   display: flex;
-  /* gap: .5rem; */
   align-items: center;
-  color: black;
   > div {
       display: flex;
       flex-direction: column;
@@ -130,11 +153,11 @@ h1 {
 .badge {
   padding: 4px 8px;
   width: fit-content;
-  color: black;
+  /* color: var(--text-color); */
 }
 
 .blackLink {
-  color: black;
+  color: var(--text-color);
   transition: all 0.2s ease-in-out;
 }
 .blackLink:hover {
@@ -146,6 +169,13 @@ h1 {
       color: transparent;
   }
   summary::marker {
-      color: black;
+    color: var(--text-color);
   }
+}
+
+input {
+  box-shadow: 3px 3px 7px 1px var(--shadow-color);
+  border: 0.5px solid var(--input-border);
+  background-color: var(--card-bg);
+  color: var(--text-color)
 }

@@ -1,7 +1,8 @@
 .navbar {
-    background-color: var(--xlight-grey);
+    background-color: var(--nav-bg);
     display: flex;
     gap: 8px;
+    border-bottom: 0.5px solid var(--nav-bottom-border);
 
     > a:not(:first-child) {
         display: flex;
@@ -9,11 +10,11 @@
         height: 100%;
         padding: 12px 24px;
         font-weight: 500;
-        color: #000;
+        color: var(--text-color);
     }
     > a:not(:first-child):hover {
         background-color: var(--main);
-        color: #000;
+        color: var(--text-color);
     }
 }
 

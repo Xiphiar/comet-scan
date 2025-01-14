@@ -2,6 +2,7 @@ import { FC } from "react";
 import { Link, Outlet, useParams } from "react-router-dom";
 import styles from './mainLayout.module.scss';
 import useConfig from "../hooks/useConfig";
+import Toggle from "../components/Toggle/Toggle";
 
 const MainLayout: FC = () => {
     const { chain } = useParams();
@@ -16,14 +17,17 @@ const MainLayout: FC = () => {
                         <img src='/logo.svg' style={{height: '30px', marginBottom: '8px'}} />
                         <div style={{fontFamily: 'Bunken Tech', fontSize: '20px', marginTop: '4px', color: 'var(--main)'}}>Comet Scan</div>
                     </Link>
-                    <Link to={`/${chain}`} style={{color: 'black'}}>Overview</Link>
-                    <Link to={`/${chain}/blocks`} style={{color: 'black'}}>Blocks</Link>
-                    <Link to={`/${chain}/transactions`} style={{color: 'black'}}>Transactions</Link>
-                    <Link to={`/${chain}/proposals`} style={{color: 'black'}}>Proposals</Link>
-                    <Link to={`/${chain}/validators`} style={{color: 'black'}}>Validators</Link>
+                    <Link to={`/${chain}`}>Overview</Link>
+                    <Link to={`/${chain}/blocks`}>Blocks</Link>
+                    <Link to={`/${chain}/transactions`}>Transactions</Link>
+                    <Link to={`/${chain}/proposals`}>Proposals</Link>
+                    <Link to={`/${chain}/validators`}>Validators</Link>
                     { (chainConfig.features.includes('secretwasm') || chainConfig.features.includes('cosmwasm')) &&
-                        <Link to={`/${chain}/contracts`} style={{color: 'black'}}>Contracts</Link>
+                        <Link to={`/${chain}/contracts`}>Contracts</Link>
                     }
+                    <div style={{marginLeft: 'auto', paddingRight: '16px'}} className='d-flex align-items-center'>
+                        <Toggle />
+                    </div>
                 </div>
             </header>
             <div style={{display: 'flex', justifyContent: 'center'}}>

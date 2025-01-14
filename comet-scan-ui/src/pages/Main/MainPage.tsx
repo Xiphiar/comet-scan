@@ -4,6 +4,7 @@ import Card from "../../components/Card";
 import { Link } from "react-router-dom";
 import Spinner from "../../components/Spinner";
 import styles from './MainPage.module.scss';
+import Toggle from "../../components/Toggle/Toggle";
 
 type Props = {
     isLoading?: boolean;
@@ -11,10 +12,15 @@ type Props = {
 }
 const MainPage: FC<Props> = ({isLoading, loadingError}) => {
     const { chains } = useConfig();
-    return (
+    return (<>
+    
+        <div style={{position: 'absolute', top: '16px', right: '16px'}}>
+            <Toggle />
+        </div>
+                    
         <div className='d-flex flex-column align-items-center' style={{paddingTop: '15vh'}}>
             <div className='d-flex align-items-center gap-4' style={{color: 'var(--main)'}}>
-                <img src='/logo.svg' style={{height: '120px'}} />
+                <img src='/logo.svg' style={{height: '120px', fill: 'red'}} />
                 <h1 style={{marginTop: '32px', fontFamily: 'Bunken Tech'}}>Comet Scan</h1>
             </div>
             { isLoading ?
@@ -40,7 +46,7 @@ const MainPage: FC<Props> = ({isLoading, loadingError}) => {
                 </div>
             }
         </div>
-    )
+    </>)
 }
 
 export default MainPage

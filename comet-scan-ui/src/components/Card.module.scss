@@ -5,12 +5,12 @@
 
 .card {
     padding: 16px;
-    box-shadow: 3px 3px 7px 1px #00000014;
+    box-shadow: 3px 3px 7px 1px var(--shadow-color);
     border-radius: 1px;
     border-style: solid;
-    border-width: .5px .5px .5px .5px;
-    border-color: #ededed;
-    background-color: #fff;
+    border-width: 0.5px;
+    border-color: var(--card-border);
+    background-color: var(--card-bg);
     display: flex;
     flex-direction: column;
     justify-content: center;

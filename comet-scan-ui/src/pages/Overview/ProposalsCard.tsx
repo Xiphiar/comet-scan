@@ -25,7 +25,7 @@ const ProposalsCard: FC<{ chain: FrontendChainConfig, proposals: Proposal[], tot
                 <div className='d-flex justify-content-between align-items-center' style={{marginBottom: '12px'}}>
                     <div>
                         <h3>Recent Proposals</h3>
-                        <div style={{fontSize: '75%', color: 'var(--gray)'}}>{totalProposals || '...'} Total Proposals</div>
+                        <div style={{fontSize: '75%', color: 'var(--secondary-text-color)'}}>{totalProposals || '...'} Total Proposals</div>
                     </div>
                     { showMoreLink === true &&
                         <Link className='blackLink' style={{fontSize: '24px'}} to={`/${chain.id}/proposals`}>➜</Link>

@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { FC, PropsWithChildren, StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
   createBrowserRouter,

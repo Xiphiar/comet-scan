@@ -30,10 +30,9 @@
 }
 
 .searchLink {
-    color: black;
+    color: var(--text-color);
     padding: 12px;
 }
 .searchLink:hover {
     background-color: var(--main);
-    color: black;
 }

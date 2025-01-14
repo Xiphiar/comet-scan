@@ -74,7 +74,7 @@ export const ProposalRow: FC<{ chain: FrontendChainConfig, proposal: Proposal }>
             <div className='col col-1'>
                 <h5>#{proposal.id}</h5>
             </div>
-            <div className='col col-7 col-sm-5'>{proposal.title}</div>
+            <div className='col col-7 col-sm-5 twoLineLimit'>{proposal.title}</div>
             <div className='col col-2'>{formatProposalType(proposal.proposalType)}</div>
             <div className='col col-2'>{formatProposalStatus(proposal.status)}</div>
             <div className='col col-2 d-none d-sm-flex text-end align-items-end'>

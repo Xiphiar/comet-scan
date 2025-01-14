@@ -180,3 +180,28 @@ input {
   background-color: var(--card-bg);
   color: var(--text-color)
 }
+
+.twoLineLimit {
+  /* overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; 
+  -webkit-box-orient: vertical; */
+
+  display: block;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow: hidden;
+  max-height: 2em;
+  line-height: 1em;
+}
+.twoLineLimit:after {
+  /* background: white; */
+  bottom: 0;
+  position: absolute;
+  right: 0;
+  float: right;
+  content: '\2026';
+  margin-left: -3rem;
+  width: 1rem;
+}

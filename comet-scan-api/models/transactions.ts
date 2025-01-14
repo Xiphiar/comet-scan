@@ -42,7 +42,7 @@ const transactionsSchema = new mongoose.Schema<Transaction>({
     executedContracts: {
         type: [String],
         required: true,
-        index: true,
+        // index: true,
     },
     feePayer: {
         type: String,
@@ -73,6 +73,7 @@ const transactionsSchema = new mongoose.Schema<Transaction>({
 });
 
 transactionsSchema.index({ chainId: 1, blockHeight: -1, timestamp: -1 });
+transactionsSchema.index({ chainId: 1, executedContracts: -1, timestamp: -1 });
 
 const Transactions = mongoose.model<Transaction>('Transactions', transactionsSchema);
 

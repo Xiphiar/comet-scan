@@ -10,7 +10,12 @@ const ConfigProvider = ({ children }: PropsWithChildren): ReactElement => {
     const [loadingError, setLoadingError] = useState<string>();
     const [chains, setChains] = useState<FrontendChainConfig[]>([]);
     const [devMode, setDevMode] = useState(false);
-    const [themeClass, setThemeClass] = useState("theme-light");
+
+    const defaultTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+    );
+    const [themeClass, setThemeClass] = useState(defaultTheme ? defaultTheme : prefersDark.matches ? 'theme-dark' : 'theme-light');
 
     useEffect(() => {
         setTheme(themeClass)

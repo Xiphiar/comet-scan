@@ -52,11 +52,13 @@ interface SearchResult {
     link: string;
 }
 
-const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string}> = ({chain, title}) => {
+const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string, excludeNetworkName?: boolean}> = ({chain, title, excludeNetworkName = false}) => {
     const {chains} = useConfig();
     const searchInputElement = useRef(null)
     const [searchInput, setSearchInput] = useState('');
     const [focused, setFocused] = useState(false);
+
+    const titlePrefix = excludeNetworkName ? '' : `${chain.name} `;
 
     const onBlur = async () => {
         // Sleep for a small amount of time before hiding the results, otherwise result links can't be clicked
@@ -114,7 +116,7 @@ const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string}> = ({chain,
         <div className={styles.titleAndSearchWrapper}>
             <div className='d-flex gap-4 align-items-center'>
                 {!!chain.logoFile && <img src={`/logos/${chain.logoFile}`} style={{height: '50px'}} />}
-                <h1 style={{display: 'block', fontFamily: 'Bunken Tech'}}>{chain.name} {title}</h1>
+                <h1 style={{display: 'block', fontFamily: 'Bunken Tech'}}>{titlePrefix}{title}</h1>
             </div>
             <form onSubmit={handleSearch}>
                 <input

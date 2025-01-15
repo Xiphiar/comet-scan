@@ -91,7 +91,7 @@ const VerifyCodePage: FC = () => {
  
     return (
         <div className='d-flex flex-column'>
-            <TitleAndSearch chain={chain} title={title} />
+            <TitleAndSearch chain={chain} title={title} excludeNetworkName={true} />
             <Card conentClassName='p-4'>
                 <h3>Verify Contract Code</h3>
                 <p>
@@ -101,7 +101,7 @@ const VerifyCodePage: FC = () => {
                     <br />
                     This process can take up to an hour to complete.<br />
                     <br />
-                    Verified code will be made available to download by any user of Comet Scan. <b>Do not attempt to verify any code that should be kept private.</b><br />
+                    <b>Do not attempt to verify any code that should be kept private.</b> Verified code will be made available to download by any user of Comet Scan.<br />
                     <br />
                     After submitting a repository, you will be given a URL to track the verification process.<br />
                 </p>
@@ -113,7 +113,7 @@ const VerifyCodePage: FC = () => {
                     <li>Avoid changing optimizer versions for an existing commit. If this process fails to verify an existing commit with a different optimizer version, please contact us.</li>
                 </ul>
 
-                <form onSubmit={handleVerify} className='d-flex flex-column gap-2 mt-4'>
+                <form onSubmit={handleVerify} className='d-flex flex-column gap-3 mt-4'>
                     <label className='d-flex flex-column gap-1'>
                         Repository URL
                         <input value={repo} onChange={e => setRepo(e.target.value.trim())} className='p-2' placeholder='https://github.com/TriviumNode/example.git' />

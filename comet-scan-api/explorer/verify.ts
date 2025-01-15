@@ -3,22 +3,15 @@ import { getChainConfig } from "../config/chains";
 import axios from "axios";
 import { VerifyParams, StartVerifyResponse, TaskStatus } from "../interfaces/verification.interface";
 
-export const verifySecretWasmContract = api<{chainId: string} & VerifyParams, StartVerifyResponse>(
-    { expose: true, method: "POST", path: "/verify/secretwasm/:chainId" },
-    async ({ chainId, codeId, repo, commit }): Promise<StartVerifyResponse> => {
+export const verifySecretWasmContract = api<VerifyParams, StartVerifyResponse>(
+    { expose: true, method: "POST", path: "/verify/secretwasm" },
+    async ({ repo, commit }): Promise<StartVerifyResponse> => {
         if (!process.env.SECRETWASM_VERIFICATION_API) throw new APIError(ErrCode.Internal, 'Verification API not ready');
-
-        const config = getChainConfig(chainId);
-        if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
-        if (!config.features.includes('secretwasm')) throw new APIError(ErrCode.Unimplemented, 'SecretWasm not enabled for chain');
 
         if (repo.startsWith('http') && !repo.endsWith('.git')) throw new APIError(ErrCode.InvalidArgument, 'Repository must end with .git');
 
         const formData = new FormData();
-        formData.append('code_id', codeId)
         formData.append('repo', repo)
-        formData.append('chain_id', chainId)
-        formData.append('lcd', config.lcd)
         if (commit) formData.append('commit', commit)
         
         const {data} = await axios.post<number>(`${process.env.SECRETWASM_VERIFICATION_API}/enqueue`, formData);

@@ -99,11 +99,11 @@ const router = createBrowserRouter([
         element: <SingleCodePage />,
       },
       {
-        path: 'codes/:codeId/verify',
+        path: 'codes/verify',
         element: <VerifyCodePage />,
       },
       {
-        path: 'codes/:codeId/verify/:taskId',
+        path: 'codes/verify/:taskId',
         element: <VerifyCodePage />,
       }
     ]

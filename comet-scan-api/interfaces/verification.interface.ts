@@ -1,11 +1,8 @@
 export interface ContractVerification {
-    chain_id: string,
-    code_id: string,
     repo: string,
     commit_hash: string,
     result_hash: string,
     builder: string,
-    verified: boolean,
     code_zip?: string,
 }
 
@@ -14,7 +11,6 @@ export interface StartVerifyResponse {
 }
 
 export interface VerifyParams {
-    codeId: string;
     repo: string;
     commit?: string;
 }

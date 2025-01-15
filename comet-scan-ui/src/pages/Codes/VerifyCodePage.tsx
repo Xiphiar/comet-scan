@@ -21,7 +21,7 @@ const VerifyCodePage: FC = () => {
 
     const { data, error, refresh } = useAsync<TaskStatus>(getVerificationStatus(taskId));
 
-    const title = `Verify Code ${codeId}`;
+    const title = `Verify Contract Code`;
 
     useEffect(()=>{
         if (taskId) {
@@ -74,7 +74,6 @@ const VerifyCodePage: FC = () => {
                 const data = await startSecretWasmVerification(chain.chainId, {
                     repo,
                     commit: commit || undefined,
-                    codeId
                 })
                 setTaskId(data.task_id)
             } else {

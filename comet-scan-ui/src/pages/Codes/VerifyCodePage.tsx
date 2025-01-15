@@ -70,6 +70,10 @@ const VerifyCodePage: FC = () => {
     const handleVerify = async (e?: any) => {
         e?.preventDefault?.();
         try {
+            if (!repo) throw 'Please enter a repository URL'
+            if (!commit) throw 'Please enter a branch, tag, or commit hash'
+            // TODO verify repo URL
+
             if (chain.features.includes('secretwasm')) {
                 const data = await startSecretWasmVerification(chain.chainId, {
                     repo,
@@ -89,17 +93,30 @@ const VerifyCodePage: FC = () => {
         <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={title} />
             <Card conentClassName='p-4'>
-                <div className='text-center'>
-                    Enter a repo URL and commit or tag to start the verification process. This process will take up to an hour to complete.
-                </div>
-                <div className='text-center'>
-                    <span className='fw-bold'>Note:</span> The contract code must be compiled with the <span className='fw-bold'>{chain.features.includes('secretwasm') ? 'secret-contract-optimizer' : 'cosmwasm-contract-optimizer'}</span> docker image for the code to be verified.
-                </div>
+                <h3>Verify Contract Code</h3>
+                <p>
+                    Enter a Git repository URL, and a tag or commit hash to start the verification process.<br />
+                    <br />
+                    The code will be compiled with every version of the contract optimizer. If the compiled code hash matches any contracts in our database, those contracts will be marked as verified.<br />
+                    <br />
+                    This process can take up to an hour to complete.<br />
+                    <br />
+                    Verified code will be made available to download by any user of Comet Scan. <b>Do not attempt to verify any code that should be kept private.</b><br />
+                    <br />
+                    After submitting a repository, you will be given a URL to track the verification process.<br />
+                </p>
+                <div className='mt-2'>To successfully verify contract code:</div>
+                <ul className='mt-1 d-flex flex-column gap-1'>
+                    <li>The repository must be accessible to the public. Private repositories are not supported.</li>
+                    <li>The on-chain code must be compiled with the <span className='fw-bold'>{chain.features.includes('secretwasm') ? 'secret-contract-optimizer' : 'cosmwasm-contract-optimizer'}</span> docker image.</li>
+                    <li>The contract must be imported into Comet Scan's database. Ensure you can lookup your contract with the Comet Scan explorer before attempting verification.</li>
+                    <li>Avoid changing optimizer versions for an existing commit. If this process fails to verify an existing commit with a different optimizer version, please contact us.</li>
+                </ul>
 
                 <form onSubmit={handleVerify} className='d-flex flex-column gap-2 mt-4'>
                     <label className='d-flex flex-column gap-1'>
-                        Repo URL
-                        <input value={repo} onChange={e => setRepo(e.target.value.trim())} className='p-2' />
+                        Repository URL
+                        <input value={repo} onChange={e => setRepo(e.target.value.trim())} className='p-2' placeholder='https://github.com/TriviumNode/example.git' />
                     </label>
                     <label className='d-flex flex-column gap-1'>
                         Tag, Branch, or Commit Hash

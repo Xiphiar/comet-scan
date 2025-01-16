@@ -76,7 +76,7 @@ export const ProposalRow: FC<{ chain: FrontendChainConfig, proposal: Proposal }>
             </div>
             <div className='col col-7 col-sm-6 col-md-4 twoLineLimit'>{proposal.title}</div>
             <div className='col col-3'>{formatProposalType(proposal.proposalType)}</div>
-            <div className='col col-2 col-sm-2 d-none d-sm-block text-end text-md-start'>{formatProposalStatus(proposal.status)}</div>
+            <div className='col col-2 col-sm-2 d-none d-sm-flex text-end text-md-start'>{formatProposalStatus(proposal.status)}</div>
             <div className='col col-2 d-none d-md-flex text-end align-items-end'>
                 <div style={{fontWeight: 700}}>{endTime.toLocaleDateString()}</div><br />
                 {endTime.toLocaleTimeString()}

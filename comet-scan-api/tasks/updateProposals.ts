@@ -116,10 +116,10 @@ export const updateProposalsForChain_v1 = async (chain: ChainConfig) => {
             proposal: prop,
             expedited: prop.expedited || false,
             tally: {
-                yes: tallyData.tally.yes,
-                no: tallyData.tally.no,
-                no_with_veto: tallyData.tally.no_with_veto,
-                abstain: tallyData.tally.abstain,
+                yes: tallyData.tally.yes || tallyData.tally.yes_count,
+                no: tallyData.tally.no || tallyData.tally.no_count,
+                no_with_veto: tallyData.tally.no_with_veto || tallyData.tally.no_with_veto_count,
+                abstain: tallyData.tally.abstain || tallyData.tally.abstain_count,
             }
         }
 

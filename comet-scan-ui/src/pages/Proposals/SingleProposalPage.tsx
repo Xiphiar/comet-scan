@@ -198,6 +198,36 @@ const parseProposal = (config: FrontendChainConfig, proposal: v1beta1LcdProposal
             ]
         }
 
+        case '/cosmos.gov.v1.MsgUpdateParams': {
+            const changes: [string, string][] = [];
+            const paramNames = Object.keys(content.params);
+            paramNames.forEach(param => {
+                let value = content.params[param];
+                if (typeof value === 'object' || typeof value === 'boolean') value = JSON.stringify(value);
+                changes.push([param, value])
+            })
+            return [
+                ['Authority', <Link to={`/${config.id}/accounts/${content.authority}`}>{content.authority}</Link>],
+                [
+                    'Changes',
+                    <div>
+                        <div className='d-flex mb-1'>
+                            <div className='col col-6 text-decoration-underline'>Param</div>
+                            <div className='col col-6 text-decoration-underline'>New Value</div>
+                        </div>
+                        {changes.map(change => {
+                            return(
+                                <div key={`${change[0]}${change[1]}`} className='d-flex'>
+                                    <div className='col col-6'>{change[0]}</div>
+                                    <div className='col col-6'>{defaultKeyContent(change[1])}</div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                ],
+            ]
+        }
+
         case '/cosmos.consensus.v1.MsgUpdateParams': {
             const changes: [string, string][] = [];
             const {authority, abci, ...spaces} = content;

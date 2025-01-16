@@ -75,7 +75,7 @@ const twelveHourMs = threeHoursMs * 4;
     console.log('Indexes Synced');
 
     runImportTasks();
-    // await runUpdateTasks();
+    await runUpdateTasks();
     // await updateContractExecutedCountsForAllChains();
     // updateContractsForAllChains();
 

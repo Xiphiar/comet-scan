@@ -1,7 +1,7 @@
 import { api, APIError, ErrCode } from "encore.dev/api";
 import { dayMs, get24hBlocksCount, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
-import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse } from "../interfaces/responses/explorerApiResponses";
+import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse, PaginatedTransactionsResponse } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
 import Blocks from "../models/blocks";
 import Transactions from "../models/transactions";
@@ -272,6 +272,17 @@ export const getSingleAccount = api(
       .limit(10)
       .lean();
 
+    const totalTransactions = await Transactions.countDocuments({
+      chainId,
+      $or: [
+        { signers: address },
+        { senders: address },
+        { recipients: address },
+        { feePayer: address },
+        { feeGranter: address },
+      ]
+    });
+
       let administratedContracts: WasmContract[] = [];
       let instantiatedContracts: WasmContract[] = [];
 
@@ -283,6 +294,7 @@ export const getSingleAccount = api(
     return {
       account,
       recentTransactions,
+      totalTransactions,
       administratedContracts: await addContractStats(chainId, administratedContracts),
       instantiatedContracts: await addContractStats(chainId, instantiatedContracts),
     };
@@ -398,5 +410,44 @@ export const getSingleCode = api(
       contracts,
       verification: verification || undefined,
     }
+  }
+);
+
+export const getAccountTransactionsPage = api(
+  { expose: true, method: "GET", path: "/explorer/:chainId/accounts/:address/transactions/:pageNumber" }, // 1-indexed page number
+  async ({ chainId, address, pageNumber = 1 }: { chainId: string, address: string, pageNumber?: number }): Promise<PaginatedTransactionsResponse> => {
+    const config = getChainConfig(chainId);
+    if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
+
+    let account: Account | null = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
+    if (!account) account = await importAccount(chainId, address)
+    if (!account) throw new APIError(ErrCode.NotFound, 'Account not found');
+
+    const {docs, totalDocs, limit, page} = await Transactions.paginate(
+      {
+        chainId,
+        $or: [
+          { signers: address },
+          { senders: address },
+          { recipients: address },
+          { feePayer: address },
+          { feeGranter: address },
+        ]
+      },
+      {
+        sort: {blockHeight: -1},
+        page: pageNumber,
+        limit: 10,
+        projection: { _id: false, __v: false },
+        lean: true,
+      }
+    );
+    
+    return {
+      transactions: docs,
+      total: totalDocs,
+      page: page || pageNumber,
+      per_page: limit,
+    };
   }
 );

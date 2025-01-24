@@ -65,6 +65,13 @@ export interface TransactionsPageResponse {
   transactions: Transaction[];
 }
 
+export interface PaginatedTransactionsResponse {
+  transactions: Transaction[];
+  total: number;
+  page: number;
+  per_page: number;
+}
+
 export interface SingleTransactionPageResponse {
   transaction: Transaction;
 }
@@ -82,6 +89,7 @@ export interface SingleProposalPageResponse {
 export interface SingleAccountPageResponse {
   account: Account;
   recentTransactions: Transaction[];
+  totalTransactions: number;
   instantiatedContracts: ContractWithStats[];
   administratedContracts: ContractWithStats[];
 }

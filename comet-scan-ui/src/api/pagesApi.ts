@@ -1,5 +1,5 @@
 import { WasmContract } from "../interfaces/models/contracts.interface";
-import { AllContractsPageResponse, AllProposalsPageResponse, BlocksPageResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleCodePageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
+import { AllContractsPageResponse, AllProposalsPageResponse, BlocksPageResponse, PaginatedTransactionsResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleCodePageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
 import http from "./apiClient"
 
 export const getOverviewPage = async (chainId: string) => {
@@ -114,6 +114,17 @@ export const getSingleProposalPage = async (chainId: string, proposalId: string)
 
 export const getSingleAccountPage = async (chainId: string, accountAddress: string): Promise<SingleAccountPageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/accounts/${accountAddress}`,
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+    return data;
+}
+
+export const getPaginatedAccountTransactions = async (chainId: string, accountAddress: string, pageNumber = 0): Promise<PaginatedTransactionsResponse> => {
+    const {data} = await http.get(`/explorer/${chainId}/accounts/${accountAddress}/transactions/${pageNumber}`,
         {
             headers: {
                 'Content-Type': 'application/json'

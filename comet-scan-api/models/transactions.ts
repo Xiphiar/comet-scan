@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Transaction } from "../interfaces/models/transactions.interface";
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 const transactionsSchema = new mongoose.Schema<Transaction>({
     chainId: {
@@ -74,7 +75,11 @@ const transactionsSchema = new mongoose.Schema<Transaction>({
 
 transactionsSchema.index({ chainId: 1, blockHeight: -1, timestamp: -1 });
 transactionsSchema.index({ chainId: 1, executedContracts: -1, timestamp: -1 });
+transactionsSchema.plugin(mongoosePaginate);
 
-const Transactions = mongoose.model<Transaction>('Transactions', transactionsSchema);
+export interface TransactionDocument extends mongoose.Document, Transaction {}
+
+const Transactions = mongoose.model<Transaction, mongoose.PaginateModel<Transaction>>('Transactions', transactionsSchema);
+
 
 export default Transactions;

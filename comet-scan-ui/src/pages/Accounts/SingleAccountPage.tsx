@@ -1,9 +1,9 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
 import { SingleAccountPageResponse } from "../../interfaces/responses/explorerApiResponses";
-import { getSingleAccountPage } from "../../api/pagesApi";
+import { getPaginatedAccountTransactions, getSingleAccountPage } from "../../api/pagesApi";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
@@ -11,6 +11,11 @@ import { weiFormatNice } from "../../utils/coin";
 import TransactionRow from "../../components/TransactionRow/TransactionRow";
 import AssetRow from "../../components/AssetRow/AssetRow";
 import ContractRow from "../../components/ContractRow/ContractRow";
+import { Transaction } from "../../interfaces/models/transactions.interface";
+import ReactPaginate from "react-paginate";
+import Spinner from "../../components/Spinner";
+import styles from './SingleAccountPage.module.scss';
+import sleep from "../../utils/sleep";
 
 const SingleAccountPage: FC = () => {
     const { chain: chainLookupId, accountAddress } = useParams();
@@ -18,6 +23,32 @@ const SingleAccountPage: FC = () => {
     const chain = getChain(chainLookupId);
     const { data, error } = useAsync<SingleAccountPageResponse>(getSingleAccountPage(chain.chainId, accountAddress));
     const title = `Account`;
+
+    const [transactions, setTransactions] = useState<Transaction[] | undefined>(data?.recentTransactions);
+    const [loadingTransactions, setLoadingTransactions] = useState(true);
+    const [page, setPage] = useState(1);
+
+    useEffect(()=>{
+        if (data && !transactions?.length) {
+            setTransactions(data.recentTransactions);   
+            setLoadingTransactions(false)
+        }
+    }, [data])
+
+    const changePage = async (oldPage: number, newPage: number) => {
+        try {
+            setPage(newPage);
+            setLoadingTransactions(true);
+            await sleep(2000)
+            const txs = await getPaginatedAccountTransactions(chain.chainId, accountAddress, page);
+            setTransactions(txs.transactions);
+        } catch (err: any) {
+            console.error(`Error Loading Transactions page ${page}:`, err);
+            setPage(oldPage)
+        } finally {
+            setLoadingTransactions(false);
+        }
+    }
 
     if (!chain) {
         return (
@@ -27,10 +58,12 @@ const SingleAccountPage: FC = () => {
         )
     }
 
-    if (!data) {
+    if (!data || !transactions) {
         return <ContentLoading chain={chain} title={title} error={error} />
     }
- 
+
+    const totalPages = Math.ceil(data.totalTransactions / 10);
+
     return (
         <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={title} />
@@ -84,8 +117,8 @@ const SingleAccountPage: FC = () => {
                     }
                 </Card>
             </div>
-            <Card>
-                <h3>Recent Transactions</h3>
+            <Card conentClassName='position-relative'>
+                <h3>Transactions</h3>
                 {!!data.recentTransactions.length &&
                     <div className='d-flex mt-4 mb-1'>
                         <div className='col col-4 col-md-2'>
@@ -102,13 +135,30 @@ const SingleAccountPage: FC = () => {
                         </div>
                     </div>
                 }
-                {data.recentTransactions.map((tx) =><>
+                { transactions.map((tx) =><>
                     <div style={{borderBottom: '1px solid var(--light-gray)'}} />
                     <TransactionRow transaction={tx} chain={chain} />
                 </>)}
-                {!data.recentTransactions.length && <div className='py-4 w-full text-center'>
+                {(!transactions.length) && <div className='py-4 w-full text-center'>
                     No transactions found.
                 </div>}
+                { !!data.totalTransactions &&
+                    <ReactPaginate
+                        breakLabel="..."
+                        nextLabel=">"
+                        onPageChange={e => changePage(page, e.selected + 1)}
+                        pageRangeDisplayed={2}
+                        pageCount={totalPages}
+                        previousLabel="<"
+                        renderOnZeroPageCount={null}
+                        className="react-paginate"
+                    />
+                }
+                { loadingTransactions &&
+                    <div className={styles.loadingOverlay}>
+                        <Spinner />
+                    </div>
+                }
             </Card>
             <Card>
                 <h3>Created Contracts</h3>

@@ -94,7 +94,7 @@ export const updateProposalsForChain_v1 = async (chain: ChainConfig) => {
         let validatorVotes = existingProposal?.validatorVotes || [];
         
         if (prop.status === 'PROPOSAL_STATUS_VOTING_PERIOD' || !validatorVotes.length) {
-            validatorVotes = await getValidatorVotes(chain, prop.id);
+        //     validatorVotes = await getValidatorVotes(chain, prop.id);
         }
 
         const {data: tallyData} = await axios.get(`${chain.lcd}/cosmos/gov/v1/proposals/${prop.id}/tally`);

@@ -84,7 +84,7 @@ const IrisNet: ChainConfig = {
     bondingDisplayDenom: 'IRIS',
     logoFile: 'irisnet.svg',
     prefix: 'iaa',
-    govVersion: 'v1beta1',
+    govVersion: 'v1',
     ibcVersion: 'v1',
     sdkVersion: 'pre-50',
     rpc: 'https://mainnet-iris-rpc.konsortech.xyz',

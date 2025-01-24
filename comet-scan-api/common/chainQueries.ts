@@ -52,19 +52,24 @@ export const getTotalBonded = async (chainId: string): Promise<Amount> => {
 }
 
 export const getInflation = async (chainId: string): Promise<number> => {
-    const chainConfig = Chains.find(c => c.chainId === chainId);
-    if (!chainConfig) throw `Chain ${chainId} not found in config.`
+    try {
+        const chainConfig = Chains.find(c => c.chainId === chainId);
+        if (!chainConfig) throw `Chain ${chainId} not found in config.`
 
-    const cached = Cache.get<number>(`${chainId}-inflation`);
-    if (cached) return cached;
+        const cached = Cache.get<number>(`${chainId}-inflation`);
+        if (cached) return cached;
 
-    const client = await getSecretWasmClient(chainConfig.chainId);
+        const client = await getSecretWasmClient(chainConfig.chainId);
 
-    const response = await client.query.mint.inflation({}) as unknown as { inflation: string };
+        const response = await client.query.mint.inflation({}) as unknown as { inflation: string };
 
-    const data = parseFloat(response.inflation || '0');
-    Cache.set(`${chainId}-inflation`, data, 3600);
-    return data;
+        const data = parseFloat(response.inflation || '0');
+        Cache.set(`${chainId}-inflation`, data, 3600);
+        return data;
+    } catch(e: any) {
+        console.error(`Error getting inflation on ${chainId}:`, e)
+        return 0;
+    }
 }
 
 // export const getActiveProposals = async (chainId: string) => {

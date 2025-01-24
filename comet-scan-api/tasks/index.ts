@@ -10,6 +10,7 @@ import Contracts from "../models/contracts.model";
 import { importSecretWasmContractsByCodeId, updateContractExecutedCountsForAllChains, updateContractsForAllChains } from "./importContracts";
 import dotenv from 'dotenv';
 import { getChainConfig } from "../config/chains";
+import { pruneBlocksForAllChains } from "./pruneTask";
 dotenv.config();
 
 interface Response {
@@ -61,26 +62,31 @@ const connectToDb = async () => {
     console.log('DB Connected!')
 }
 
-const threeHoursMs = 60 * 60 * 3 * 1000;
+const oneHourMs = 60 * 60 * 1000
+const threeHoursMs = oneHourMs * 3;
+const twelveHourMs = oneHourMs * 12;
+
 const oneMinuteMs = 60 * 1000;
 const tenMinuteMs = oneMinuteMs * 10;
-const twelveHourMs = threeHoursMs * 4;
 
 (async()=>{
     await connectToDb();
     await Transactions.syncIndexes();
-    await Blocks.syncIndexes();
-    await Accounts.syncIndexes();
+    // await Blocks.syncIndexes();
+    // await Accounts.syncIndexes();
     // await SecretContracts.syncIndexes();
+    // await Contracts.syncIndexes();
     console.log('Indexes Synced');
 
     runImportTasks();
     await runUpdateTasks();
-    // await updateContractExecutedCountsForAllChains();
-    // updateContractsForAllChains();
+    updateContractExecutedCountsForAllChains();
+    updateContractsForAllChains();
+    pruneBlocksForAllChains();
 
-    setInterval(runImportTasks, oneMinuteMs)
+    setInterval(runImportTasks, 30 * 1000)
     setInterval(runUpdateTasks, tenMinuteMs)
     setInterval(updateContractExecutedCountsForAllChains, tenMinuteMs * 3)
     setInterval(updateContractsForAllChains, twelveHourMs * 2)
+    setInterval(pruneBlocksForAllChains, oneHourMs)
 })();

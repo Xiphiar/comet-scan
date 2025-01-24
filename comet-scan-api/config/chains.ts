@@ -67,19 +67,40 @@ const Sentinel: ChainConfig = {
     govVersion: 'v1beta1',
     ibcVersion: 'v1',
     sdkVersion: 'pre-50',
-    // rpc: 'http://192.168.1.238:40657',
-    // lcd: 'http://192.168.1.238:40317',
-    rpc: 'https://rpc-sentinel.chainvibes.com:443',
-    lcd: 'https://api.noncompliant.network:443',
+    // rpc: 'http://192.168.1.42:40657',
+    // lcd: 'http://192.168.1.42:40317',
+    rpc: 'https://rpc.sentinel.quokkastake.io',
+    lcd: 'https://api.sentinel.quokkastake.io',
     startHeight: 19_550_000,
     features: ['cosmwasm']
+}
+
+const IrisNet: ChainConfig = {
+    id: 'irisnet',
+    chainId: 'irishub-1',
+    name: 'IRISnet',
+    bondingDenom: 'uiris',
+    bondingDecimals: 6,
+    bondingDisplayDenom: 'IRIS',
+    logoFile: 'irisnet.svg',
+    prefix: 'iaa',
+    govVersion: 'v1beta1',
+    ibcVersion: 'v1',
+    sdkVersion: 'pre-50',
+    rpc: 'https://mainnet-iris-rpc.konsortech.xyz',
+    lcd: 'https://mainnet-iris-api.konsortech.xyz',
+    startHeight: 28_490_000,
+    pruneBlocksAfter: 500_000,
+    pruneTransactions: false,
+    features: []
 }
 
 const Chains: ChainConfig[] = [
     SecretNetwork,
     SecretNetworkPulsar3,
     Jackal,
-    Sentinel
+    Sentinel,
+    IrisNet,
 ];
 
 Chains.forEach(chain => {

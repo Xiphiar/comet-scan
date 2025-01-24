@@ -12,7 +12,7 @@ const MobileNav: FC<{show: boolean, hide: ()=>any, chain: FrontendChainConfig}> 
     ['Proposals', `/${id}/proposals`],
     ['Validators', `/${id}/validators`],
   ]
-  if (features.includes('secretwasm') || features.includes('cosmwasm')) links.push(['Contracts', `${id}/contracts`],)
+  if (features.includes('secretwasm') || features.includes('cosmwasm')) links.push(['Contracts', `/${id}/contracts`],)
   
   const overlayStyle = show ? undefined : { background: 'transparent', zIndex: -999 }
   const wrapperStyle = show ? undefined : { transform: 'translateX(100%)' }

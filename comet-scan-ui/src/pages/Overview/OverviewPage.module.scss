@@ -9,6 +9,8 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
+        word-break: break-all;
+        overflow: hidden;
     }
 }
 

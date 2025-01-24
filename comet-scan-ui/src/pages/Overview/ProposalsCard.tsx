@@ -7,6 +7,7 @@ import { Proposal } from "../../interfaces/models/proposals.interface";
 import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { Link } from "react-router-dom";
 import { formatProposalStatus, formatProposalType } from "../../utils/format";
+import { v1LcdProposal } from "../../interfaces/lcdProposalResponse";
 
 const ProposalsCard: FC<{ chain: FrontendChainConfig, proposals: Proposal[], totalProposals: number, className?: string, showMoreLink?: true }> = ({ chain, proposals, totalProposals, className, showMoreLink }) => {
     if (!proposals.length) {
@@ -66,6 +67,8 @@ export const ProposalRow: FC<{ chain: FrontendChainConfig, proposal: Proposal }>
     const endTime = new Date(
         proposal.status === 'PROPOSAL_STATUS_DEPOSIT_PERIOD' ? proposal.depositEndTime : proposal.votingEndTime
     )
+    let proposalType = proposal.proposalType;
+    if (proposalType.includes('MsgExecLegacyContent')) proposalType = (proposal.proposal as v1LcdProposal).messages?.[0]?.content?.['@type'] || proposalType;
     return (
         <Link
             to={`/${chain.id}/proposals/${proposal.id}`}
@@ -75,7 +78,7 @@ export const ProposalRow: FC<{ chain: FrontendChainConfig, proposal: Proposal }>
                 <h5>#{proposal.id}</h5>
             </div>
             <div className='col col-7 col-sm-6 col-md-4 twoLineLimit'>{proposal.title}</div>
-            <div className='col col-3'>{formatProposalType(proposal.proposalType)}</div>
+            <div className='col col-3'>{formatProposalType(proposalType)}</div>
             <div className='col col-2 col-sm-2 d-none d-sm-flex text-end text-md-start'>{formatProposalStatus(proposal.status)}</div>
             <div className='col col-2 d-none d-md-flex text-end align-items-end'>
                 <div style={{fontWeight: 700}}>{endTime.toLocaleDateString()}</div><br />

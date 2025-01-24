@@ -29,6 +29,7 @@ export const formatProposalType = (type: string) => {
         case '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal': return 'Community Pool Spend';
         case '/cosmos.params.v1beta1.ParameterChangeProposal': return 'Parameter Change';
         case '/cosmos.consensus.v1.MsgUpdateParams': return 'Parameter Change';
+        case '/cosmos.gov.v1.MsgUpdateParams': return 'Parameter Change';
         case '/cosmos.gov.v1beta1.TextProposal': return 'Text';
         case '/ibc.core.client.v1.ClientUpdateProposal': return 'IBC Client Update';
         case '/ibc.core.client.v1.MsgRecoverClient': return 'IBC Client Update';

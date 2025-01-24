@@ -10,7 +10,7 @@ const SecretNetwork: ChainConfig = {
     bondingDisplayDenom: 'SCRT',
     logoFile: 'secret.png',
     prefix: 'secret',
-    govVersion: 'v1beta1',
+    govVersion: 'v1',
     ibcVersion: 'v1',
     sdkVersion: '50',
     rpc: 'https://secret-4.api.trivium.network:26657',

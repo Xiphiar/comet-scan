@@ -1,0 +1,17 @@
+.navLink {
+    font-size: 15px;
+    font-family: "Gotham bold", Sans-serif;
+    font-weight: 600;
+    transition: all .4s ease;
+    color: white;
+}
+.navLink:hover {
+    // color: var(--blue);
+    color: #707070;
+}
+  
+.activeLink {
+    // color: #707070 !important;
+    color: var(--blue) !important;
+    cursor: default;
+}

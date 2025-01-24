@@ -1,0 +1,64 @@
+.overlayWrapper {
+    background: rgb(0, 0, 0, 0.2);
+    width: 100vw;
+    height: 100vh;
+
+    position: fixed;
+    right: 0px;
+    top: 0px;
+
+    // transition: all 0.4s ease;
+    z-index: 998;
+}
+
+.mobileNavWrapper {
+    position: fixed;
+    right: 0px;
+    top: 0px;
+    height: 100vh;
+    background: var(--nav-bg);
+
+    padding: 32px;
+
+    @media (max-width: 315px) {
+        width: calc(100vw - 64px);
+    }
+    width: 250px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+
+    transition: transform 0.4s ease;
+    text-align: right;
+
+    z-index: 999;
+
+    > a {
+        transition: all 0.1s ease;
+        color: var(--text-color);
+    }
+    > a:hover {
+        color: var(--main);
+    }
+}
+
+button.closeButton {
+    font-family: 'Gotham bold';
+    height: fit-content;
+    padding: 8px 12px;
+    border-radius: 0px;
+    transition: all .4s ease;
+    line-height: 1em;
+    border: none;
+    background-color: transparent;
+}
+button.closeButton:hover {
+    background-color: var(--main);
+    color: #000;
+    text-decoration: none;
+}
+
+img.navbarLogo {
+    height: 64px;
+}

@@ -66,3 +66,33 @@ export const formatAmounts = (coins: Coin[]): ReactElement => <div>
 </div> 
 
 export const formatCoins = formatAmounts;
+
+export const maybePlural = (str: string, amount: number | bigint, capital = false) => {
+    const S = capital ? 'S' : 's';
+    if (Number(amount) === 1) return str;
+    else return `${str}${S}`
+}
+
+export const MinuteMs = 60 * 1000;
+export const HourMs = MinuteMs * 60;
+export const DayMs = HourMs * 24;
+export const formatTime = (date: string | Date) => {
+    const now = new Date();
+    date = new Date(date);
+    const msOld = now.valueOf() - date.valueOf();
+
+    if (msOld < MinuteMs) {
+        const seconds = Math.ceil(msOld / 1000);
+        return `${seconds} ${maybePlural('second', seconds)} ago`
+    }
+    if (msOld < HourMs) {
+        const minutes = Math.ceil(msOld / MinuteMs);
+        return `${minutes} ${maybePlural('minute', minutes)} ago`
+    }
+    if (msOld < DayMs) {
+        const hours = Math.ceil(msOld / HourMs);
+        return `${hours} ${maybePlural('hour', hours)} ago`
+    }
+    const days = Math.ceil(msOld / DayMs);
+    return `${days} ${maybePlural('day', days)} ago`
+}

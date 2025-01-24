@@ -1,9 +1,9 @@
-import { FC } from "react";
+import { FC, ReactElement } from "react";
 import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { Transaction } from "../../interfaces/models/transactions.interface";
 import { Link } from "react-router-dom";
 import styles from './TransactionRow.module.scss'
-import { formatAmounts, truncateString } from "../../utils/format";
+import { formatAmounts, formatTime, truncateString } from "../../utils/format";
 import { weiFormatNice } from "../../utils/coin";
 import { formatTxType, parseMessages } from "../../utils/messageParsing";
 import { combineCoins } from "../../utils/denoms";
@@ -13,19 +13,40 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
     const fee = transaction.transaction.tx.auth_info.fee.amount.find(coin => coin.denom === chain.bondingDenom)?.amount || '0';
     const parsedMessages = parseMessages(chain, transaction.transaction)
     const allAmounts = combineCoins(parsedMessages.map(m => m.amounts));
+    const timeDisplay = formatTime(transaction.timestamp);
     
     return (
         <Link
             to={`/${chain.id}/transactions/${transaction.hash}`}
             className={styles.dataRow}
-            // style={position + 1 < total ? {borderBottom: '1px solid var(--light-grey)'} : undefined }
         >
-            <div className='col col-4 col-md-2'>{truncateString(transaction.hash, 4)}</div>
-            <div className='col col-6 col-md-6'>{formatTxType(txType)}</div>
-            <div className='col col-2 col-md-2'>{formatAmounts(allAmounts)}</div>
-            <div className='d-none d-md-block col col-2'>{weiFormatNice(fee, chain.bondingDecimals)} {chain.bondingDisplayDenom}</div>
+            <div className='d-none d-sm-flex col col-3'>{truncateString(transaction.hash, 4)}</div>
+            <div className='col col-8 col-sm-6 col-md-4 col-lg-3'>{formatTxType(txType)}</div>
+            <div className='d-none d-md-flex col col-2 col-lg-2'>{formatAmounts(allAmounts)}</div>
+            <div className='d-none d-lg-flex col col-1'>{weiFormatNice(fee, chain.bondingDecimals)} {chain.bondingDisplayDenom}</div>
+            <div className='col col-4 col-sm-3 align-items-end'>{timeDisplay}</div>
         </Link>
     )
 }
 
 export default TransactionRow;
+
+export const TransactionLabels = () => (
+    <div className='d-flex mt-4 mb-1'>
+        <div className='d-none d-sm-flex col col-3'>
+            Hash
+        </div>
+        <div className='col col-8 col-sm-6 col-md-4 col-lg-3'>
+            Type
+        </div>
+        <div className='d-none d-md-flex col col-2 col-lg-2'>
+            Amount
+        </div>
+        <div className='d-none d-lg-flex col col-1'>
+            Fee
+        </div>
+        <div className='col col-4 col-sm-3 text-end'>
+            Time
+        </div>
+    </div>
+)

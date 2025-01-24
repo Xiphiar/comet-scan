@@ -31,24 +31,6 @@ const RecentBlocksPage: FC = () => {
     return (
         <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={title} />
-            {/* <div className='d-flex w-full'>
-                <Card className='col'>
-                    <h5>Time</h5>
-                    {new Date(data.block.timestamp).toLocaleString()}
-                </Card>
-                <Card className='col'>
-                    <h5>Blocks</h5>
-                    {data.blocks.length}
-                </Card>
-                <Card className='col'>
-                    <h5>Gas Used</h5>
-                    {data.block.totalGasUsed.toLocaleString()}
-                </Card>
-                <Card className='col'>
-                    <h5>Total Fee</h5>
-                    {weiFormatNice(data.block.totalFees.find(f => f.denom === chain.bondingDenom)?.amount || '0', chain.bondingDecimals)} {chain.bondingDisplayDenom}
-                </Card>
-            </div> */}
             <Card className='col'>
                 <h3>Recent Blocks</h3>
                 {!!data.blocks.length &&

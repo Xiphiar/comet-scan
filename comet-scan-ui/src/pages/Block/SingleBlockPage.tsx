@@ -8,7 +8,7 @@ import TitleAndSearch from "../../components/TitleAndSearch";
 import { weiFormatNice } from "../../utils/coin";
 import { SingleBlockPageResponse } from "../../interfaces/responses/explorerApiResponses";
 import { getSingleBlockPage } from "../../api/pagesApi";
-import TransactionRow from "../../components/TransactionRow/TransactionRow";
+import TransactionRow, { TransactionLabels } from "../../components/TransactionRow/TransactionRow";
 import ValidatorAvatar from "../../components/Avatar/KeybaseAvatar";
 
 const SingleBlockPage: FC = () => {
@@ -99,20 +99,7 @@ const SingleBlockPage: FC = () => {
             <Card>
                 <h3>Transactions</h3>
                 {!!data.transactions.length &&
-                    <div className='d-flex mt-4 mb-1'>
-                        <div className='col col-4 col-md-2'>
-                            Hash
-                        </div>
-                        <div className='col col-6 col-md-6'>
-                            Type
-                        </div>
-                        <div className='col col-2 col-md-2'>
-                            Amount
-                        </div>
-                        <div className='d-none d-md-block col col-2'>
-                            Fee
-                        </div>
-                    </div>
+                    <TransactionLabels />
                 }
                 {data.transactions.map((tx) =><>
                     <div style={{borderBottom: '1px solid var(--light-gray)'}} />

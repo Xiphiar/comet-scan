@@ -45,10 +45,6 @@ const AllContractsPage: FC = () => {
                     <h5>Daily Executions</h5>
                     {data.dailyExecutions.toLocaleString()}
                 </Card>
-                {/* <Card className='col'>
-                    <h5>Total Fee</h5>
-                    {data.}
-                </Card> */}
             </div>
             <Card className='col'>
                 <h3>Top Contracts</h3>

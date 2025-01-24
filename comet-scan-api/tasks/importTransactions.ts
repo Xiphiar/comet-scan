@@ -77,6 +77,7 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
         allTxs.push(...data.txs);
         allResults.push(...data.tx_responses);
         if (data.txs.length < 100) break;
+        if (allTxs.length === block.transactionsCount) break;
         pageUrl = `${url}&pagination.offset=${allTxs.length}`
     }
     

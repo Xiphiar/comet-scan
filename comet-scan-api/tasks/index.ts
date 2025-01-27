@@ -7,10 +7,11 @@ import Blocks from "../models/blocks";
 import Accounts from "../models/accounts.model";
 import Transactions from "../models/transactions";
 import Contracts from "../models/contracts.model";
-import { importSecretWasmContractsByCodeId, updateContractExecutedCountsForAllChains, updateContractsForAllChains } from "./importContracts";
+import { importSecretWasmContractsByCodeId, updateContractsForAllChains } from "./importContracts";
 import dotenv from 'dotenv';
 import { getChainConfig } from "../config/chains";
 import { pruneBlocksForAllChains } from "./pruneTask";
+import { updateContractExecutedCountsForAllChains } from "./updateContractExecCounts";
 dotenv.config();
 
 interface Response {

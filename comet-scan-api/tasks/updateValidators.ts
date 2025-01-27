@@ -27,11 +27,11 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
         nextKey = result.pagination.next_key as any as string
     }
 
-    console.log(`Found ${allValidators.length} valudators`);
+    console.log(`Found ${allValidators.length} validators`);
 
     for (const validator of allValidators) {
         if (!validator.operator_address) continue;
-        console.log(`Importing ${validator.operator_address} ${validator.description?.moniker}`)
+        // console.log(`Importing ${validator.operator_address} ${validator.description?.moniker}`)
 
         const accountAddress = validatorAddressToSelfDelegatorAddress(validator.operator_address, chain.prefix);
         const signerAddress = base64TendermintPubkeyToValconsAddress((validator.consensus_pubkey as any).key, chain.prefix);

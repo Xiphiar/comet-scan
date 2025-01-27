@@ -34,7 +34,7 @@ const SecretNetworkPulsar3: ChainConfig = {
     rpc: 'https://pulsar-3.api.trivium.network:26657',
     lcd: 'https://pulsar-3.api.trivium.network:1317',
     startHeight: 8_310_000,
-    features: ['secretwasm', 'no_contract_import']
+    features: ['secretwasm', 'no_contract_parsing']
 }
 
 const Jackal: ChainConfig = {

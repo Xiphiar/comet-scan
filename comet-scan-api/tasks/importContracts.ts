@@ -11,7 +11,15 @@ import Contracts from "../models/contracts.model";
 import Transactions from "../models/transactions";
 import { LcdCosmWasmCodesResponse, LcdCosmWasmContractInfoResponse } from "../interfaces/lcdCosmwasmResponses";
 
+const contractImportRunning = new Map<string, boolean>();
 const updateContractsForChain = async (config: ChainConfig) => {
+    const running = contractImportRunning.get(config.chainId);
+    if (running) {
+        console.log(`Contract import task already running for ${config.chainId}`)
+        return;
+    }
+    contractImportRunning.set(config.chainId, true);
+
     try {
         if (config.features.includes('secretwasm')) {
             await updateSecretWasmContracts(config);
@@ -25,6 +33,8 @@ const updateContractsForChain = async (config: ChainConfig) => {
     } catch (err: any) {
         console.error('Failed to import contracts on', config.chainId, err.toString())
         console.trace(err)
+    } finally {
+        contractImportRunning.set(config.chainId, false);
     }
 }
 
@@ -35,14 +45,17 @@ const updateSecretWasmContracts = async (config: ChainConfig) => {
     const client = await getSecretWasmClient(config.chainId);
     const codes = await client.query.compute.codes({})
     if (!codes?.code_infos?.length) return;
+    console.log(`Found ${codes.code_infos.length} codes to import on ${config.chainId}`);
+
+    const codesInDb: string[] = (await Codes.find({ chainId: config.chainId }).select({ codeId: 1 }).lean()).map(doc => doc.codeId)
 
     // Import codes
     for (const code of codes.code_infos) {
         console.log(`Importing code ${code.code_id} on ${config.chainId}`)
-        const existingCode = await Codes.findOne({ chainId: config.chainId, codeId: code.code_id }).lean();
-        if (existingCode) continue;
-
         if (!code.code_id || !code.code_hash) continue;
+        // const existingCode = await Codes.findOne({ chainId: config.chainId, codeId: code.code_id }).lean();
+        // if (existingCode) continue;
+        if (codesInDb.includes(code.code_id)) continue;
 
         const dbCode: WasmCode = {
             chainId: config.chainId,
@@ -52,7 +65,7 @@ const updateSecretWasmContracts = async (config: ChainConfig) => {
             builder: code.builder,
             creator: code.creator,
         };
-        await Codes.create(dbCode);
+        await Codes.findOneAndReplace({ chainId: config.chainId, codeId: code.code_id }, dbCode, { upsert: true });
     }
 
     if (config.features.includes('no_contract_import')) return;
@@ -76,13 +89,14 @@ export const importSecretWasmContractsByCodeId = async (config: ChainConfig, cod
     if (!contract_infos?.length) return;
     console.log(`Found ${contract_infos?.length} contracts with code ID ${code.codeId}`)
 
+    const noParse = config.features.includes('no_contract_parsing')
 
-    let isToken = true;
-    let isNft = true;
+    let isToken = noParse ? false : true;
+    let isNft = noParse ? false : true;
 
     for (const {contract_address, contract_info} of contract_infos) {
         if (!contract_address || !contract_info) continue;
-        console.log(contract_address, '-', contract_info.label)
+        // console.log(contract_address, '-', contract_info.label)
 
         const existingContract = await Contracts.findOne({ chainId: config.chainId, contractAddress: contract_address }).lean();
 
@@ -251,12 +265,19 @@ export const importCosmWasmContract = async (config: ChainConfig, contractAddres
 }
 
 export const updateContractsForAllChains = async () => {
-    for (const chain of Chains) {
-        await updateContractsForChain(chain);
-    }
+    const promises: Promise<void>[] = Chains.map(c => updateContractsForChain(c));
+    await Promise.all(promises)
 }
 
+const contractExecCountsRunning = new Map<string, boolean>();
 const updateExecutedCountsForChain = async (config: ChainConfig) => {
+    const running = contractExecCountsRunning.get(config.chainId);
+    if (running) {
+        console.log(`Contract executed counts task already running for ${config.chainId}`)
+        return;
+    }
+    contractExecCountsRunning.set(config.chainId, true);
+
     console.log(`Updating contract executed counts on ${config.chainId}`)
     try {
         if (config.features.includes('secretwasm') || config.features.includes('cosmwasm')) {
@@ -269,6 +290,8 @@ const updateExecutedCountsForChain = async (config: ChainConfig) => {
         console.log(`Done updating contract executed counts on ${config.chainId}`)
     } catch (err: any) {
         console.error(`Failed to update contract executed counts on ${config.chainId}:`, err, err.toString())
+    } finally {
+        contractExecCountsRunning.set(config.chainId, false);
     }
 }
 

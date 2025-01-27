@@ -38,6 +38,9 @@ const SingleProposalPage: FC = () => {
     const percentYes = Number(data.proposal.tally.yes) / totalYesNo;
     const turnoutPercent = totalWithAbstain / Number(data.bonded.amount)
     const parsedContent = parseProposal(chain, data.proposal.proposal);
+
+    let proposalType = data.proposal.proposalType;
+    if (proposalType.includes('MsgExecLegacyContent')) proposalType = (proposal.proposal as v1LcdProposal).messages?.[0]?.content?.['@type'] || proposalType;
     return (
         <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={`Proposal ${proposalId}`} />
@@ -59,7 +62,7 @@ const SingleProposalPage: FC = () => {
                 <div className='d-flex flex-column gap-3 mt-3'>
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Type</div>
-                        <div className='col'>{formatProposalType(data.proposal.proposalType)}</div>
+                        <div className='col'>{formatProposalType(proposalType)}</div>
                     </div>
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Title</div>

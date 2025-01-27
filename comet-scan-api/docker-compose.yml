@@ -1,0 +1,18 @@
+services:
+  backend:
+    image: cometscan_api
+    ports:
+      - '4000:8080'
+    restart: 'unless-stopped'
+    links:
+      - mongo
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    restart: 'unless-stopped'
+    ports:
+      - '27017:27017'
+    volumes:
+      - /home/cometscan-db:/data/db
+

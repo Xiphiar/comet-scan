@@ -49,8 +49,10 @@ const Jackal: ChainConfig = {
     govVersion: 'v1beta1',
     ibcVersion: 'v1',
     sdkVersion: 'pre-50',
-    rpc: 'https://jackal.api.trivium.network:26657',
-    lcd: 'https://jackal.api.trivium.network:1317',
+    // rpc: 'https://jackal.api.trivium.network:26657',
+    // lcd: 'https://jackal.api.trivium.network:1317',
+    rpc: 'http://34.130.44.31:26657',
+    lcd: 'https://jkl.api.m.stavr.tech',
     startHeight: 10_838_000,
     features: ['cosmwasm']
 }

@@ -2,6 +2,7 @@ import { Block } from "../interfaces/models/blocks.interface";
 import { Proposal } from "../interfaces/models/proposals.interface";
 import { Validator, ValidatorBondStatus } from "../interfaces/models/validators.interface";
 import Blocks from "../models/blocks";
+import Contracts from "../models/contracts.model";
 import Proposals from "../models/proposals";
 import Transactions from "../models/transactions";
 import Validators from "../models/validators";
@@ -9,6 +10,11 @@ import { Cache } from "./cache";
 
 export const getLatestBlock = async (chainId: string): Promise<Block | null> => {
     const block = await Blocks.findOne({ chainId }, { _id: false, __v: false }).sort('-height').lean();
+    return block;
+}
+
+export const getOldestBlock = async (chainId: string): Promise<Block | null> => {
+    const block = await Blocks.findOne({ chainId }, { _id: false, __v: false }).sort('height').lean();
     return block;
 }
 
@@ -94,7 +100,12 @@ export const getTotalExecutionsCount = async (chainId: string): Promise<number> 
     const cached = Cache.get<number>(cacheKey);
     if (cached) return cached;
 
-    const result = await Transactions.find({ chainId, 'executedContracts.0': { $exists: true} }).countDocuments();
+    // const result = await Transactions.find({ chainId, 'executedContracts.0': { $exists: true} }).countDocuments();
+    const contracts = await Contracts.find({ chainId }).select({ executions: true }).lean();
+    const result = contracts.reduce(
+        (sum, contract) => sum + contract.executions,
+        0
+    )
     Cache.set<number>(cacheKey, result, 3600);
     return result;
 }

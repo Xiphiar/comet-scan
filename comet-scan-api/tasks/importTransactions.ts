@@ -36,12 +36,19 @@ const importTransactions = async (chainId: string) => {
             document = await KvStore.create({ chainId, key, value: highestProcessed.toString() });
         }
 
-        console.log(`Need to import transactions for ${highestBlockInDb.height - highestProcessed} blocks on ${chainId}`)
+        const totalBlocks = highestBlockInDb.height - highestProcessed
+        console.log(`Need to import transactions for ${totalBlocks} blocks on ${chainId}`)
 
         while (highestProcessed < highestBlockInDb.height) {
             await importTransactionsForBlock(chainId, highestProcessed + 1);
             highestProcessed++
             await KvStore.findByIdAndUpdate(document?._id, { value: highestProcessed.toString() })
+
+            if (highestProcessed % 100 === 0) {
+                const remaining = highestBlockInDb.height - highestProcessed;
+                const processed = totalBlocks - remaining;
+                console.log(`${chainId} TX Import: ${(processed / totalBlocks * 100).toFixed(2)}%`)
+            }
         }
         console.log(`Done importing transactions on ${chainId}!`)
     } catch (err: any) {

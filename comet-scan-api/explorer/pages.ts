@@ -311,7 +311,7 @@ export const getContractsPage = api(
     let totalContracts = 0;
     if (config.features.includes('secretwasm') || config.features.includes('cosmwasm')) {
       console.time('Top Contracts')
-      contracts = await Contracts.find({ chainId }, { _id: false, __v: false }).sort({ executions: -1}).limit(30).lean();
+      contracts = await Contracts.find({ chainId }, { _id: false, __v: false }).sort({ executions: -1 }).limit(30).lean();
       console.timeEnd('Top Contracts')
 
       console.time('Total Contracts')

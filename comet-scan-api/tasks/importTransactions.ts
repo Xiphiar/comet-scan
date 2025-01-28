@@ -4,10 +4,11 @@ import Blocks from "../models/blocks";
 import KvStore, { KV } from "../models/kv"
 import { getChainConfig } from "../config/chains";
 import axios from "axios";
-import { LcdTxSearchResponse, LcdTxSearchResult, LcdTxSearchTx } from "../interfaces/lcdTxResponse";
+import { LcdTxSearchResponse, LcdTxSearchResult, LcdTxSearchTx, MsgLog, TxEvent } from "../interfaces/lcdTxResponse";
 import Transactions from "../models/transactions";
 import { Block } from "../interfaces/models/blocks.interface";
 import { processBlock } from "./importBlocks";
+import { ChainConfig } from "../interfaces/config.interface";
 
 const key = 'txs-import-processed-block'
 
@@ -122,18 +123,7 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
             ).toString('utf8')
         )
 
-        const executedContracts: string[] = [];
-        if (config.features.includes('secretwasm')) {
-            for (const msgLogs of txResponse.logs) {
-                const wasmEvent = msgLogs.events.find(e => e.type === 'wasm');
-                if (!wasmEvent) continue;
-                for (const attribute of wasmEvent.attributes) {
-                    if (attribute.key === 'contract_address') executedContracts.push(attribute.value);
-                }
-            }
-        } else if (config.features.includes('cosmwasm')) {
-            // TODO
-        }
+        const executedContracts = getExecutedContractsForTx(config, txResponse);
 
         const newTx: Transaction = {
             chainId,
@@ -161,33 +151,36 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
 
 export default importTransactions;
 
-export const addExecutedContractsToTransactions = async (chainId: string) => {
-    try {
-        console.log('Migrating transactions on', chainId)
-        const config = getChainConfig(chainId);
-        if (!config) throw `Config not found for ${chainId}`;
 
-        const txs = await Transactions.find({ chainId, executedContracts: { $exists: false } });
-        
-        for (const {_id, transaction} of txs) {
-            const executedContracts: string[] = [];
-            if (config.features.includes('secretwasm')) {
-                for (const msgLogs of transaction.tx_response.logs) {
-                    const wasmEvent = msgLogs.events.find(e => e.type === 'wasm');
-                    if (!wasmEvent) continue;
-                    for (const attribute of wasmEvent.attributes) {
-                        if (attribute.key === 'contract_address') executedContracts.push(attribute.value);
-                    }
-                }
-            } else if (config.features.includes('cosmwasm')) {
-                // TODO
-            }
-
-            await Transactions.findByIdAndUpdate(_id, { executedContracts })
-        }
-
-        console.log('Finished migrating transactions on', chainId)
-    } catch (err: any) {
-        console.error(`Failed to update transactions for ${chainId}:`, err.toString())
+export const getExecutedContractsForTx = (
+    config: ChainConfig,
+    txResponse: {
+        logs: MsgLog[]
+        events: TxEvent[]
     }
+): string[] => {
+    const executedContracts: string[] = [];
+    if (config.features.includes('secretwasm')) {
+        if (txResponse.logs?.length) {
+            for (const msgLogs of txResponse.logs) {
+                const wasmEvent = msgLogs.events.find(e => e.type === 'wasm');
+                if (!wasmEvent) continue;
+                for (const attribute of wasmEvent.attributes) {
+                    if (attribute.key === 'contract_address') executedContracts.push(attribute.value);
+                }
+            }
+        } else {
+            const wasmEvents = txResponse.events.filter(e => e.type === 'wasm');
+            for (const wasmEvent of wasmEvents) {
+                const addressAttributes = wasmEvent.attributes.filter(a => a.key === 'contract_address');
+                addressAttributes.forEach(a => {
+                    executedContracts.push(a.value);
+                })
+            }
+        }
+    } else if (config.features.includes('cosmwasm')) {
+        // TODO
+    }
+
+    return executedContracts;
 }

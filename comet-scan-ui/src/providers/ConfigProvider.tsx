@@ -32,7 +32,6 @@ const ConfigProvider = ({ children }: PropsWithChildren): ReactElement => {
     const refreshConfig = async () => {
         try {
             const config = await getConfig();
-            console.log(config);
             setChains(config.chains);
         } catch(err: unknown) {
             console.error('Failed to refresh chain config:', err.toString?.() || err);

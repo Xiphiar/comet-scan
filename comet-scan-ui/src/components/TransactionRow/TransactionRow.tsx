@@ -19,6 +19,7 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
         <Link
             to={`/${chain.id}/transactions/${transaction.hash}`}
             className={styles.dataRow}
+            key={transaction.hash}
         >
             <div className='d-none d-sm-flex col col-3'>{truncateString(transaction.hash, 4)}</div>
             <div className='col col-8 col-sm-6 col-md-4 col-lg-3'>{formatTxType(txType)}</div>

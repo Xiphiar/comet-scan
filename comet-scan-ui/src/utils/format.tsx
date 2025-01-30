@@ -61,8 +61,8 @@ export const formatCoin = (coin: Coin): string => {
 }
 
 export const formatAmounts = (coins: Coin[]): ReactElement => <div>
-    {coins.map((coin: Coin) => {
-        return <div>{formatCoin(coin)}</div>
+    {coins.map((coin: Coin, i) => {
+        return <div key={i}>{formatCoin(coin)}</div>
     })}
 </div> 
 

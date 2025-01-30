@@ -176,7 +176,7 @@ export const parseMessages = (config: FrontendChainConfig, tx: LcdTxResponse, sk
                             'Messages',
                             <div className='d-flex flex-column gap-1'>
                                 {parsedSubMessages.map((msg, i) =>
-                                    <MessageRow message={msg} messageIndex={i}  />
+                                    <MessageRow message={msg} messageIndex={i} key={`${msg.title}${i}`} />
                                 )}
                             </div>
                         ]

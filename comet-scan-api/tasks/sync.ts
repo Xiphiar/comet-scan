@@ -51,6 +51,7 @@ const syncChain = async (config: ChainConfig) => {
             await syncBlock(config, h)
         }
 
+        console.log(`Sync task finished for ${chainId}!`)
     } catch (err: any) {
         console.error(`Sync error on ${chainId}: ${err.toString()}`)
     } finally {

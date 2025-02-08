@@ -1,7 +1,5 @@
 import Chains from "../config/chains";
 import { ChainConfig } from "../interfaces/config.interface";
-import importAccountsForChain from "./importAccounts";
-import updateContractsForChain from "./importContracts";
 import { updateProposalsForChain } from "./updateProposals";
 import { updateValidatorsForChain } from "./updateValidators";
 

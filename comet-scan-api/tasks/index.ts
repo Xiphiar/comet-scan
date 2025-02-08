@@ -1,7 +1,6 @@
 import { api, APIError, ErrCode } from "encore.dev/api";
 import mongoose from "mongoose";
-import { addExecutedContractsToTransactions, importTransactionsForBlock } from "./importTransactions";
-import { runImportTasks } from "./importTasks";
+import { importTransactionsForBlock } from "./importTransactions";
 import { runUpdateTasks } from "./updateTasks";
 import Blocks from "../models/blocks";
 import Accounts from "../models/accounts.model";
@@ -12,6 +11,8 @@ import dotenv from 'dotenv';
 import { getChainConfig } from "../config/chains";
 import { pruneBlocksForAllChains } from "./pruneTask";
 import { updateContractExecutedCountsForAllChains } from "./updateContractExecCounts";
+import { addExecutedContractsToTransactionsForAllChains } from "./migrations";
+import { syncAllChains } from "./sync";
 dotenv.config();
 
 interface Response {
@@ -79,13 +80,13 @@ const tenMinuteMs = oneMinuteMs * 10;
     // await Contracts.syncIndexes();
     console.log('Indexes Synced');
 
-    runImportTasks();
+    syncAllChains();
     await runUpdateTasks();
     updateContractExecutedCountsForAllChains();
     updateContractsForAllChains();
     pruneBlocksForAllChains();
 
-    setInterval(runImportTasks, 30 * 1000)
+    setInterval(syncAllChains, 30 * 1000)
     setInterval(runUpdateTasks, tenMinuteMs)
     setInterval(updateContractExecutedCountsForAllChains, tenMinuteMs * 3)
     setInterval(updateContractsForAllChains, twelveHourMs * 2)

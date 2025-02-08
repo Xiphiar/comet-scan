@@ -1,8 +1,7 @@
 import { Transaction } from "../interfaces/models/transactions.interface";
 import Blocks from "../models/blocks";
-import KvStore from "../models/kv"
 import { getChainConfig } from "../config/chains";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import Transactions from "../models/transactions";
 import { Block, Coin } from "../interfaces/models/blocks.interface";
 import Accounts from "../models/accounts.model";
@@ -13,48 +12,7 @@ import { processBlock } from "./importBlocks";
 import { LcdBalance, LcdBalancesResponse } from "../interfaces/LcdBalanceResponse";
 import { LcdDelegationsResponse, LcdUnbondingResponse } from "../interfaces/lcdBondingResponse";
 import { ChainConfig } from "../interfaces/config.interface";
-import { ibcDenom } from "secretjs";
 import { getDenomTrace } from "../common/chainQueries";
-
-const key = 'accounts-import-processed-block'
-
-const importAccountsForChain = async (chainId: string) => {
-    try {
-        console.log(`Importing accounts on ${chainId}...`)
-        // Get highest processed block from KVStore
-        let document = await KvStore.findOne({ chainId, key }).lean();
-
-        const highestBlockInDb = await Blocks.findOne({ chainId }).sort('-height').lean();
-        if (!highestBlockInDb) {
-            console.log('No blocks imported for', chainId)
-            return;
-        }
-        
-        let highestProcessed: number = parseInt(document?.value || '0');
-
-        if (!highestProcessed) {
-            let lowestBlockInDb = await Blocks.findOne({ chainId }).sort('height').lean();
-            if (!lowestBlockInDb) {
-                console.log('No blocks imported for', chainId)
-                return;
-            }
-            highestProcessed = lowestBlockInDb.height;
-            document = await KvStore.create({ chainId, key, value: highestProcessed.toString() });
-        }
-
-        console.log(`Need to import accounts for ${highestBlockInDb.height - highestProcessed} blocks on ${chainId}`)
-
-        while (highestProcessed < highestBlockInDb.height) {
-            await importAccountsForBlock(chainId, highestProcessed + 1);
-            highestProcessed++
-            await KvStore.findByIdAndUpdate(document?._id, { value: highestProcessed.toString() })
-        }
-        console.log(`Done importing accounts on ${chainId}!`)
-    } catch (err: any) {
-        console.error(`Failed to import accounts on ${chainId}:`, err.toString())
-        // console.trace(err);
-    }
-}
 
 export const importAccountsForBlock = async (chainId: string, blockHeight: number) => {
     // console.log(`Importing accounts for block ${blockHeight} on ${chainId}`)
@@ -164,8 +122,8 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
                 nativeAssets,
                 tokenAssets: [],
             };
-            const createdAccount = await Accounts.create(newAccount);
-            const { _id, ...clean } = createdAccount.toObject();
+            const createdAccount = await Accounts.findOneAndReplace({ chainId, address }, newAccount, { upsert: true, new: true, lean: true });
+            const { _id, ...clean } = createdAccount as any;
             return clean;
         }
     } catch (err: any) {
@@ -173,8 +131,6 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
         return null;
     }
 }
-
-export default importAccountsForChain;
 
 interface AccountBalances {
     heldBalanceInBondingDenom: string;

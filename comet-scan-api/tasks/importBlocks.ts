@@ -1,69 +1,63 @@
 import axios from "axios";
 import Blocks from "../models/blocks";
-import RpcStatusResponse from "../interfaces/rpcStatusResponse";
-import pMap from "p-map";
 import { Coin, decodeTxRaw } from "@cosmjs/proto-signing";
-import { importTransactionsForBlock } from "./importTransactions";
 import { RpcBlockResponse } from "../interfaces/rpcBlockResponse";
 import { RpcBlockResultsResponse } from "../interfaces/rpcBlockResultsResponse";
 import { Block } from "../interfaces/models/blocks.interface";
-import { ChainConfig } from "../interfaces/config.interface";
 
-// const limit = pLimit(10);
+// const importBlocks = async ({chainId, rpc, startHeight: _startHeight = 0}: ChainConfig) => {
+//     console.log(`Starting block import on ${chainId}`);
+//     try {
+//         let startHeight = _startHeight;
+//         let highestInDb = await Blocks.findOne({ chainId }).sort('-height').lean();
+//         if (highestInDb) startHeight = highestInDb.height + 1;
 
-const importBlocks = async ({chainId, rpc, startHeight: _startHeight = 0}: ChainConfig) => {
-    console.log(`Starting block import on ${chainId}`);
-    try {
-        let startHeight = _startHeight;
-        let highestInDb = await Blocks.findOne({ chainId }).sort('-height').lean();
-        if (highestInDb) startHeight = highestInDb.height + 1;
+//         const {data: currentStatus} = await axios.get<RpcStatusResponse>(`${rpc}/status`);
+//         if (currentStatus.result.node_info.network !== chainId) throw `Status returned by RPC does not belong to ${chainId}`
+//         const rpcEarliestHeight = parseInt(currentStatus.result.sync_info.earliest_block_height);
+//         const rpcLatestHeight = parseInt(currentStatus.result.sync_info.latest_block_height);
+//         if (rpcEarliestHeight > startHeight) throw `RPC earliest block ${rpcEarliestHeight} is higher than star height ${startHeight}`;
 
-        const {data: currentStatus} = await axios.get<RpcStatusResponse>(`${rpc}/status`);
-        if (currentStatus.result.node_info.network !== chainId) throw `Status returned by RPC does not belong to ${chainId}`
-        const rpcEarliestHeight = parseInt(currentStatus.result.sync_info.earliest_block_height);
-        const rpcLatestHeight = parseInt(currentStatus.result.sync_info.latest_block_height);
-        if (rpcEarliestHeight > startHeight) throw `RPC earliest block ${rpcEarliestHeight} is higher than star height ${startHeight}`;
-
-        const toFetch: number[] = [];
-        let heightToFetch = startHeight;
-        while (heightToFetch <= rpcLatestHeight) {
-            toFetch.push(heightToFetch)
-            heightToFetch++;
-        }
-        await processList(toFetch, chainId, rpc);
+//         const toFetch: number[] = [];
+//         let heightToFetch = startHeight;
+//         while (heightToFetch <= rpcLatestHeight) {
+//             toFetch.push(heightToFetch)
+//             heightToFetch++;
+//         }
+//         await processList(toFetch, chainId, rpc);
 
 
-        // Find missing heights since configures _startHeight
-        // console.log('Looking for missing blocks...')
-        highestInDb = await Blocks.findOne({ chainId }).sort('-height').lean();
+//         // Find missing heights since configures _startHeight
+//         // console.log('Looking for missing blocks...')
+//         highestInDb = await Blocks.findOne({ chainId }).sort('-height').lean();
 
-        // const _existingHeights = await Blocks.aggregate([
-        //     { 
-        //         $group: { 
-        //             _id: null, 
-        //             heights: { $push: "$height" } 
-        //         }
-        //     }
-        // ])
-        // const existingHeights: number[] = _existingHeights[0].heights;
-        // const missingHeights: number[] = [];
-        // for (let i = _startHeight; i < (highestInDb?.height || _startHeight+1); i++) {
-        //     if (!existingHeights.includes(i)) missingHeights.push(i)
-        // }        
-        // await processList(missingHeights, chainId, rpc);
+//         // const _existingHeights = await Blocks.aggregate([
+//         //     { 
+//         //         $group: { 
+//         //             _id: null, 
+//         //             heights: { $push: "$height" } 
+//         //         }
+//         //     }
+//         // ])
+//         // const existingHeights: number[] = _existingHeights[0].heights;
+//         // const missingHeights: number[] = [];
+//         // for (let i = _startHeight; i < (highestInDb?.height || _startHeight+1); i++) {
+//         //     if (!existingHeights.includes(i)) missingHeights.push(i)
+//         // }        
+//         // await processList(missingHeights, chainId, rpc);
 
-        console.log(`Done importing blocks on ${chainId}!`)
+//         console.log(`Done importing blocks on ${chainId}!`)
 
-    } catch (err: unknown) {
-        console.log(`Error importing blocks for chain ${chainId}:`, err?.toString?.() || err)
-    }
-}
+//     } catch (err: unknown) {
+//         console.log(`Error importing blocks for chain ${chainId}:`, err?.toString?.() || err)
+//     }
+// }
 
-const processList = async (toFetch: number[], chainId: string, rpc: string) => {
-    console.log(`Importing ${toFetch.length} blocks on ${chainId}`)
-    const mapper = async (h: number) => await processBlock(chainId, rpc, h);
-    await pMap(toFetch, mapper, {concurrency: 4});
-}
+// const processList = async (toFetch: number[], chainId: string, rpc: string) => {
+//     console.log(`Importing ${toFetch.length} blocks on ${chainId}`)
+//     const mapper = async (h: number) => await processBlock(chainId, rpc, h);
+//     await pMap(toFetch, mapper, {concurrency: 4});
+// }
 
 
 export const processBlock = async (chainId: string, rpc: string, heightToFetch: number) => {
@@ -122,5 +116,3 @@ export const processBlock = async (chainId: string, rpc: string, heightToFetch: 
     //     console.error(`Error processing block ${heightToFetch} on ${chainId}:`, err.toString())
     // }
 }
-
-export default importBlocks;

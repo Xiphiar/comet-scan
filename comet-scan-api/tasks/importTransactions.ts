@@ -10,52 +10,6 @@ import { Block } from "../interfaces/models/blocks.interface";
 import { processBlock } from "./importBlocks";
 import { ChainConfig } from "../interfaces/config.interface";
 
-const key = 'txs-import-processed-block'
-
-const importTransactions = async (chainId: string) => {
-    try {
-        console.log(`Importing transactions on ${chainId}...`)
-        // Get highest processed block from KVStore
-        let document = await KvStore.findOne({ chainId, key }).lean();
-
-        const highestBlockInDb = await Blocks.findOne({ chainId }).sort('-height').lean();
-        if (!highestBlockInDb) {
-            console.log('No blocks imported for', chainId)
-            return;
-        }
-        
-        let highestProcessed: number = parseInt(document?.value || '0');
-
-        if (!highestProcessed) {
-            let lowestBlockInDb = await Blocks.findOne({ chainId }).sort('height').lean();
-            if (!lowestBlockInDb) {
-                console.log('No blocks imported for', chainId)
-                return;
-            }
-            highestProcessed = lowestBlockInDb.height;
-            document = await KvStore.create({ chainId, key, value: highestProcessed.toString() });
-        }
-
-        const totalBlocks = highestBlockInDb.height - highestProcessed
-        console.log(`Need to import transactions for ${totalBlocks} blocks on ${chainId}`)
-
-        while (highestProcessed < highestBlockInDb.height) {
-            await importTransactionsForBlock(chainId, highestProcessed + 1);
-            highestProcessed++
-            await KvStore.findByIdAndUpdate(document?._id, { value: highestProcessed.toString() })
-
-            if (highestProcessed % 100 === 0) {
-                const remaining = highestBlockInDb.height - highestProcessed;
-                const processed = totalBlocks - remaining;
-                console.log(`${chainId} TX Import: ${(processed / totalBlocks * 100).toFixed(2)}%`)
-            }
-        }
-        console.log(`Done importing transactions on ${chainId}!`)
-    } catch (err: any) {
-        console.error(`Failed to import transactions on ${chainId}:`, err.toString())
-    }
-}
-
 export const importTransactionsForBlock = async (chainId: string, blockHeight: number) => {
     // console.log(`Importing transactions for block ${blockHeight} on ${chainId}`)
     const config = getChainConfig(chainId);
@@ -155,9 +109,6 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
         await Transactions.findOneAndReplace({ hash: txResponse.txhash }, newTx, { upsert: true });
     }    
 }
-
-export default importTransactions;
-
 
 export const getExecutedContractsForTx = (
     config: ChainConfig,

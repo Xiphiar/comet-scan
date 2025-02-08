@@ -1,5 +1,5 @@
 export interface LcdAuthAccount {
-  account: BaseAccount | ModuleAccount;
+  account: BaseAccount | ModuleAccount | v1beta1ContinuousVestingAccount;
 }
 
 export interface ModuleAccount {
@@ -11,7 +11,10 @@ export interface ModuleAccount {
 
 export interface BaseAccountDetails {
   address: string
-  pub_key: any
+  pub_key: {
+    "@type": string
+    key: string
+  }
   account_number: string
   sequence: string
 }
@@ -20,3 +23,18 @@ export interface BaseAccount extends BaseAccountDetails {
   '@type': '/cosmos.auth.v1beta1.BaseAccount'
 }
   
+
+export interface v1beta1ContinuousVestingAccount {
+  '@type': '/cosmos.vesting.v1beta1.ContinuousVestingAccount'
+  base_vesting_account: {
+    base_account: BaseAccountDetails
+    delegated_free: Array<any>
+    delegated_vesting: Array<any>
+    end_time: string
+    original_vesting: Array<{
+      amount: string
+      denom: string
+    }>
+  }
+  start_time: string
+}

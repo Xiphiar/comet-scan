@@ -6,7 +6,7 @@ import Transactions from "../models/transactions";
 import { Block, Coin } from "../interfaces/models/blocks.interface";
 import Accounts from "../models/accounts.model";
 import { Account, Delegation, Unbonding } from "../interfaces/models/accounts.interface";
-import { BaseAccountDetails, LcdAuthAccount } from "../interfaces/lcdAuthAccountResponse";
+import { BaseAccountDetails, LcdAuthAccount, ModuleAccount, v1beta1ContinuousVestingAccount } from "../interfaces/lcdAuthAccountResponse";
 import { importTransactionsForBlock } from "./importTransactions";
 import { processBlock } from "./importBlocks";
 import { LcdBalance, LcdBalancesResponse } from "../interfaces/LcdBalanceResponse";
@@ -91,11 +91,23 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
         } else {
             // otherwise add non-existant accounts
             const {data} = await axios.get<LcdAuthAccount>(`${config.lcd}/cosmos/auth/v1beta1/accounts/${address}`);
-            if (data.account["@type"] !== '/cosmos.auth.v1beta1.BaseAccount' && data.account["@type"] !== '/cosmos.auth.v1beta1.ModuleAccount') {
+
+            let baseAccount: BaseAccountDetails;
+            switch (data.account["@type"]) {
+                case '/cosmos.auth.v1beta1.BaseAccount': {
+                    baseAccount = data.account
+                }
+                case '/cosmos.auth.v1beta1.ModuleAccount': {
+                    baseAccount = (data.account as ModuleAccount).base_account
+                }
+                case '/cosmos.vesting.v1beta1.ContinuousVestingAccount': {
+                    baseAccount = (data.account as v1beta1ContinuousVestingAccount).base_vesting_account.base_account;
+                }
+            }
+            if (!baseAccount) {
                 console.log(`Found unknown account type ${data.account["@type"]} on ${chainId}`);
                 return null;
             }
-            const baseAccount: BaseAccountDetails = data.account["@type"] === '/cosmos.auth.v1beta1.ModuleAccount' ? data.account.base_account : data.account;
             const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings, nativeAssets } = await getBalancesForAccount(config, address);
 
             const newAccount: Account = {

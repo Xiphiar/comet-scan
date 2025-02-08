@@ -73,7 +73,7 @@ const tenMinuteMs = oneMinuteMs * 10;
 
 (async()=>{
     await connectToDb();
-    await Transactions.syncIndexes();
+    // await Transactions.syncIndexes();
     // await Blocks.syncIndexes();
     // await Accounts.syncIndexes();
     // await SecretContracts.syncIndexes();
@@ -81,12 +81,13 @@ const tenMinuteMs = oneMinuteMs * 10;
     console.log('Indexes Synced');
 
     syncAllChains();
+    setInterval(syncAllChains, 30 * 1000)
+
     await runUpdateTasks();
     updateContractExecutedCountsForAllChains();
     updateContractsForAllChains();
     pruneBlocksForAllChains();
 
-    setInterval(syncAllChains, 30 * 1000)
     setInterval(runUpdateTasks, tenMinuteMs)
     setInterval(updateContractExecutedCountsForAllChains, tenMinuteMs * 3)
     setInterval(updateContractsForAllChains, twelveHourMs * 2)

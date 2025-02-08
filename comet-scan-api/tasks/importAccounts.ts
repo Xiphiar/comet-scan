@@ -13,6 +13,7 @@ import { LcdBalance, LcdBalancesResponse } from "../interfaces/LcdBalanceRespons
 import { LcdDelegationsResponse, LcdUnbondingResponse } from "../interfaces/lcdBondingResponse";
 import { ChainConfig } from "../interfaces/config.interface";
 import { getDenomTrace } from "../common/chainQueries";
+import pMap from "p-map";
 
 export const importAccountsForBlock = async (chainId: string, blockHeight: number) => {
     // console.log(`Importing accounts for block ${blockHeight} on ${chainId}`)
@@ -37,17 +38,34 @@ export const importAccountsForBlock = async (chainId: string, blockHeight: numbe
         // throw `Transactions not yet imported on block ${blockHeight} on ${chainId}`
     }
 
+    const addressesToUpdate: {
+        address: string,
+        tx: Transaction,
+    }[] = [];
     for (const tx of txs) {
         const allAddresses = [...tx.signers, ...tx.senders, ...tx.recipients]
-        const addresses: string[] = [];
         for (const addr of allAddresses) {
-            if (!addresses.includes(addr)) addresses.push(addr);
+            // if (!addresses.includes(addr)) addresses.push(addr);
+            if (addressesToUpdate.findIndex(a => a.address === addr) === -1) addressesToUpdate.push({
+                address: addr,
+                tx
+            })
         };
-
-        for (const address of addresses) {
-            await importAccount(config.chainId, address, tx);
-        }
     }
+
+    // for (const {address, tx} of addressesToUpdate) {
+    //     await importAccount(config.chainId, address, tx);
+    // }
+
+    // Needs to have a lot of concurrency to keep up on some chains e.g. sentinel
+    const mapper = async (
+        {address, tx}:
+        {
+            address: string,
+            tx: Transaction,
+        }
+    ) => await importAccount(config.chainId, address, tx);
+    await pMap(addressesToUpdate, mapper, {concurrency: 16});
 }
 
 export const importAccount = async (chainId: string, address: string, tx?: Transaction): Promise<Account | null> => {
@@ -94,19 +112,18 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
 
             let baseAccount: BaseAccountDetails;
             switch (data.account["@type"]) {
-                case '/cosmos.auth.v1beta1.BaseAccount': {
+                case '/cosmos.auth.v1beta1.BaseAccount':
                     baseAccount = data.account
-                }
-                case '/cosmos.auth.v1beta1.ModuleAccount': {
+                    break;
+                case '/cosmos.auth.v1beta1.ModuleAccount':
                     baseAccount = (data.account as ModuleAccount).base_account
-                }
-                case '/cosmos.vesting.v1beta1.ContinuousVestingAccount': {
+                    break;
+                case '/cosmos.vesting.v1beta1.ContinuousVestingAccount':
                     baseAccount = (data.account as v1beta1ContinuousVestingAccount).base_vesting_account.base_account;
-                }
-            }
-            if (!baseAccount) {
-                console.log(`Found unknown account type ${data.account["@type"]} on ${chainId}`);
-                return null;
+                    break;
+                default :
+                    console.log(`Found unknown account type ${data.account["@type"]} on ${chainId}`);
+                    return null;
             }
             const { balanceUpdateTime, delegations, heldBalanceInBondingDenom, totalBalanceInBondingDenom, totalDelegatedBalance, totalUnbondingBalance, unbondings, nativeAssets } = await getBalancesForAccount(config, address);
 

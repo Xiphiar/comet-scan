@@ -1,7 +1,6 @@
 import axios from "axios";
 import { ChainConfig } from "../interfaces/config.interface";
 import Blocks from "../models/blocks";
-import { importAccountsForBlock } from "./importAccounts";
 import { processBlock } from "./importBlocks"
 import { importTransactionsForBlock } from "./importTransactions";
 import RpcStatusResponse from "../interfaces/rpcStatusResponse";
@@ -11,11 +10,12 @@ import KvStore from "../models/kv";
 const isSyncing = new Map<string, boolean>();
 
 // Imports block, txs, and updates accounts in one function
-const syncBlock = async (config: ChainConfig, height: number) => {
-    // console.log(`Syncing block ${height} on ${config.chainId}`)
+export const syncBlock = async (config: ChainConfig, height: number) => {
+    console.log(`Syncing block ${height} on ${config.chainId}`)
     await processBlock(config.chainId, config.rpc, height);
+
+    console.log(`Syncing transactions for block ${height} on ${config.chainId}`)
     await importTransactionsForBlock(config.chainId, height);
-    await importAccountsForBlock(config.chainId, height);
 }
 
 const syncChain = async (config: ChainConfig) => {

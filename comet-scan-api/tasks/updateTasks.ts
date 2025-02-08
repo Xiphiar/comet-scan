@@ -1,5 +1,6 @@
 import Chains from "../config/chains";
 import { ChainConfig } from "../interfaces/config.interface";
+import { updateAccountsV2 } from "./importAccounts";
 import { updateProposalsForChain } from "./updateProposals";
 import { updateValidatorsForChain } from "./updateValidators";
 
@@ -16,6 +17,7 @@ const runUpdateTasksForChain = async (chain: ChainConfig) => {
     try {
         await updateValidatorsForChain(chain);
         await updateProposalsForChain(chain);
+        await updateAccountsV2(chain);
     } catch (err: any) {
         console.error(`Update tasks error on ${chain.chainId}: ${err.toString()}`)
     } finally {

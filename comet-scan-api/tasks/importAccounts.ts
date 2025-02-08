@@ -1,6 +1,6 @@
 import { Transaction } from "../interfaces/models/transactions.interface";
 import Blocks from "../models/blocks";
-import { getChainConfig } from "../config/chains";
+import Chains, { getChainConfig } from "../config/chains";
 import axios from "axios";
 import Transactions from "../models/transactions";
 import { Block, Coin } from "../interfaces/models/blocks.interface";
@@ -14,21 +14,76 @@ import { LcdDelegationsResponse, LcdUnbondingResponse } from "../interfaces/lcdB
 import { ChainConfig } from "../interfaces/config.interface";
 import { getDenomTrace } from "../common/chainQueries";
 import pMap from "p-map";
+import KvStore from "../models/kv";
+import { syncBlock } from "./sync";
 
-export const importAccountsForBlock = async (chainId: string, blockHeight: number) => {
-    // console.log(`Importing accounts for block ${blockHeight} on ${chainId}`)
+const key = 'accounts-import-processed-block'
+export const updateAccountsV2 = async ({chainId}: ChainConfig) => {
+    console.log(`Updating accounts on ${chainId}...`)
+    // Get highest processed block from KVStore
+    let document = await KvStore.findOne({ chainId, key }).lean();
+
+    const highestBlockInDb = await Blocks.findOne({ chainId }).sort('-height').lean();
+    if (!highestBlockInDb) {
+        console.log('No blocks imported for', chainId)
+        return;
+    }
+    
+    let highestProcessed: number = parseInt(document?.value || '0');
+
+    if (!highestProcessed) {
+        let lowestBlockInDb = await Blocks.findOne({ chainId }).sort('height').lean();
+        if (!lowestBlockInDb) {
+            console.log('No blocks imported for', chainId)
+            return;
+        }
+        highestProcessed = lowestBlockInDb.height;
+        document = await KvStore.create({ chainId, key, value: highestProcessed.toString() });
+    }
+
+    console.log(`Need to import accounts for ${highestBlockInDb.height - highestProcessed} blocks on ${chainId}`)
+
+    // Get a list of unique accounts in this range
+    const updates: AddressUpdate[] = [];
+    while (highestProcessed < highestBlockInDb.height) {
+        // Get list of unique accounts in the TX
+        const accounts = await getAccountsForBlock(chainId, highestProcessed + 1);
+
+        // Add accounts to the updates array if it is not already present
+        for (const account of accounts){
+            if (updates.findIndex(a => a.address === account.address) === -1) {
+                updates.push(account)
+            }
+        }
+        highestProcessed++
+    }
+    
+    console.log(`Need to update ${updates.length} accounts on ${chainId}`)
+    for (const i in updates){
+        const {address, tx} = updates[i];
+        if (parseInt(i) % 10 === 0) console.log(`${parseInt(i) / updates.length * 100}%`)
+        await importAccount(chainId, address, tx);
+    }
+    await KvStore.findByIdAndUpdate(document?._id, { value: highestProcessed.toString() })
+}
+
+type AddressUpdate = {
+    address: string;
+    tx: Transaction;
+}
+export const getAccountsForBlock = async (chainId: string, blockHeight: number): Promise<AddressUpdate[]> => {
     const config = getChainConfig(chainId);
     if (!config) throw `Config not found for ${chainId}`;
 
     let block: Block | null = await Blocks.findOne({ chainId, height: blockHeight }).lean();
     if (!block) {
-        await processBlock(chainId, config.rpc, blockHeight);
+        await syncBlock(config, blockHeight);
         block = await Blocks.findOne({ chainId, height: blockHeight }).lean();
     }
     if (!block) {
         throw `Block ${blockHeight} not found in DB for ${chainId}`;
     }
-    if (!block.transactionsCount) return;
+    if (!block.transactionsCount) return [];
 
     // get block TXs from DB
     let txs: Transaction[] = await Transactions.find({ chainId, blockHeight }).lean();
@@ -38,14 +93,14 @@ export const importAccountsForBlock = async (chainId: string, blockHeight: numbe
         // throw `Transactions not yet imported on block ${blockHeight} on ${chainId}`
     }
 
-    const addressesToUpdate: {
-        address: string,
-        tx: Transaction,
-    }[] = [];
+    const addressesToUpdate: AddressUpdate[] = [];
     for (const tx of txs) {
+
+        // Spam filter
+        if (tx.transaction.tx.body.memo.toLowerCase().includes('airdrop')) continue;
+
         const allAddresses = [...tx.signers, ...tx.senders, ...tx.recipients]
         for (const addr of allAddresses) {
-            // if (!addresses.includes(addr)) addresses.push(addr);
             if (addressesToUpdate.findIndex(a => a.address === addr) === -1) addressesToUpdate.push({
                 address: addr,
                 tx
@@ -53,20 +108,61 @@ export const importAccountsForBlock = async (chainId: string, blockHeight: numbe
         };
     }
 
-    // for (const {address, tx} of addressesToUpdate) {
-    //     await importAccount(config.chainId, address, tx);
-    // }
-
-    // Needs to have a lot of concurrency to keep up on some chains e.g. sentinel
-    const mapper = async (
-        {address, tx}:
-        {
-            address: string,
-            tx: Transaction,
-        }
-    ) => await importAccount(config.chainId, address, tx);
-    await pMap(addressesToUpdate, mapper, {concurrency: 16});
+    return addressesToUpdate;
 }
+
+// export const importAccountsForBlock = async (chainId: string, blockHeight: number) => {
+//     // console.log(`Importing accounts for block ${blockHeight} on ${chainId}`)
+//     const config = getChainConfig(chainId);
+//     if (!config) throw `Config not found for ${chainId}`;
+
+//     let block: Block | null = await Blocks.findOne({ chainId, height: blockHeight }).lean();
+//     if (!block) {
+//         await processBlock(chainId, config.rpc, blockHeight);
+//         block = await Blocks.findOne({ chainId, height: blockHeight }).lean();
+//     }
+//     if (!block) {
+//         throw `Block ${blockHeight} not found in DB for ${chainId}`;
+//     }
+//     if (!block.transactionsCount) return;
+
+//     // get block TXs from DB
+//     let txs: Transaction[] = await Transactions.find({ chainId, blockHeight }).lean();
+//     if (txs.length !== block.transactionsCount) {
+//         await importTransactionsForBlock(chainId, blockHeight);
+//         txs = await Transactions.find({ chainId, blockHeight }).lean();
+//         // throw `Transactions not yet imported on block ${blockHeight} on ${chainId}`
+//     }
+
+//     const addressesToUpdate: {
+//         address: string,
+//         tx: Transaction,
+//     }[] = [];
+//     for (const tx of txs) {
+//         const allAddresses = [...tx.signers, ...tx.senders, ...tx.recipients]
+//         for (const addr of allAddresses) {
+//             // if (!addresses.includes(addr)) addresses.push(addr);
+//             if (addressesToUpdate.findIndex(a => a.address === addr) === -1) addressesToUpdate.push({
+//                 address: addr,
+//                 tx
+//             })
+//         };
+//     }
+
+//     // for (const {address, tx} of addressesToUpdate) {
+//     //     await importAccount(config.chainId, address, tx);
+//     // }
+
+//     // Needs to have a lot of concurrency to keep up on some chains e.g. sentinel
+//     const mapper = async (
+//         {address, tx}:
+//         {
+//             address: string,
+//             tx: Transaction,
+//         }
+//     ) => await importAccount(config.chainId, address, tx);
+//     await pMap(addressesToUpdate, mapper, {concurrency: 16});
+// }
 
 export const importAccount = async (chainId: string, address: string, tx?: Transaction): Promise<Account | null> => {
     const config = getChainConfig(chainId);

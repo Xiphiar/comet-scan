@@ -50,6 +50,9 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
         const tx = allTxs[index];
         const txResponse = allResults[index];
 
+        // Spam filter
+        if (tx.body.memo.toLowerCase().includes('airdrop')) continue;
+
         // Generate list of signer addresses
         const signers: string[] = [];
         for (const signerInfo of (tx.auth_info?.signer_infos || [])) {

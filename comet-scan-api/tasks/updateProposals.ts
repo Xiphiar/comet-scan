@@ -23,7 +23,7 @@ export const updateProposalsForChain_v1beta1 = async (chain: ChainConfig) => {
     const proposals: v1beta1LcdProposal[] = data.proposals;
 
     for (const prop of proposals) {
-        console.log(`Updating proposal ${prop.proposal_id} on ${chain.chainId}`)
+        // console.log(`Updating proposal ${prop.proposal_id} on ${chain.chainId}`)
         const existingProposal = await Proposals.findOne({ chainId: chain.chainId, id: prop.proposal_id }).lean();
         let validatorVotes = existingProposal?.validatorVotes || [];
         
@@ -87,7 +87,7 @@ export const updateProposalsForChain_v1 = async (chain: ChainConfig) => {
     const proposals: v1LcdProposal[] = data.proposals;
 
     for (const prop of proposals) {
-        console.log(`Updating proposal ${prop.id} on ${chain.chainId}`)
+        // console.log(`Updating proposal ${prop.id} on ${chain.chainId}`)
 
         const msg = prop.messages[0];
         const existingProposal = await Proposals.findOne({ chainId: chain.chainId, id: prop.id }).lean();

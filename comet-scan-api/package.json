@@ -23,7 +23,7 @@
     "axios": "^1.7.7",
     "dotenv": "^16.4.7",
     "encore.dev": "^1.44.4",
-    "mongoose": "^8.8.2",
+    "mongoose": "^8.10.1",
     "mongoose-paginate-v2": "^1.9.0",
     "node-cache": "^5.1.2",
     "p-limit": "^6.1.0",

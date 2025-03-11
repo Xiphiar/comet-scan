@@ -191,7 +191,7 @@ export const parseMessages = (config: FrontendChainConfig, tx: LcdTxResponse, sk
                     content: [
                         ['Signer', <Link to={`/${config.id}/accounts/${msg.signer}`}>{msg.signer}</Link>],
                         ['Client ID', msg.client_id],
-                        ['Message', defaultKeyContent(msg.client_message)]
+                        // ['Message', defaultKeyContent(msg.client_message)] // Doesn't seem to be on all messages of this type???
                     ],
                     amounts: [],
                 }
@@ -280,6 +280,10 @@ export const parseMessages = (config: FrontendChainConfig, tx: LcdTxResponse, sk
 }
 
 export const defaultKeyContent = (value: any): string => {
+    if (!value) {
+        console.log('NO VALUE', value);
+        return value || '';
+    }
     if (typeof value === 'object') value = JSON.stringify(value, undefined, 2);
 
     if (value.length > 64) value = (

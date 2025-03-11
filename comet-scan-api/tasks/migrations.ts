@@ -1,6 +1,7 @@
 import { getLatestBlock, getOldestBlock } from "../common/dbQueries";
 import Chains from "../config/chains";
 import { ChainConfig } from "../interfaces/config.interface";
+import Blocks from "../models/blocks";
 import Transactions from "../models/transactions";
 import { getExecutedContractsForTx } from "./importTransactions";
 
@@ -37,5 +38,54 @@ const addExecutedContractsToTransactions = async (config: ChainConfig) => {
 export const addExecutedContractsToTransactionsForAllChains = async () => {
     for (const chain of Chains) {
         await addExecutedContractsToTransactions(chain);
+    }
+}
+
+const addBlockTimesToExistingBlocks = async (config: ChainConfig) => {
+    console.log(`Starting task "Adding Block Times to Existing Blocks" on ${config.chainId}`)
+    try {
+        const latest = await getLatestBlock(config.chainId);
+        const oldest = await getOldestBlock(config.chainId);
+        if (!latest || !oldest) throw 'Unable to get latest and oldest block';
+        console.log(`Block Range: ${oldest.height.toLocaleString()} - ${latest.height.toLocaleString()}`)
+
+        const totalBlocks = latest.height - oldest.height;
+
+        let currentHeight = oldest.height;
+        let previousTimestamp: Date | undefined = undefined;
+        while (currentHeight < latest.height) {
+            if (currentHeight % 1000 === 0) console.log(((currentHeight - oldest.height) / totalBlocks * 100).toFixed(2), '%')
+
+            const block = await Blocks.findOne({ chainId: config.chainId, height: currentHeight }).lean();
+            if (!block) {
+                currentHeight++;
+                continue;
+            }
+            if (!previousTimestamp) {
+                currentHeight++;
+                previousTimestamp = block.timestamp;
+                continue;
+            }
+            if (block.blockTime) {
+                currentHeight++;
+                previousTimestamp = block.timestamp;
+                continue;
+            }
+
+            // Time since previous block in MS
+            const blockTime = block.timestamp.valueOf() - previousTimestamp.valueOf();
+
+            await Blocks.findByIdAndUpdate(block._id, { $set: { blockTime } });
+            currentHeight++;
+            previousTimestamp = block.timestamp;
+        }
+    } catch (err: any) {
+        console.log(`Task "Adding Block Times to Existing Blocks" on ${config.chainId} failed:`, err.toString())
+    }
+};
+
+export const addBlockTimesToExistingBlocksForAllChains = async () => {
+    for (const chain of Chains) {
+        await addBlockTimesToExistingBlocks(chain);
     }
 }

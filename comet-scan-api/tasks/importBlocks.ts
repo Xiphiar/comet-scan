@@ -93,7 +93,10 @@ export const processBlock = async (chainId: string, rpc: string, heightToFetch: 
                 amount: amount.toString(),
                 denom,
             });
-        })
+        });
+
+        const previousBlock = await Blocks.findOne({ chainId, height: heightToFetch - 1 }).lean();
+        const blockTime = previousBlock ? new Date(block.result.block.header.time).valueOf() - new Date(previousBlock.timestamp).valueOf() : undefined;
 
         const newDocument: Block = {
             chainId,
@@ -102,6 +105,7 @@ export const processBlock = async (chainId: string, rpc: string, heightToFetch: 
             timestamp: new Date(block.result.block.header.time),
             block,
             blockResults,
+            blockTime,
             // transactions: decodedTransactions,
             transactionsCount: txs_results.length,
             totalGasWanted,

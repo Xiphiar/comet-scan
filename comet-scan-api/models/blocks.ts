@@ -27,6 +27,10 @@ const blocksSchema = new mongoose.Schema<Block>({
         type: {},
         required: true,
     },
+    blockTime: {
+        type: Number,
+        requred: false,
+    },
     // transactions: {
     //     type: [{}],
     //     required: true,

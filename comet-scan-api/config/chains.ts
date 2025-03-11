@@ -77,32 +77,32 @@ const Sentinel: ChainConfig = {
     features: ['cosmwasm']
 }
 
-const IrisNet: ChainConfig = {
-    id: 'irisnet',
-    chainId: 'irishub-1',
-    name: 'IRISnet',
-    bondingDenom: 'uiris',
-    bondingDecimals: 6,
-    bondingDisplayDenom: 'IRIS',
-    logoFile: 'irisnet.svg',
-    prefix: 'iaa',
-    govVersion: 'v1',
-    ibcVersion: 'v1',
-    sdkVersion: 'pre-50',
-    rpc: 'https://mainnet-iris-rpc.konsortech.xyz',
-    lcd: 'https://mainnet-iris-api.konsortech.xyz',
-    startHeight: 28_490_000,
-    pruneBlocksAfter: 500_000,
-    pruneTransactions: false,
-    features: []
-}
+// const IrisNet: ChainConfig = {
+//     id: 'irisnet',
+//     chainId: 'irishub-1',
+//     name: 'IRISnet',
+//     bondingDenom: 'uiris',
+//     bondingDecimals: 6,
+//     bondingDisplayDenom: 'IRIS',
+//     logoFile: 'irisnet.svg',
+//     prefix: 'iaa',
+//     govVersion: 'v1',
+//     ibcVersion: 'v1',
+//     sdkVersion: 'pre-50',
+//     rpc: 'https://mainnet-iris-rpc.konsortech.xyz',
+//     lcd: 'https://mainnet-iris-api.konsortech.xyz',
+//     startHeight: 28_490_000,
+//     pruneBlocksAfter: 500_000,
+//     pruneTransactions: false,
+//     features: []
+// }
 
 const Chains: ChainConfig[] = [
     SecretNetwork,
     SecretNetworkPulsar3,
     Jackal,
     Sentinel,
-    IrisNet,
+    // IrisNet,
 ];
 
 Chains.forEach(chain => {

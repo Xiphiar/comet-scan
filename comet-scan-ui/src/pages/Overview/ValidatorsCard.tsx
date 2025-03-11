@@ -91,7 +91,7 @@ const ValidatorRow: FC<{ position: number, validator: Validator, chain: Frontend
             className={`${styles.valRow}`}
         >
             <div className='col col-8 col-md-7 d-flex gap-2'>
-                <h5>#{position + 1}</h5>
+                <h5 style={{minWidth: '3ch'}}>#{position + 1}</h5>
                 <ValidatorAvatar avatarUrl={validator.descriptions[0]?.keybaseAvatarUrl} moniker={validator.descriptions[0]?.moniker} />
                 <div className='twoLineLimit'>{validator.descriptions.length ? validator.descriptions[0].moniker : validator.operatorAddress}</div>
             </div>

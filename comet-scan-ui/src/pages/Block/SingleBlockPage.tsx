@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, Fragment } from "react";
 import { Link, useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
@@ -103,10 +103,10 @@ const SingleBlockPage: FC = () => {
                 {!!data.transactions.length &&
                     <TransactionLabels />
                 }
-                {data.transactions.map((tx) =><>
+                {data.transactions.map((tx) =><Fragment key={tx.hash}>
                     <div style={{borderBottom: '1px solid var(--light-gray)'}} />
                     <TransactionRow transaction={tx} chain={chain} />
-                </>)}
+                </Fragment>)}
                 {!data.transactions.length && <div className='py-4 w-full text-center'>
                     No transactions found.
                 </div>}

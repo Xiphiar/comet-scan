@@ -40,7 +40,7 @@ const SingleProposalPage: FC = () => {
     const parsedContent = parseProposal(chain, data.proposal.proposal);
 
     let proposalType = data.proposal.proposalType;
-    if (proposalType.includes('MsgExecLegacyContent')) proposalType = (proposal.proposal as v1LcdProposal).messages?.[0]?.content?.['@type'] || proposalType;
+    if (proposalType.includes('MsgExecLegacyContent')) proposalType = (data.proposal.proposal as v1LcdProposal).messages?.[0]?.content?.['@type'] || proposalType;
     return (
         <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={`Proposal ${proposalId}`} />

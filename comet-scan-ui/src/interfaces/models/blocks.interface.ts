@@ -14,6 +14,8 @@ export interface Block {
     timestamp: Date;
     block: RpcBlockResponse;
     blockResults: RpcBlockResultsResponse;
+    // MS since last block
+    blockTime: number | undefined;
     // transactions: DecodedTxRaw[];
     transactionsCount: number,
     totalGasWanted: number,

@@ -1,4 +1,8 @@
-export type ChainFeature = 'secretwasm' | 'cosmwasm' | 'no_contract_import';
+export type ChainFeature =
+    'secretwasm'
+    | 'cosmwasm'
+    | 'no_contract_import' // Don't import contracts, only import codes
+    | 'no_contract_parsing'; // Import contracts, but don't check if they are a token or NFT collection
 
 export interface FrontendChainConfig {
     id: string;

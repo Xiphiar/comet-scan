@@ -69,10 +69,12 @@ const SingleBlockPage: FC = () => {
                             {data.block.hash}
                         </div>
                     </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Time Since Previous Block</div>
-                        <div className='col'>TODO</div>
-                    </div>
+                    { !!data.block.blockTime &&
+                        <div className='d-flex'>
+                            <div className='col-3 font-weight-bold'>Time Since Previous Block</div>
+                            <div className='col'>{(data.block.blockTime / 1000).toFixed(2)} seconds</div>
+                        </div>
+                    }
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Transactions</div>
                         <div className='col'>

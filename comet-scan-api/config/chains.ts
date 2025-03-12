@@ -31,8 +31,8 @@ const SecretNetworkPulsar3: ChainConfig = {
     govVersion: 'v1',
     ibcVersion: 'v1',
     sdkVersion: '50',
-    rpc: 'https://pulsar-3.api.trivium.network:26657',
-    lcd: 'https://pulsar-3.api.trivium.network:1317',
+    rpc: 'https://pulsar.rpc.secretnodes.com',
+    lcd: 'https://pulsar.lcd.secretnodes.com',
     startHeight: 8_310_000,
     features: ['secretwasm', 'no_contract_parsing']
 }
@@ -51,8 +51,8 @@ const Jackal: ChainConfig = {
     sdkVersion: 'pre-50',
     // rpc: 'https://jackal.api.trivium.network:26657',
     // lcd: 'https://jackal.api.trivium.network:1317',
-    rpc: 'http://34.130.44.31:26657',
-    lcd: 'https://jkl.api.m.stavr.tech',
+    rpc: 'http://35.193.64.216:26657',
+    lcd: 'https://jackal.api.kjnodes.com',
     startHeight: 10_838_000,
     features: ['cosmwasm']
 }
@@ -69,10 +69,11 @@ const Sentinel: ChainConfig = {
     govVersion: 'v1beta1',
     ibcVersion: 'v1',
     sdkVersion: 'pre-50',
-    // rpc: 'http://192.168.1.42:40657',
-    // lcd: 'http://192.168.1.42:40317',
-    rpc: 'https://rpc.sentinel.quokkastake.io',
-    lcd: 'https://api.sentinel.quokkastake.io',
+    rpc: 'http://192.168.1.42:40657',
+    lcd: 'https://public.stakewolle.com/cosmos/sentinel/rest',
+    //lcd: 'http://192.168.1.42:40317',
+    //rpc: 'https://rpc.sentinel.quokkastake.io',
+    //lcd: 'https://api.sentinel.quokkastake.io',
     startHeight: 19_550_000,
     features: ['cosmwasm']
 }

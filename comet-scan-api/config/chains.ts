@@ -52,7 +52,16 @@ const Jackal: ChainConfig = {
     // rpc: 'https://jackal.api.trivium.network:26657',
     // lcd: 'https://jackal.api.trivium.network:1317',
     rpc: 'http://35.193.64.216:26657',
-    lcds: ['https://jackal.api.kjnodes.com'],
+    lcds: [
+        'https://jackal.api.kjnodes.com',
+        'https://m-jackal.api.utsa.tech',
+        'https://rest.lavenderfive.com:443/jackal',
+        'https://public.stakewolle.com/cosmos/jackal/rest',
+        'https://public.stakewolle.com/cosmos/jackal/rest',
+        'https://jkl.api.m.stavr.tech',
+        'https://jackal-api.polkachu.com',
+        'https://jackal-api.kleomedes.network'
+    ],
     startHeight: 10_838_000,
     features: ['cosmwasm']
 }
@@ -100,9 +109,9 @@ const Sentinel: ChainConfig = {
 
 const Chains: ChainConfig[] = [
     SecretNetwork,
-    // SecretNetworkPulsar3,
-    // Jackal,
-    // Sentinel,
+    SecretNetworkPulsar3,
+    Jackal,
+    Sentinel,
     // IrisNet,
 ];
 

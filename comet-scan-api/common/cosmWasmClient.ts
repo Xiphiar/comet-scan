@@ -18,13 +18,13 @@ export const getSecretWasmClient = async (chainId: string): Promise<SecretNetwor
     const chainConfig = Chains.find(c => c.chainId === chainId);
     if (!chainConfig) throw `Chain ${chainId} not found in config.`
 
-    const cached = secretWasmClientCache.get(chainConfig.lcd);
+    const cached = secretWasmClientCache.get(chainConfig.lcds[0]);
     if (cached) return cached;
 
     const client = new SecretNetworkClient({
-        url: chainConfig.lcd,
+        url: chainConfig.lcds[0],
         chainId
     })
-    secretWasmClientCache.set(chainConfig.lcd, client);
+    secretWasmClientCache.set(chainConfig.lcds[0], client);
     return client;
 }

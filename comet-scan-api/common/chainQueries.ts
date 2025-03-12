@@ -14,8 +14,8 @@ export const getTotalSupply = async (chainId: string): Promise<Amount> => {
     const cached = Cache.get<Amount>(`${chainId}-total-supply`);
     if (cached) return cached;
 
-    // const {data: _data} = await axios.get(`${chainConfig.lcd}/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.bondingDenom}`);
-    const {data: _data}: { data: { supply: Coin[] }} = await axios.get(`${chainConfig.lcd}/cosmos/bank/v1beta1/supply`, {
+    // const {data: _data} = await axios.get(`${chainConfig.lcds[0]}/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.bondingDenom}`);
+    const {data: _data}: { data: { supply: Coin[] }} = await axios.get(`${chainConfig.lcds[0]}/cosmos/bank/v1beta1/supply`, {
         params: {
             'pagination.limit': 1000,
         }
@@ -177,7 +177,7 @@ export const getDenomTrace = async (chainId: string, denomHash: string): Promise
         if (cached) return cached;
 
         const cleanHash = denomHash.replace('ibc/', '');
-        const url = `${chainConfig.lcd}/ibc/${chainConfig.ibcVersion === 'v1' ? 'apps' : 'applications'}/transfer/${chainConfig.ibcVersion}/denom_traces/${cleanHash}`;
+        const url = `${chainConfig.lcds[0]}/ibc/${chainConfig.ibcVersion === 'v1' ? 'apps' : 'applications'}/transfer/${chainConfig.ibcVersion}/denom_traces/${cleanHash}`;
         const {data} = await axios.get<DenomTraceResponse>(url);
         const denom = data.denom_trace.base_denom;
         

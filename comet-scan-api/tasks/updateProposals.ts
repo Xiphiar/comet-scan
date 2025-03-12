@@ -13,7 +13,7 @@ export const updateProposalsForChain = async (chain: ChainConfig) => {
 }
 
 export const updateProposalsForChain_v1beta1 = async (chain: ChainConfig) => {
-    const url = `${chain.lcd}/cosmos/gov/${chain.govVersion}/proposals`;
+    const url = `${chain.lcds[0]}/cosmos/gov/${chain.govVersion}/proposals`;
     const {data} = await axios.get(url, {
         params: {
             'pagination.limit': 1000,
@@ -46,7 +46,7 @@ export const updateProposalsForChain_v1beta1 = async (chain: ChainConfig) => {
         const submitMsg = submitPropTx?.transaction.tx.body.messages.find(msg => msg["@type"].includes('MsgSubmitProposal') && msg.content.title === prop.content.title);
         const proposer = submitMsg?.proposer || (submitPropTx ? submitPropTx.signers[0] : undefined)
 
-        const {data: tallyData} = await axios.get(`${chain.lcd}/cosmos/gov/v1beta1/proposals/${prop.proposal_id}/tally`);
+        const {data: tallyData} = await axios.get(`${chain.lcds[0]}/cosmos/gov/v1beta1/proposals/${prop.proposal_id}/tally`);
 
         // Upsert Proposal
         const newProp: Proposal = {
@@ -77,7 +77,7 @@ export const updateProposalsForChain_v1beta1 = async (chain: ChainConfig) => {
 }
 
 export const updateProposalsForChain_v1 = async (chain: ChainConfig) => {
-    const url = `${chain.lcd}/cosmos/gov/${chain.govVersion}/proposals`;
+    const url = `${chain.lcds[0]}/cosmos/gov/${chain.govVersion}/proposals`;
     const {data} = await axios.get(url, {
         params: {
             'pagination.limit': 1000,
@@ -97,7 +97,7 @@ export const updateProposalsForChain_v1 = async (chain: ChainConfig) => {
         //     validatorVotes = await getValidatorVotes(chain, prop.id);
         }
 
-        const {data: tallyData} = await axios.get(`${chain.lcd}/cosmos/gov/v1/proposals/${prop.id}/tally`);
+        const {data: tallyData} = await axios.get(`${chain.lcds[0]}/cosmos/gov/v1/proposals/${prop.id}/tally`);
 
         // Upsert Proposal
         const newProp: Proposal = {
@@ -133,7 +133,7 @@ const getValidatorVotes = async (chain: ChainConfig, proposalId: string): Promis
     const valVotes: ValidatorVote[] = []
     for (const val of activeValidators) {
         try {
-            const {data} = await axios.get(`${chain.lcd}/cosmos/gov/${chain.govVersion}/proposals/${proposalId}/votes/${val.accountAddress}`)
+            const {data} = await axios.get(`${chain.lcds[0]}/cosmos/gov/${chain.govVersion}/proposals/${proposalId}/votes/${val.accountAddress}`)
             if (data?.vote?.option && data.vote.option !== 'VOTE_OPTION_UNSPECIFIED') valVotes.push({
                 operatorAddress: val.operatorAddress,
                 vote: data.vote.option,

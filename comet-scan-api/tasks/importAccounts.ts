@@ -204,7 +204,7 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
             return updatedAccount!;
         } else {
             // otherwise add non-existant accounts
-            const {data} = await axios.get<LcdAuthAccount>(`${config.lcd}/cosmos/auth/v1beta1/accounts/${address}`);
+            const {data} = await axios.get<LcdAuthAccount>(`${config.lcds[0]}/cosmos/auth/v1beta1/accounts/${address}`);
 
             let baseAccount: BaseAccountDetails;
             switch (data.account["@type"]) {
@@ -269,10 +269,10 @@ interface AccountBalances {
 }
 const getBalancesForAccount = async (config: ChainConfig, address: string): Promise<AccountBalances> => {
     const balanceUpdateTime = new Date();
-    const {data: balanceResponse} = await axios.get<LcdBalance>(`${config.lcd}/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=${config.bondingDenom}`);
-    const {data: allBalancesResponse} = await axios.get<LcdBalancesResponse>(`${config.lcd}/cosmos/bank/v1beta1/balances/${address}`);
-    const { data: _delegations } = await axios.get<LcdDelegationsResponse>(`${config.lcd}/cosmos/staking/v1beta1/delegations/${address}`);
-    const { data: _unbondings } = await axios.get<LcdUnbondingResponse>(`${config.lcd}/cosmos/staking/v1beta1/delegators/${address}/unbonding_delegations`);
+    const {data: balanceResponse} = await axios.get<LcdBalance>(`${config.lcds[0]}/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=${config.bondingDenom}`);
+    const {data: allBalancesResponse} = await axios.get<LcdBalancesResponse>(`${config.lcds[0]}/cosmos/bank/v1beta1/balances/${address}`);
+    const { data: _delegations } = await axios.get<LcdDelegationsResponse>(`${config.lcds[0]}/cosmos/staking/v1beta1/delegations/${address}`);
+    const { data: _unbondings } = await axios.get<LcdUnbondingResponse>(`${config.lcds[0]}/cosmos/staking/v1beta1/delegators/${address}/unbonding_delegations`);
 
     const delegations = _delegations.delegation_responses.map(d => {
         return {

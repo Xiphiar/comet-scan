@@ -25,6 +25,6 @@ export interface FrontendChainConfig {
 
 export interface ChainConfig extends FrontendChainConfig {
     rpc: string;
-    lcd: string;
+    lcds: string[];
     startHeight?: number;
 }

@@ -1,14 +1,13 @@
 import { base64PubkeyToAddress, pubkeyToAddress } from "secretjs";
 import { Transaction } from "../interfaces/models/transactions.interface";
 import Blocks from "../models/blocks";
-import KvStore, { KV } from "../models/kv"
 import { getChainConfig } from "../config/chains";
-import axios from "axios";
 import { LcdTxSearchResponse, LcdTxSearchResult, LcdTxSearchTx, MsgLog, TxEvent } from "../interfaces/lcdTxResponse";
 import Transactions from "../models/transactions";
 import { Block } from "../interfaces/models/blocks.interface";
 import { processBlock } from "./importBlocks";
 import { ChainConfig } from "../interfaces/config.interface";
+import AxiosFallbackClient from "../utils/axiosFallbackClient";
 
 export const importTransactionsForBlock = async (chainId: string, blockHeight: number) => {
     // console.log(`Importing transactions for block ${blockHeight} on ${chainId}`)
@@ -27,12 +26,28 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
     if (!block.transactionsCount) return;
 
     // const txs = await client.query.txsQuery(`tx.height=${blockHeight}`);
+
+    const fallbackClient = new AxiosFallbackClient(
+        config.lcds,
+        {
+            params: {
+                'pagination.limit': 100,
+            },
+            timeout: 15_000,
+        }
+    )
     const allTxs: LcdTxSearchTx[] = [];
     const allResults: LcdTxSearchResult[] = [];
-    const url = `${config.lcd}/cosmos/tx/v1beta1/txs?${config.sdkVersion === 'pre-50' ? 'events' : 'query'}=tx.height%3D${blockHeight}&pagination.limit%3D100`;
-    let pageUrl = url;
+    let offset = 0;
     while (true) {
-        const {data} = await axios.get<LcdTxSearchResponse>(pageUrl);
+        const data = await fallbackClient.get<LcdTxSearchResponse>(`/cosmos/tx/v1beta1/txs`, {
+            params: {
+                'events': config.sdkVersion === 'pre-50' ? 'tx.height=' + blockHeight : undefined,
+                'query': config.sdkVersion === 'pre-50' ? undefined : 'tx.height=' + blockHeight,
+                'pagination.offset': offset,
+            }
+        });
+
         if (data.txs.length !== data.tx_responses.length) {
             throw `Block ${blockHeight} on ${chainId} has ${data.txs.length} txs but ${data.tx_responses.length} tx_results were returned by LCD.`
         }
@@ -40,7 +55,7 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
         allResults.push(...data.tx_responses);
         if (data.txs.length < 100) break;
         if (allTxs.length === block.transactionsCount) break;
-        pageUrl = `${url}&pagination.offset=${allTxs.length}`
+        offset = allTxs.length;
     }
     
     if (allTxs.length !== block.transactionsCount) throw `Block ${blockHeight} on ${chainId} has ${block.transactionsCount} transactions but ${allTxs.length} were returned by LCD.`

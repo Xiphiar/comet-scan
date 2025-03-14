@@ -40,17 +40,27 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
     const allResults: LcdTxSearchResult[] = [];
     let offset = 0;
     while (true) {
-        const data = await fallbackClient.get<LcdTxSearchResponse>(`/cosmos/tx/v1beta1/txs`, {
-            params: {
-                'events': config.sdkVersion === 'pre-50' ? 'tx.height=' + blockHeight : undefined,
-                'query': config.sdkVersion === 'pre-50' ? undefined : 'tx.height=' + blockHeight,
-                'pagination.offset': offset,
-            }
-        });
+        const data = await fallbackClient.get<LcdTxSearchResponse>(
+            `/cosmos/tx/v1beta1/txs`,
+            {
+                params: {
+                    'events': config.sdkVersion === 'pre-50' ? 'tx.height=' + blockHeight : undefined,
+                    'query': config.sdkVersion === 'pre-50' ? undefined : 'tx.height=' + blockHeight,
+                    'pagination.offset': offset,
+                }
+            },
+            (result) => {
+                if (result.txs.length !== result.tx_responses.length) {
+                    throw `Block ${blockHeight} on ${chainId}: TX query returned ${result.txs.length} txs but ${result.tx_responses.length} tx_results.`
+                }
 
-        if (data.txs.length !== data.tx_responses.length) {
-            throw `Block ${blockHeight} on ${chainId} has ${data.txs.length} txs but ${data.tx_responses.length} tx_results were returned by LCD.`
-        }
+                if (block.transactionsCount > 0 && result.txs.length === 0) {
+                    throw `Block ${blockHeight} on ${chainId}: TX query returned 0 txs but the block has ${block.transactionsCount} txs.`
+                }
+
+                return true;
+            }
+        );
         allTxs.push(...data.txs);
         allResults.push(...data.tx_responses);
         if (data.txs.length < 100) break;

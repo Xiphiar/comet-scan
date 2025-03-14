@@ -1,5 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 
+type Verifier<T> = (result: T) => boolean;
+
 export default class AxiosFallbackClient {
     urls: string[];
     config: any = {};
@@ -9,7 +11,7 @@ export default class AxiosFallbackClient {
         this.config = config || {};
     }
 
-    async get<T>(path: string, config: AxiosRequestConfig = {}): Promise<T> {
+    async get<T>(path: string, config: AxiosRequestConfig = {}, verifier: Verifier<T> = () => true): Promise<T> {
         // Check existing timed out URLs and remove them if they have been timed out for more than 1 minute
         const now = Date.now();
         for (const [url, time] of this.timedOutUrls.entries()) {
@@ -29,6 +31,8 @@ export default class AxiosFallbackClient {
         for (const url of validUrls) {
             try {
                 const { data } = await axios.get<T>(url + path, { ...this.config, ...config });
+                const verified = verifier(data);
+                if (!verified) throw `Response from ${url} did not pass the verifier.`;
                 return data;
             } catch (error: any) {
                 errors.push(error);

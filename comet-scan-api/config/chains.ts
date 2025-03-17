@@ -14,6 +14,7 @@ const CosmosHub: ChainConfig = {
     sdkVersion: '50',
     rpc: 'https://cosmos-rpc.polkachu.com',
     lcds: [
+        'https://cosmos-api.ibs.team',
         'https://cosmos-api.stakeandrelax.net',
         'https://cosmos-lcd.easy2stake.com',
         'https://rest-cosmoshub.ecostake.com',
@@ -22,7 +23,6 @@ const CosmosHub: ChainConfig = {
         'https://rest.lavenderfive.com:443/cosmoshub',
         'https://cosmos-lcd.quickapi.com:443',
         'https://cosmoshub-api.cosmosrescue.dev',
-        'https://cosmos-api.ibs.team',
     ],
     startHeight: 24_860_000,
     features: ['cosmwasm'],

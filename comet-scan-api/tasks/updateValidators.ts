@@ -11,6 +11,7 @@ import { consensusPubkeyToHexAddress } from "../common/addresses";
 import { ChainConfig } from "../interfaces/config.interface";
 import { importAccount } from "./importAccounts";
 import { getKeybaseAvatar } from "../common/keybase";
+import sleep from "../utils/sleep";
 
 export const updateValidatorsForChain = async (chain: ChainConfig) => {
     console.log(`Updating validators on ${chain.chainId}`)
@@ -24,7 +25,8 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
         allValidators.push(...result.validators);
 
         if (!result.pagination?.next_key) break;
-        nextKey = result.pagination.next_key as any as string
+        nextKey = result.pagination.next_key as any as string;
+        await sleep(1000); // Adding a delay to avoid hitting rate limits
     }
 
     console.log(`Found ${allValidators.length} validators`);
@@ -143,7 +145,8 @@ export const updateValidatorsForChain = async (chain: ChainConfig) => {
             await Validators.create(newVal)
         }
 
-        await importAccount(chain.chainId, accountAddress)
+        await importAccount(chain.chainId, accountAddress);
+        await sleep(250); // Adding a delay to avoid hitting rate limits
     }
 
     

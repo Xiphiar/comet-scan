@@ -115,7 +115,7 @@ const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string, excludeNetw
     return (
         <div className={styles.titleAndSearchWrapper}>
             <div className='d-flex gap-4 align-items-center'>
-                {!!chain.logoFile && <img src={`/logos/${chain.logoFile}`} style={{height: '50px'}} />}
+                {!!chain.logoFile && <img src={chain.logoFile} style={{height: '50px'}} />}
                 <h1 style={{display: 'block', fontFamily: 'Bunken Tech'}}>{titlePrefix}{title}</h1>
             </div>
             <form onSubmit={handleSearch}>

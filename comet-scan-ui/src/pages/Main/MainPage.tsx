@@ -53,7 +53,7 @@ const MainPage: FC<Props> = ({isLoading, loadingError}) => {
                         { filteredChains.map(chain =>
                             <Link to={`/${chain.id}`} className='d-flex col col-6 col-md-3 col-lg-2 text-black' key={chain.chainId}>
                                 <Card className='flex-grow-1' conentClassName={`${styles.chainCard}`} >
-                                    <img src={`/logos/${chain.logoFile}`} style={{height: '64px'}} />
+                                    <img src={chain.logoFile} style={{height: '64px'}} />
                                     <h3>{chain.name}</h3>
                                 </Card>
                             </Link>

@@ -21,6 +21,7 @@ export interface FrontendChainConfig {
     pruneBlocksAfter?: number;
     // Weither to prune transactions of pruned blocks
     pruneTransactions?: boolean;
+    isTestnet: boolean;
 }
 
 export interface ChainConfig extends FrontendChainConfig {

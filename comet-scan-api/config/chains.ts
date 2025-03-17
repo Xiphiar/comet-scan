@@ -16,7 +16,8 @@ const SecretNetwork: ChainConfig = {
     rpc: 'https://secret-4.api.trivium.network:26657',
     lcds: ['https://secret-4.api.trivium.network:1317'],
     startHeight: 17_550_000,
-    features: ['secretwasm']
+    features: ['secretwasm'],
+    isTestnet: false,
 }
 
 const SecretNetworkPulsar3: ChainConfig = {
@@ -34,7 +35,8 @@ const SecretNetworkPulsar3: ChainConfig = {
     rpc: 'https://pulsar.rpc.secretnodes.com',
     lcds: ['https://pulsar.lcd.secretnodes.com'],
     startHeight: 8_310_000,
-    features: ['secretwasm', 'no_contract_parsing']
+    features: ['secretwasm', 'no_contract_parsing'],
+    isTestnet: true,
 }
 
 const Jackal: ChainConfig = {
@@ -63,7 +65,8 @@ const Jackal: ChainConfig = {
         'https://jackal-api.kleomedes.network'
     ],
     startHeight: 10_838_000,
-    features: ['cosmwasm']
+    features: ['cosmwasm'],
+    isTestnet: false,
 }
 
 const Sentinel: ChainConfig = {
@@ -84,7 +87,8 @@ const Sentinel: ChainConfig = {
     //rpc: 'https://rpc.sentinel.quokkastake.io',
     //lcd: 'https://api.sentinel.quokkastake.io',
     startHeight: 19_550_000,
-    features: ['cosmwasm']
+    features: ['cosmwasm'],
+    isTestnet: false,
 }
 
 // const IrisNet: ChainConfig = {

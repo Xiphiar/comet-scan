@@ -201,6 +201,7 @@ const parseProposal = (config: FrontendChainConfig, proposal: v1beta1LcdProposal
             ]
         }
 
+        case '/secret.compute.v1beta1.MsgUpdateParams':
         case '/cosmos.gov.v1.MsgUpdateParams': {
             const changes: [string, string][] = [];
             const paramNames = Object.keys(content.params);
@@ -275,7 +276,10 @@ const parseProposal = (config: FrontendChainConfig, proposal: v1beta1LcdProposal
             ]
         }
 
-        default: return []
+        default: {
+            console.log(`Unknown Proposal Type ${content['@type']}:`, content);
+            return []
+        }
     }
 
 }

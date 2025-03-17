@@ -146,11 +146,11 @@ export const getBlocksPage = api(
     for (const block of blocks) {
       const proposerHex = block.block.result.block.header.proposer_address;
       // const proposer = await Validators.findOne({ hexAddress: proposerHex }, { _id: false, __v: false}).lean();
-      const proposerValidator = validators.find(v => v.hexAddress === proposerHex) as Validator;
-      const proposer: ProposerInfo = {
+      const proposerValidator = validators.find(v => v.hexAddress === proposerHex);
+      const proposer: ProposerInfo | null = proposerValidator ? {
         operatorAddress: proposerValidator.operatorAddress,
         latestDescription: proposerValidator.descriptions.length ? proposerValidator.descriptions[0] : undefined,
-      }
+      } : null;
       blocksWithProposers.push({ ...block, proposer })
     }
     console.timeEnd('Blocks With Proposers')

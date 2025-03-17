@@ -59,7 +59,7 @@ export const combineCoins = (data: Coin[][]): Coin[] => {
     const all = new Map<string, number>();
 
     data.forEach(coins => {
-        coins.forEach(coin => {
+        (coins || []).forEach(coin => {
             const currentAmount = all.get(coin.denom) || 0;
             all.set(coin.denom, currentAmount + parseInt(coin.amount))
         })

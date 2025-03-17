@@ -10,6 +10,7 @@ import MessageRow from "../components/MessageRow/messageRow";
 export const formatTxType = (txType: string) => {
     switch(txType) {
         case '/secret.compute.v1beta1.MsgExecuteContract': return 'Execute Contract';
+        case '/cosmwasm.wasm.v1.MsgExecuteContract': return 'Execute Contract';
         case '/ibc.core.client.v1.MsgUpdateClient': return 'Update IBC Client';
         case '/ibc.core.channel.v1.MsgAcknowledgement': return 'IBC Packet Acknowledgement';
         case '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward': return 'Claim Rewards';
@@ -57,6 +58,19 @@ export const parseMessages = (config: FrontendChainConfig, tx: LcdTxResponse, sk
                 }
             }
 
+            case '/cosmwasm.wasm.v1.MsgExecuteContract': {
+                return {
+                    title: formatTxType(msg['@type']),
+                    content: [
+                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                        ['Sent Funds', !msg.sent_funds?.length ? 'None' : formatAmounts(msg.sent_funds)],
+                        ['Message', defaultKeyContent(msg.msg)],
+                    ],
+                    amounts: msg.sent_funds,
+                }
+            }
+
             case '/secret.compute.v1beta1.MsgExecuteContract': {
                 return {
                     title: formatTxType(msg['@type']),
@@ -64,7 +78,7 @@ export const parseMessages = (config: FrontendChainConfig, tx: LcdTxResponse, sk
                         ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         ['Message', 'Encrypted'],
-                        ['Sent Funds', !msg.sent_funds.length ? 'None' : formatAmounts(msg.sent_funds)]
+                        ['Sent Funds', !msg.sent_funds?.length ? 'None' : formatAmounts(msg.sent_funds)]
                     ],
                     amounts: msg.sent_funds,
                 }

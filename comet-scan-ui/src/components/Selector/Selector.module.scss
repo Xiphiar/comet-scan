@@ -2,18 +2,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 42px;
-    border-radius: 42px;
-    border: 2px solid var(--main);
     padding: 0px 2px;
 
     > button {
-        height: 38px;
-        border-radius: 38px;
-        background-color: var(--bg);
+        background-color: transparent;
         text-decoration: none;
         padding: 0px 20px;
-        font-weight: 600;
+        font-weight: inherit;
     }
 }
 

@@ -66,6 +66,7 @@ const ValidatorsListPage: FC<{inactive?: boolean}> = ({inactive}) => {
                 title={inactive ? 'Inactive Validators' : 'Active Validators'}
                 className='d-flex flex-column gap-2'
                 active={!inactive}
+                showSelector={true}
             />
         </div>
     )

@@ -2,11 +2,12 @@ import { FC, Fragment } from "react";
 import Spinner from "../../components/Spinner";
 import Card from "../../components/Card";
 import styles from './OverviewPage.module.scss';
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { weiFormatNice } from "../../utils/coin";
 import { Validator } from "../../interfaces/models/validators.interface";
 import ValidatorAvatar from "../../components/Avatar/KeybaseAvatar";
+import Selector from "../../components/Selector/Selector";
 
 interface Props {
     validators: Validator[];
@@ -18,9 +19,13 @@ interface Props {
     className?: string;
     active?: boolean;
     showMoreLink?: true;
+    showSelector?: boolean;
 }
 
-const ValidatorsCard: FC<Props> = ({ validators, totalValidators, rankOffset = 0, chain, className, title, totalBonded, active, showMoreLink }) => {
+const ValidatorsCard: FC<Props> = ({ validators, totalValidators, rankOffset = 0, chain, className, title, totalBonded, active, showMoreLink, showSelector }) => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    
     if (!validators.length) {
         return (
             <Card className={`${className}`}>
@@ -31,6 +36,7 @@ const ValidatorsCard: FC<Props> = ({ validators, totalValidators, rankOffset = 0
             </Card>
         )
     }
+
     return (
         <Card className={`${className}`}>
             <div>
@@ -39,11 +45,21 @@ const ValidatorsCard: FC<Props> = ({ validators, totalValidators, rankOffset = 0
                         <h3>{title}</h3>
                         <div style={{fontSize: '75%', color: 'var(--secondary-text-color)'}}>{totalValidators} {active === false ? 'Inactive' : 'Active'} Validators</div>
                     </div>
-                    { active === false &&
-                        <Link className='button text-center' to={`/${chain.id}/validators`}>Show Active</Link>
-                    }
-                    { active === true &&
-                        <Link className='button text-center' to={`/${chain.id}/validators/inactive`}>Show Inactive</Link>
+                    { showSelector === true &&
+                        <Selector
+                            options={['Active', 'Inactive']}
+                            selected={location.pathname.endsWith('inactive') ? 'Inactive' : 'Active'}
+                            onSelect={(value) => {
+                                if (value === 'Active') {
+                                    navigate(`/${chain.id}/validators`);
+                                } else {
+                                    navigate(`/${chain.id}/validators/inactive`);
+                                }
+                            }}
+                            style={{fontWeight: 500}}
+                            height={32}
+                            borderThickness={1}
+                        />
                     }
                     { showMoreLink === true &&
                         <Link className='blackLink' style={{fontSize: '24px'}} to={`/${chain.id}/validators`}>➜</Link>

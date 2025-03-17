@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { CSSProperties, FC } from "react";
 import styles from "./Selector.module.scss";
 
 type Props = {
@@ -6,17 +6,34 @@ type Props = {
     selected: string;
     onSelect: (value: string) => void;
     className?: string;
+    style?: CSSProperties;
+    height?: number;
+    borderThickness?: number;
 }
 
 
-const Selector: FC<Props> = ({ options, selected, onSelect, className = '' }) => {
+const Selector: FC<Props> = ({ options, selected, onSelect, className = '', style = {}, height = 42, borderThickness = 2 }) => {
+    const buttonHeight = height - 4;
     return (
-        <div className={`${styles.selectWrapper} ${className}`}>
+        <div
+            className={`${styles.selectWrapper} ${className}`}
+            style={{
+                height: `${height}px`,
+                borderRadius: `${height}px`,
+                border: `${borderThickness}px solid var(--main)`,
+                fontWeight: 600,
+                ...style,
+            }}
+        >
             {options.map(option => (
                 <button 
                     key={option} 
                     onClick={() => onSelect(option)} 
                     className={selected === option ? styles.selectedButton : undefined}
+                    style={{
+                        height: `${buttonHeight}px`,
+                        borderRadius: `${buttonHeight}px`,
+                    }}
                 >
                     {option}
                 </button>

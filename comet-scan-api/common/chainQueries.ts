@@ -119,6 +119,30 @@ export const getStakingMetrics = async (chainId: string): Promise<StakingMetrics
     const client = await getSecretWasmClient(chainConfig.chainId);
 
     const supply = await getTotalSupply(chainId);
+    const bonded = await getTotalBonded(chainId);
+
+    const supplyBigInt = BigInt(supply.amount);
+    const bondedBigInt = BigInt(bonded.amount);
+    const bondRate = Number(bondedBigInt * 10000n / supplyBigInt) / 10000;
+
+    const activeValidators = await Validators.countDocuments({ chainId, status: 'BOND_STATUS_BONDED' });
+
+    const stakingParams = await client.query.staking.params({});
+
+    // TODO fix this for osmosis
+    if (chainId.startsWith('osmosis')) {
+        const data = {
+            activeValidators,
+            bonded,
+            bondRate,
+            inflationRate: 0,
+            nominalApr: 0,
+            communityPoolTax: 0,
+            unbondingPeriodSeconds: parseInt(stakingParams.params?.unbonding_time ? (stakingParams.params?.unbonding_time as string).slice(0, -1) : '0'),
+        }
+        Cache.set(`${chainId}-staking-metrics`, data);
+        return data;
+    }
 
     // APR Calculation //
     const inflationRate = await getInflation(chainId);
@@ -130,22 +154,11 @@ export const getStakingMetrics = async (chainId: string): Promise<StakingMetrics
     const mintParams = await client.query.mint.params({});
     const blocksPerYear =  Number(mintParams.params?.blocks_per_year); //string
 
-    const bonded = await getTotalBonded(chainId);
-
     const distributionParams = await client.query.distribution.params({});
     const communityTax = Number(distributionParams.params?.community_tax); //string
 
     const nominalApr = (annualProvisions * (1 - communityTax) / Number(bonded.amount));
     // End APR Calculation //
-
-    const stakingParams = await client.query.staking.params({});
-
-    const activeValidators = await Validators.countDocuments({ chainId, status: 'BOND_STATUS_BONDED' });
-
-
-    const supplyBigInt = BigInt(supply.amount);
-    const bondedBigInt = BigInt(bonded.amount);
-    const bondRate = Number(bondedBigInt * 10000n / supplyBigInt) / 10000;
 
     const data = {
         activeValidators,

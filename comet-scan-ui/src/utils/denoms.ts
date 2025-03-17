@@ -24,10 +24,21 @@ const Denoms: DenomDetails[] = [
         denom: 'uatom',
         symbol: 'ATOM',
         decimals: 6,
-    }
+    },
+    {
+        denom: 'uosmo',
+        symbol: 'OSMO',
+        decimals: 6,
+    },
+    {
+        denom: 'uusdc',
+        symbol: 'USDC',
+        decimals: 6,
+    },
 ]
 
 export const getDenomDetails = (denom: string): DenomDetails => {
+    // TODO, if this is an ibc/ denom, we need to parse the original denom then lookup that
     const details = Denoms.find(d => d.denom === denom);
     return details || {
         decimals: 1,

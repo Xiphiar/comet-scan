@@ -61,7 +61,8 @@ export const getOverview = api(
         dailyTransactions,
         supply,
         bonded,
-        bondRate: Number(bonded.amount) / Number(supply.amount),
+        // Sometimes we fail to get the supply, so we need to avoid division by zero to avoid the entire page breaking
+        bondRate: Number(bonded.amount) / (Number(supply.amount) || 1),
         inflationRate,
         activeValidators,
         totalProposals: proposals.length,

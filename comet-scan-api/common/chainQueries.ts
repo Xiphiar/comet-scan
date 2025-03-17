@@ -14,10 +14,12 @@ export const getTotalSupply = async (chainId: string): Promise<Amount> => {
     const cached = Cache.get<Amount>(`${chainId}-total-supply`);
     if (cached) return cached;
 
+    // TODO, should probably try this first and fallback to getting all supplies if it fails
     // const {data: _data} = await axios.get(`${chainConfig.lcds[0]}/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.bondingDenom}`);
+    
     const {data: _data}: { data: { supply: Coin[] }} = await axios.get(`${chainConfig.lcds[0]}/cosmos/bank/v1beta1/supply`, {
         params: {
-            'pagination.limit': 1000,
+            'pagination.limit': 10_000, // Does this work for all chains? If not we'll need to loop through all the pages
         }
     });
     const bondingDenom = _data.supply.find((d: any) => d.denom === chainConfig.bondingDenom);

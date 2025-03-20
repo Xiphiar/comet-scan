@@ -4,6 +4,7 @@ import styles from './mainLayout.module.scss';
 import useConfig from "../hooks/useConfig";
 import Toggle from "../components/Toggle/Toggle";
 import MobileNav from "../components/MobileNav/MobileNav";
+import ConnectWallet from "../components/ConnectWallet/ConnectWallet";
 
 const MainLayout: FC = () => {
     const { chain } = useParams();
@@ -27,7 +28,8 @@ const MainLayout: FC = () => {
                     { (chainConfig.features.includes('secretwasm') || chainConfig.features.includes('cosmwasm')) &&
                         <Link to={`/${chain}/contracts`} className='d-none d-lg-flex'>Contracts</Link>
                     }
-                    <div style={{marginLeft: 'auto', paddingRight: '16px'}} className='d-none d-lg-flex align-items-center'>
+                    <div style={{marginLeft: 'auto', paddingRight: '16px'}} className='d-none d-lg-flex align-items-center gap-3'>
+                        <ConnectWallet chainConfig={chainConfig} />
                         <Toggle />
                     </div>
                     <div className='d-flex d-lg-none justify-content-end flex-grow-1'>

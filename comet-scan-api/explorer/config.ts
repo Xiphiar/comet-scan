@@ -6,7 +6,9 @@ import { FrontendChainConfig } from "../interfaces/config.interface";
 export const getExplorerConfig = api(
     { expose: true, method: "GET", path: "/explorer/config" },
     async (): Promise<GetExplorerConfigResponse> => {
-        const chains: FrontendChainConfig[] = Chains.map(({ rpc, lcd, startHeight, ...chain }) => chain )
+        const chains: FrontendChainConfig[] = Chains.map(
+            ({ rpc, lcds, startHeight, ...chain }) => ({...chain, lcd: lcds[0]})
+        );
         return {
             chains,
         }

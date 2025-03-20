@@ -22,10 +22,12 @@ export interface FrontendChainConfig {
     // Weither to prune transactions of pruned blocks
     pruneTransactions?: boolean;
     isTestnet: boolean;
+    lcd: string;
+    enableWalletConnect: boolean;
 }
 
-export interface ChainConfig extends FrontendChainConfig {
+export interface ChainConfig extends Omit<FrontendChainConfig, 'lcd'> {
     rpc: string;
-    lcd: string;
+    lcds: string[];
     startHeight?: number;
 }

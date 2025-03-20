@@ -4,6 +4,7 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
+import { ToastContainer } from "react-fox-toast"
 
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import 'bootstrap/dist/css/bootstrap-utilities.min.css';
@@ -27,6 +28,7 @@ import AllContractsPage from './pages/Contracts/AllContractsPage.tsx';
 import SingleContractPage from './pages/Contracts/SingleContractPage.tsx';
 import SingleCodePage from './pages/Codes/SingleCodePage.tsx';
 import VerifyCodePage from './pages/Codes/VerifyCodePage.tsx';
+import { UserProvider } from './contexts/UserContext.tsx';
 
 const router = createBrowserRouter([
   {
@@ -113,7 +115,10 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')!).render(
   // <StrictMode>
     <ConfigProvider>
-      <RouterProvider router={router} />
+      <UserProvider>
+        <ToastContainer />
+        <RouterProvider router={router} />
+      </UserProvider>
     </ConfigProvider>
   // </StrictMode>,
 )

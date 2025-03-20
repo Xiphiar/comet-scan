@@ -1,0 +1,29 @@
+.connectButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: transparent;
+    border: 1px solid var(--main);
+    color: var(--main);
+    padding: 6px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+}
+
+button.connectButton {
+    cursor: pointer;
+}
+
+button.connectButton:disabled {
+    background-color: var(--main);
+    color: var(--text-color);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+button.connectButton:hover {
+    background-color: var(--main);
+    color: var(--text-color);
+} 

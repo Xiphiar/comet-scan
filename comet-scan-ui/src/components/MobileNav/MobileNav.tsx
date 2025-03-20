@@ -3,16 +3,17 @@ import styles from './MobileNav.module.scss'
 import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { NavLink } from "react-router-dom";
 import Toggle from "../Toggle/Toggle";
+import ConnectWallet from "../ConnectWallet/ConnectWallet";
 
-const MobileNav: FC<{show: boolean, hide: ()=>any, chain: FrontendChainConfig}> = ({show, hide, chain: { id, features }}) => {
+const MobileNav: FC<{show: boolean, hide: ()=>any, chain: FrontendChainConfig}> = ({show, hide, chain}) => {
   const links: [string, string][] = [
-    ['Overview', `/${id}/overview`],
-    ['Blocks', `/${id}/blocks`],
-    ['Transactions', `/${id}/transactions`],
-    ['Proposals', `/${id}/proposals`],
-    ['Validators', `/${id}/validators`],
+    ['Overview', `/${chain.id}/overview`],
+    ['Blocks', `/${chain.id}/blocks`],
+    ['Transactions', `/${chain.id}/transactions`],
+    ['Proposals', `/${chain.id}/proposals`],
+    ['Validators', `/${chain.id}/validators`],
   ]
-  if (features.includes('secretwasm') || features.includes('cosmwasm')) links.push(['Contracts', `/${id}/contracts`],)
+  if (chain.features.includes('secretwasm') || chain.features.includes('cosmwasm')) links.push(['Contracts', `/${chain.id}/contracts`],)
   
   const overlayStyle = show ? undefined : { background: 'transparent', zIndex: -999 }
   const wrapperStyle = show ? undefined : { transform: 'translateX(100%)' }
@@ -26,6 +27,9 @@ const MobileNav: FC<{show: boolean, hide: ()=>any, chain: FrontendChainConfig}> 
           <NavLink to='/' onClick={()=>hide()}>
             <img src='/logo.svg' className={styles.navbarLogo} />
           </NavLink>
+        </div>
+        <div className='d-flex justify-content-end'>
+          <ConnectWallet chainConfig={chain} />
         </div>
         { links.map(l =>
           <NavLink to={l[1]} onClick={()=>hide()} key={l[0]}>{l[0]}</NavLink>

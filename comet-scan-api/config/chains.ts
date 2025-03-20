@@ -29,6 +29,7 @@ const CosmosHub: ChainConfig = {
     isTestnet: false,
     pruneBlocksAfter: 500_000,
     pruneTransactions: true,
+    enableWalletConnect: false,
 }
 
 const Osmosis: ChainConfig = {
@@ -59,6 +60,7 @@ const Osmosis: ChainConfig = {
     isTestnet: false,
     pruneBlocksAfter: 500_000,
     pruneTransactions: true,
+    enableWalletConnect: false,
 }
 
 const SecretNetwork: ChainConfig = {
@@ -68,7 +70,7 @@ const SecretNetwork: ChainConfig = {
     bondingDenom: 'uscrt',
     bondingDecimals: 6,
     bondingDisplayDenom: 'SCRT',
-    logoFile: '/logos/secret.png',
+    logoFile: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/scrt.svg',
     prefix: 'secret',
     govVersion: 'v1',
     ibcVersion: 'v1',
@@ -78,6 +80,7 @@ const SecretNetwork: ChainConfig = {
     startHeight: 17_550_000,
     features: ['secretwasm'],
     isTestnet: false,
+    enableWalletConnect: false,
 }
 
 const SecretNetworkPulsar3: ChainConfig = {
@@ -87,7 +90,7 @@ const SecretNetworkPulsar3: ChainConfig = {
     bondingDenom: 'uscrt',
     bondingDecimals: 6,
     bondingDisplayDenom: 'SCRT',
-    logoFile: '/logos/secret.png',
+    logoFile: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/scrt.svg',
     prefix: 'secret',
     govVersion: 'v1',
     ibcVersion: 'v1',
@@ -97,6 +100,7 @@ const SecretNetworkPulsar3: ChainConfig = {
     startHeight: 8_310_000,
     features: ['secretwasm', 'no_contract_parsing'],
     isTestnet: true,
+    enableWalletConnect: true,
 }
 
 const Jackal: ChainConfig = {
@@ -127,6 +131,7 @@ const Jackal: ChainConfig = {
     startHeight: 10_838_000,
     features: ['cosmwasm'],
     isTestnet: false,
+    enableWalletConnect: false,
 }
 
 const Sentinel: ChainConfig = {
@@ -160,6 +165,7 @@ const Sentinel: ChainConfig = {
     startHeight: 19_550_000,
     features: ['cosmwasm'],
     isTestnet: false,
+    enableWalletConnect: false,
 }
 
 // const IrisNet: ChainConfig = {

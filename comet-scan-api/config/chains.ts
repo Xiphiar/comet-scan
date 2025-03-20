@@ -101,6 +101,8 @@ const SecretNetworkPulsar3: ChainConfig = {
     features: ['secretwasm', 'no_contract_parsing'],
     isTestnet: true,
     enableWalletConnect: true,
+    pruneBlocksAfter: 500_000,
+    pruneTransactions: true,
 }
 
 const Jackal: ChainConfig = {
@@ -132,6 +134,8 @@ const Jackal: ChainConfig = {
     features: ['cosmwasm'],
     isTestnet: false,
     enableWalletConnect: false,
+    pruneBlocksAfter: 1_000_000,
+    pruneTransactions: true,
 }
 
 const Sentinel: ChainConfig = {
@@ -166,6 +170,8 @@ const Sentinel: ChainConfig = {
     features: ['cosmwasm'],
     isTestnet: false,
     enableWalletConnect: false,
+    pruneBlocksAfter: 500_000,
+    pruneTransactions: true,
 }
 
 // const IrisNet: ChainConfig = {

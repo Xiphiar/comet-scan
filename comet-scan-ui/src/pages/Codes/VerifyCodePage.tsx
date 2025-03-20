@@ -1,5 +1,5 @@
-import { FC, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { FC, useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
@@ -9,25 +9,64 @@ import { getVerificationStatus, startSecretWasmVerification } from "../../api/ve
 import { TaskStatus } from "../../interfaces/verification.interface";
 import Spinner from "../../components/Spinner";
 import parseError from "../../utils/parseError";
+import { toast } from "react-fox-toast";
+import SmallSpinner from "../../components/SmallSpinner/smallSpinner";
+
+const ALREADY_VERIFIED_EXIT_CODE = 124;
+const DB_ERROR_EXIT_CODE = 125;
+const DOCKER_ERROR_EXIT_CODE = 126;
+const NO_MATCH_EXIT_CODE = 127;
+const INVALID_COMMIT_EXIT_CODE = 128;
+
+const parseFailedStatus = (exitCode: number) => {
+    if (exitCode === ALREADY_VERIFIED_EXIT_CODE) {
+        return 'Contract code is already verified.';
+    }
+    if (exitCode === NO_MATCH_EXIT_CODE) {
+        return 'Contract code does not match any contracts in our database.';
+    }
+    if (exitCode === DB_ERROR_EXIT_CODE || exitCode === DOCKER_ERROR_EXIT_CODE) {
+        return 'Internal error. Please try again later.';
+    }
+    if (exitCode === INVALID_COMMIT_EXIT_CODE) {
+        return 'Invalid tag, branch, or commit hash. Ensure the provided branch, tag, or commit hash is valid.';
+    }
+    return 'Unknown error.';
+}
 
 const VerifyCodePage: FC = () => {
-    const { chain: chainLookupId, codeId, taskId: _taskId } = useParams();
+    const { chain: chainLookupId, taskId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
+    const navigate = useNavigate();
 
     const [repo, setRepo] = useState('');
     const [commit, setCommit] = useState('main');
-    const [taskId, setTaskId] = useState<number | undefined>(_taskId ? parseInt(_taskId) : undefined);
-
-    const { data, error, refresh } = useAsync<TaskStatus>(getVerificationStatus(taskId));
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState<TaskStatus>();
+    const [error, setError] = useState<string>();
+    const intervalRef = useRef<NodeJS.Timeout>();
 
     const title = `Verify Contract Code`;
 
-    useEffect(()=>{
-        if (taskId) {
-            // TODO refresh doesn't seem to re-render?
-            setInterval(refresh, 30_000);
+    const refresh = async () => {
+        if (!taskId) return;
+        try {
+            console.log('refreshing');
+            const d = await getVerificationStatus(taskId);
+            setData(d);
+            if (d.status.Done || d.status.Failed) {
+                clearInterval(intervalRef.current);
+            }
+        } catch (err: any) {
+            setError(parseError(err));
         }
+    }
+
+    useEffect(()=>{
+        if (!taskId) return;
+        intervalRef.current = setInterval(refresh, 10_000);
+        refresh();
     }, [taskId])
 
     if (!chain) {
@@ -46,22 +85,28 @@ const VerifyCodePage: FC = () => {
         return (
             <div className='d-flex flex-column'>
                 <TitleAndSearch chain={chain} title={title} />
-                <Card conentClassName='align-items-center p-4 gap-4'>
+                <Card conentClassName='align-items-center p-4 gap-4 text-center'>
                     { (data.status === 'Running') && <>
                         <div>Verification is in progress. This process will take several minutes to complete.</div>
                         <Spinner />
                     </>}
-                    { (data.status.Done?.Success) &&
-                        <div>Verification task completed. Check the code page to see if the code was verified. TODO display results here.</div>
+                    { (data.status.Done === 'Success') &&
+                        <>
+                            <div>Verification task completed successfully!<br/>Check the contract page to see if the code was verified.</div>
+                            <Link to={`/${chainLookupId}/codes/verify`} className='button'>Go Back</Link>
+                        </>
                     }
                     { (data.status.Done?.Failed) &&
-                        <div>Verification failed.</div>
+                        <>
+                            <div>{parseFailedStatus(data.status.Done?.Failed)}</div>
+                            <Link to={`/${chainLookupId}/codes/verify`} className='button'>Go Back</Link>
+                        </>
                     }
-                    { data.status.Queued && <>
+                    { data.status === 'Queued' && <>
                         <div>Verification is pending.</div>
                         <Spinner />
                     </>}
-                    <pre style={{width: '100%'}}>{JSON.stringify(data, undefined, 2)}</pre>
+                    <pre style={{width: '100%'}} className='text-start'>{JSON.stringify(data, undefined, 2)}</pre>
                 </Card>
             </div>
         )
@@ -70,22 +115,27 @@ const VerifyCodePage: FC = () => {
     const handleVerify = async (e?: any) => {
         e?.preventDefault?.();
         try {
+            setLoading(true);
             if (!repo) throw 'Please enter a repository URL'
             if (!commit) throw 'Please enter a branch, tag, or commit hash'
             // TODO verify repo URL
 
             if (chain.features.includes('secretwasm')) {
-                const data = await startSecretWasmVerification(chain.chainId, {
+                const data = await startSecretWasmVerification({
                     repo,
                     commit: commit || undefined,
                 })
-                setTaskId(data.task_id)
+                setRepo(undefined);
+                setCommit('main');
+                navigate(`/${chainLookupId}/codes/verify/${data.task_id}`)
             } else {
                 throw 'Only SecretWasm contracts can be verified at this time.'
             }
         } catch (err: any) {
-            const p = parseError(err)
-            alert(`TODO handle verify errr: ${p}`)
+            const p = parseError(err);
+            toast.error(`Failed to start verification: ${p}`);
+        } finally {
+            setLoading(false);
         }
     }
  
@@ -110,7 +160,7 @@ const VerifyCodePage: FC = () => {
                     <li>The repository must be accessible to the public. Private repositories are not supported.</li>
                     <li>The on-chain code must be compiled with the <span className='fw-bold'>{chain.features.includes('secretwasm') ? 'secret-contract-optimizer' : 'cosmwasm-contract-optimizer'}</span> docker image.</li>
                     <li>The contract must be imported into Comet Scan's database. Ensure you can lookup your contract with the Comet Scan explorer before attempting verification.</li>
-                    <li>Avoid changing optimizer versions for an existing commit. If this process fails to verify an existing commit with a different optimizer version, please contact us.</li>
+                    {/* <li>Avoid changing optimizer versions for an existing commit. If this process fails to verify an existing commit with a different optimizer version, please contact us.</li> */}
                 </ul>
 
                 <form onSubmit={handleVerify} className='d-flex flex-column gap-3 mt-4'>
@@ -123,7 +173,10 @@ const VerifyCodePage: FC = () => {
                         <input value={commit} onChange={e => setCommit(e.target.value.trim())} className='p-2' />
                     </label>
                     <div className='d-flex justify-content-center mt-2'>
-                        <button type='submit' className='button'>Submit</button>
+                        <button type='submit' className='button' disabled={loading}>
+                            Submit
+                            { loading && <>&nbsp;<SmallSpinner /></> }
+                        </button>
                     </div>
                 </form>
             </Card>

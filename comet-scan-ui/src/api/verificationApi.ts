@@ -1,9 +1,9 @@
 import { StartVerifyResponse, TaskStatus, VerifyParams } from "../interfaces/verification.interface";
 import http from "./apiClient";
 
-export const startSecretWasmVerification = async (chainId: string, params: VerifyParams): Promise<StartVerifyResponse> => {
+export const startSecretWasmVerification = async (params: VerifyParams): Promise<StartVerifyResponse> => {
     const {data} = await http.post(
-        `/verify/secretwasm/${chainId}`,
+        `/verify/secretwasm`,
         params,
         {
             headers: {
@@ -15,6 +15,7 @@ export const startSecretWasmVerification = async (chainId: string, params: Verif
 }
 
 export const getVerificationStatus = async (taskId: string | number): Promise<TaskStatus> => {
+    if (!taskId) throw 'Task ID is required';
     const {data} = await http.get(`/verify/status/${taskId}`,
         {
             headers: {

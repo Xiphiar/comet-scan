@@ -9,17 +9,22 @@ type Returns<T> = {
 
 type Config = {
     updateOn?: unknown[];
+    disabled?: boolean;
 }
 
 const useAsync = <T>(promise: Promise<T>, config?: Config): Returns<T> => {
     const [result, setResult] = useState<T>();
     const [error, setError] = useState<unknown>();
 
+    const updateOn = [...(config?.updateOn || []), config?.disabled];
+
     useEffect(()=>{
         refresh();
-    }, config?.updateOn || [])
+    }, updateOn)
 
     const refresh = async () => {
+        if (config?.disabled) return;
+
         try {
             setResult(undefined);
             const data = await promise;

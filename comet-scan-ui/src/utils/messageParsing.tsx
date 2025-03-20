@@ -12,6 +12,7 @@ export const formatTxType = (txType: string) => {
     switch(txType) {
         case '/secret.compute.v1beta1.MsgExecuteContract': return 'Execute Contract';
         case '/secret.compute.v1beta1.MsgInstantiateContract': return 'Instantiate Contract';
+        case '/secret.compute.v1beta1.MsgStoreCode': return 'Store Code';
         case '/cosmwasm.wasm.v1.MsgExecuteContract': return 'Execute Contract';
         case '/ibc.core.client.v1.MsgUpdateClient': return 'Update IBC Client';
         case '/ibc.core.channel.v1.MsgAcknowledgement': return 'IBC Packet Acknowledgement';
@@ -97,17 +98,68 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                     initMsgDisplay = await decryptSecretMessage(msg.init_msg, encryptionUtils);
                 }
 
+                // Find the contract address from events
+                const instantiateEvent = tx.tx_response.events.find(event => 
+                    event.type === 'instantiate' && 
+                    event.attributes.some(attr => 
+                        attr.key === 'contract_address' && 
+                        event.attributes.some(a => a.key === 'msg_index' && a.value === i.toString())
+                    )
+                );
+                const contractAddress = instantiateEvent?.attributes.find(attr => attr.key === 'contract_address')?.value;
+
+                const content: Array<[string, string | ReactElement]> = [
+                    ['Code ID', <Link to={`/${config.id}/codes/${msg.code_id}`}>{msg.code_id}</Link>],
+                    ['Label', msg.label],
+                    ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                    ['Admin', msg.admin ? <Link to={`/${config.id}/accounts/${msg.admin}`}>{msg.admin}</Link> : 'None'],
+                    ['Init Message', initMsgDisplay],
+                    ['Init Funds', !msg.init_funds?.length ? 'None' : formatAmounts(msg.init_funds)]
+                ];
+
+                if (contractAddress) {
+                    content.push(['Contract Address', <Link to={`/${config.id}/contracts/${contractAddress}`}>{contractAddress}</Link>]);
+                }
+
                 return {
                     title: formatTxType(msg['@type']),
-                    content: [
-                        ['Code ID', msg.code_id],
-                        ['Label', msg.label],
-                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                        ['Admin', msg.admin ? <Link to={`/${config.id}/accounts/${msg.admin}`}>{msg.admin}</Link> : 'None'],
-                        ['Init Message', initMsgDisplay],
-                        ['Init Funds', !msg.init_funds?.length ? 'None' : formatAmounts(msg.init_funds)]
-                    ],
+                    content,
                     amounts: msg.init_funds,
+                }
+            }
+
+            case '/secret.compute.v1beta1.MsgStoreCode': {
+                const wasmSizeBytes = Math.ceil(msg.wasm_byte_code.length * 0.75); // base64 to bytes conversion
+                const wasmSizeKB = wasmSizeBytes / 1024;
+                const sizeDisplay = wasmSizeBytes < 1024 
+                    ? `${wasmSizeBytes} bytes`
+                    : `${wasmSizeKB.toFixed(2)} KB`;
+
+                // Find the code_id from events
+                const codeIdEvent = tx.tx_response.events.find(event => 
+                    event.type === 'message' && 
+                    event.attributes.some(attr => 
+                        attr.key === 'code_id' && 
+                        event.attributes.some(a => a.key === 'msg_index' && a.value === i.toString())
+                    )
+                );
+                const codeId = codeIdEvent?.attributes.find(attr => attr.key === 'code_id')?.value;
+
+                const content: Array<[string, string | ReactElement]> = [
+                    ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                    ['WASM Size', sizeDisplay],
+                    ['Builder', msg.builder || 'None'],
+                    ['Source', msg.source || 'None']
+                ];
+
+                if (codeId) {
+                    content.push(['Code ID', <Link to={`/${config.id}/codes/${codeId}`}>{codeId}</Link>]);
+                }
+
+                return {
+                    title: formatTxType(msg['@type']),
+                    content,
+                    amounts: [],
                 }
             }
 

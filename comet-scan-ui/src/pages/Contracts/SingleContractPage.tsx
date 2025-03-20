@@ -8,6 +8,7 @@ import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import TransactionRow, { TransactionLabels } from "../../components/TransactionRow/TransactionRow";
+import { toast } from "react-fox-toast";
 
 const SingleContractPage: FC = () => {
     const { chain: chainLookupId, contractAddress } = useParams();
@@ -38,7 +39,7 @@ const SingleContractPage: FC = () => {
             link.href = 'data:application/zip;base64,' + data.verification.code_zip;
             link.click();
         } catch (err: any) {
-            alert(`TODO handle error: ${err.toString()}`)
+            toast.error(`Failed to download: ${err.toString()}`)
         }
     }
  

@@ -13,16 +13,28 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
     const txType = transaction.transaction.tx.body.messages.length > 1 ? `${transaction.transaction.tx.body.messages.length} Messages` : transaction.transaction.tx.body.messages[0]["@type"];
     const fee = transaction.transaction.tx.auth_info.fee.amount.find(coin => coin.denom === chain.bondingDenom)?.amount || '0';
     const [parsedMessages, setParsedMessages] = useState<ParsedMessage[] | undefined>(undefined);
+    const [allAmounts, setAllAmounts] = useState<ReactElement | undefined>(undefined);
     const timeDisplay = formatTime(transaction.timestamp);
 
     useEffect(() => {
         (async () => {
             const messages = await parseMessages(chain, transaction.transaction);
             setParsedMessages(messages);
+            processAmounts(messages);
         })();
     }, [chain, transaction.transaction]);
     
-    const allAmounts = parsedMessages ? combineCoins(parsedMessages.map(m => m.amounts)) : [];
+    // const allAmounts = parsedMessages ? combineCoins(parsedMessages.map(m => m.amounts)) : [];
+
+    const processAmounts = async (_parsedMessages?: ParsedMessage[]) => {
+        try {
+            if (!_parsedMessages) _parsedMessages = parsedMessages;
+            const amounts = _parsedMessages ? combineCoins(_parsedMessages.map(m => m.amounts)) : [];
+            setAllAmounts(await formatAmounts(amounts, chain));
+        } catch (error) {
+            console.error('Error processing amounts:', error);
+        }
+    }
     
     return (
         <Link
@@ -33,12 +45,12 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
             <div className='d-none d-sm-flex col col-3'>{truncateString(transaction.hash, 4)}</div>
             <div className='col col-8 col-sm-6 col-md-4 col-lg-3'>{formatTxType(txType)}</div>
             <div className='d-none d-md-flex col col-2 col-lg-2'>
-                {parsedMessages === undefined ? (
+                {allAmounts === undefined ? (
                     <div style={{marginLeft: '24px'}}>
                         <SmallSpinner />
                     </div>
                 ) : (
-                    formatAmounts(allAmounts)
+                    allAmounts
                 )}
             </div>
             <div className='d-none d-lg-flex col col-1'>{weiFormatNice(fee, chain.bondingDecimals)} {chain.bondingDisplayDenom}</div>

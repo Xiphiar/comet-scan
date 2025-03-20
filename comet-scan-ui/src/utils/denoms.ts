@@ -1,6 +1,7 @@
 import { Coin } from "../interfaces/models/blocks.interface";
 import { weiFormatNice } from "./coin";
 import { truncateString } from "./format";
+import { FrontendChainConfig } from "../interfaces/config.interface";
 
 export interface DenomDetails {
     denom: string;
@@ -37,8 +38,12 @@ const Denoms: DenomDetails[] = [
     },
 ]
 
-export const getDenomDetails = (denom: string): DenomDetails => {
-    // TODO, if this is an ibc/ denom, we need to parse the original denom then lookup that
+export const getDenomDetails = async (denom: string, chainConfig: FrontendChainConfig): Promise<DenomDetails> => {
+    // If this is an ibc/ denom, we need to parse the original denom then lookup that
+    if (denom.startsWith('ibc/')) {
+        denom = await getDenomTrace(chainConfig.chainId, denom, chainConfig);
+    }
+
     const details = Denoms.find(d => d.denom === denom);
     return details || {
         decimals: 1,
@@ -86,4 +91,30 @@ export const combineCoins = (data: Coin[][]): Coin[] => {
     })
 
     return toReturn;
+}
+
+export const getDenomTrace = async (chainId: string, denomHash: string, chainConfig: FrontendChainConfig): Promise<string> => {
+    try {
+        const key = `${chainId}-denom-trace-${denomHash}`;
+        
+        // Check localStorage cache first
+        const cached = localStorage.getItem(key);
+        if (cached) return cached;
+
+        // If not in cache, fetch from chain's LCD
+        const cleanHash = denomHash.replace('ibc/', '');
+        const url = `${chainConfig.lcd}/ibc/${chainConfig.ibcVersion === 'v1' ? 'apps' : 'applications'}/transfer/${chainConfig.ibcVersion}/denom_traces/${cleanHash}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch denom trace');
+        
+        const data = await response.json();
+        const denom = data.denom_trace.base_denom;
+        
+        // Cache the result
+        localStorage.setItem(key, denom);
+        return denom;
+    } catch (err: any) {
+        console.error(`Failed to get Denom Trace on ${chainId}:`, err.toString());
+        return denomHash;
+    }
 }

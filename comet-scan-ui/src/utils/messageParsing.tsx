@@ -53,7 +53,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                 return {
                     title: formatTxType(msg['@type']),
                     content: [
-                        [`Amount${msg.amount.length > 1 ? 's' : ''}`, formatAmounts(msg.amount)],
+                        [`Amount${msg.amount.length > 1 ? 's' : ''}`, await formatAmounts(msg.amount, config)],
                         ['From', <Link to={`/${config.id}/accounts/${msg.from_address}`}>{msg.from_address}</Link>],
                         ['To', <Link to={`/${config.id}/accounts/${msg.to_address}`}>{msg.to_address}</Link>],
                     ],
@@ -67,7 +67,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                     content: [
                         ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                        ['Sent Funds', !msg.sent_funds?.length ? 'None' : formatAmounts(msg.sent_funds)],
+                        ['Sent Funds', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)],
                         ['Message', defaultKeyContent(msg.msg)],
                     ],
                     amounts: msg.sent_funds,
@@ -86,7 +86,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                         ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         ['Message', messageDisplay],
-                        ['Sent Funds', !msg.sent_funds?.length ? 'None' : formatAmounts(msg.sent_funds)]
+                        ['Sent Funds', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)]
                     ],
                     amounts: msg.sent_funds,
                 }
@@ -114,7 +114,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                     ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                     ['Admin', msg.admin ? <Link to={`/${config.id}/accounts/${msg.admin}`}>{msg.admin}</Link> : 'None'],
                     ['Init Message', initMsgDisplay],
-                    ['Init Funds', !msg.init_funds?.length ? 'None' : formatAmounts(msg.init_funds)]
+                    ['Init Funds', !msg.init_funds?.length ? 'None' : await formatAmounts(msg.init_funds, config)]
                 ];
 
                 if (contractAddress) {
@@ -168,7 +168,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                 const eventForThisMessageIndex = withdrawrewardsEvents.find(e => e.attributes.find(a => a.key === 'msg_index' && a.value === i.toString()))
                 const amount = eventForThisMessageIndex?.attributes.find(a => a.key === 'amount')?.value;
                 const coin = amount ? stringToCoin(amount) : undefined;
-                const display = coin ? formatCoin(coin) : undefined;
+                const display = coin ? await formatCoin(coin, config) : undefined;
 
                 const content: Array<[string, string |ReactElement]> = [
                     ['Delegator', <Link to={`/${config.id}/accounts/${msg.delegator_address}`}>{msg.delegator_address}</Link>],
@@ -187,7 +187,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                 const eventForThisMessageIndex = withdrawCommissionEvents.find(e => e.attributes.find(a => a.key === 'msg_index' && a.value === i.toString()))
                 const amount = eventForThisMessageIndex?.attributes.find(a => a.key === 'amount')?.value;
                 const coin = amount ? stringToCoin(amount) : undefined;
-                const display = coin ? formatCoin(coin) : undefined;
+                const display = coin ? await formatCoin(coin, config) : undefined;
 
                 const content: Array<[string, string |ReactElement]> = [
                     ['Validator', <Link to={`/${config.id}/validators/${msg.validator_address}`}>{msg.validator_address}</Link>], // TODO display validator moniker and image
@@ -206,7 +206,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                     content: [
                         ['Delegator', <Link to={`/${config.id}/accounts/${msg.delegator_address}`}>{msg.delegator_address}</Link>],
                         ['Validator', <Link to={`/${config.id}/validators/${msg.validator_address}`}>{msg.validator_address}</Link>], // TODO display validator moniker and image
-                        ['Amount', formatCoin(msg.amount)],
+                        ['Amount', await formatCoin(msg.amount, config)],
                     ],
                     amounts: [msg.amount]
                 }
@@ -218,7 +218,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                     content: [
                         ['Delegator', <Link to={`/${config.id}/accounts/${msg.delegator_address}`}>{msg.delegator_address}</Link>],
                         ['Validator', <Link to={`/${config.id}/validators/${msg.validator_address}`}>{msg.validator_address}</Link>], // TODO display validator moniker and image
-                        ['Amount', formatCoin(msg.amount)],
+                        ['Amount', await formatCoin(msg.amount, config)],
                     ],
                     amounts: [msg.amount],
                 }
@@ -231,7 +231,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                         ['Delegator', <Link to={`/${config.id}/accounts/${msg.delegator_address}`}>{msg.delegator_address}</Link>],
                         ['Old Validator', <Link to={`/${config.id}/validators/${msg.validator_src_address}`}>{msg.validator_src_address}</Link>], // TODO display validator moniker and image
                         ['New Validator', <Link to={`/${config.id}/validators/${msg.validator_dst_address}`}>{msg.validator_dst_address}</Link>], // TODO display validator moniker and image
-                        ['Amount', formatCoin(msg.amount)],
+                        ['Amount', await formatCoin(msg.amount, config)],
                     ],
                     amounts: [msg.amount],
                 }
@@ -243,7 +243,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                     content: [
                         ['Granter', <Link to={`/${config.id}/accounts/${msg.granter}`}>{msg.granter}</Link>],
                         ['Grant Recipient', <Link to={`/${config.id}/accounts/${msg.grantee}`}>{msg.grantee}</Link>],
-                        ...parseGrantType(msg.allowance)
+                        ...await parseGrantType(msg.allowance, config)
                     ],
                     amounts: msg.allowance.spend_limit || [],
                 }
@@ -311,7 +311,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                 const content: Array<[string, ReactElement | string]> = [
                     ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                     ['Receiver', msg.receiver],
-                    ['Amount', formatCoin(msg.token)],
+                    ['Amount', await formatCoin(msg.token, config)],
                     ['Memo', defaultKeyContent(msg.memo)],
                     ['Source Channel', defaultKeyContent(msg.source_channel)],
                     ['Source Port', defaultKeyContent(msg.source_port)],
@@ -356,7 +356,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
             }
 
             default: {
-                console.log('Unknown message type', msg['@type'], JSON.stringify(msg, null, 2));
+                // console.log('Unknown message type', msg['@type'], JSON.stringify(msg, null, 2));
                 return {
                     title: formatTxType(msg['@type']),
                     content: Object.keys(msg).map(key => {
@@ -390,12 +390,12 @@ export const defaultKeyContent = (value: any): string => {
     return value
 }
 
-const parseGrantType = (allowance: {type: string} & any): [string, string | ReactElement][] => {
+const parseGrantType = async (allowance: {type: string} & any, config: FrontendChainConfig): Promise<[string, string | ReactElement][]> => {
     switch (allowance['@type']) {
         case '/cosmos.feegrant.v1beta1.BasicAllowance': return [
             ['Type', 'Basic'],
             ['Expiration', new Date(allowance.expiration).toLocaleString()],
-            ['Spend Limit', formatAmounts(allowance.spend_limit)]
+            ['Spend Limit', await formatAmounts(allowance.spend_limit, config)]
         ]
         default: return [
             ['Type', allowance.type],

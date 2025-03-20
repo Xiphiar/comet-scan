@@ -7,9 +7,8 @@ import { getSingleCodePage } from "../../api/pagesApi";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
-import TransactionRow from "../../components/TransactionRow/TransactionRow";
 import ContractRow from "../../components/ContractRow/ContractRow";
-
+import { toast } from "react-fox-toast";
 const SingleCodePage: FC = () => {
     const { chain: chainLookupId, codeId } = useParams();
     const { getChain } = useConfig();
@@ -39,7 +38,7 @@ const SingleCodePage: FC = () => {
             link.href = 'data:application/zip;base64,' + data.verification.code_zip;
             link.click();
         } catch (err: any) {
-            alert(`TODO handle error: ${err.toString()}`)
+            toast.error(`Failed to download: ${err.toString()}`)
         }
     }
  

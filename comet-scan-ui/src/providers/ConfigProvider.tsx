@@ -25,7 +25,6 @@ const ConfigProvider = ({ children }: PropsWithChildren): ReactElement => {
 
     const getChain = (chainLookupId: string): FrontendChainConfig | undefined => {
         const chain = chains.find(c => c.id.toLowerCase() === chainLookupId.toLowerCase());
-        // if (!chain) throw `Chain ${chainLookupId} not found`;
         return chain;
     }
 
@@ -35,8 +34,6 @@ const ConfigProvider = ({ children }: PropsWithChildren): ReactElement => {
             setChains(config.chains);
         } catch(err: unknown) {
             console.error('Failed to refresh chain config:', err.toString?.() || err);
-            // TODO show popup or error
-            // throw err;
             setLoadingError(err.toString())
         } finally {
             setLoading(false);

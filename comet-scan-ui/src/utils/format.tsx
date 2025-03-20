@@ -3,6 +3,7 @@ import { Coin } from "../interfaces/models/blocks.interface";
 import { ProposalStatus } from "../interfaces/models/proposals.interface";
 import { getDenomDetails } from "./denoms";
 import { weiFormatFixed, weiFormatNice } from "./coin";
+import { FrontendChainConfig } from "../interfaces/config.interface";
 
 export const truncateString = (str: string, charactersToKeep = 6) => {
     if (str.length < charactersToKeep * 2) return str;
@@ -53,18 +54,22 @@ export const stringToColor = (str?: string) => {
     return colour
 }
 
-export const formatCoin = (coin: Coin): string => {
+export const formatCoin = async (coin: Coin, chainConfig: FrontendChainConfig): Promise<string> => {
     console.log('Coin', coin)
-    const details = getDenomDetails(coin.denom);
+    const details = await getDenomDetails(coin.denom, chainConfig);
 
     return `${weiFormatNice(coin.amount, details.decimals)} ${details.symbol}`
 }
 
-export const formatAmounts = (coins: Coin[]): ReactElement => <div>
-    {coins.map((coin: Coin, i) => {
-        return <div key={i}>{formatCoin(coin)}</div>
-    })}
-</div> 
+export const formatAmounts = async (coins: Coin[], chainConfig: FrontendChainConfig): Promise<ReactElement> => {
+    const elements = [];
+    for (let i = 0; i < coins.length; i++) {
+        const coin = coins[i];
+        const formatted = await formatCoin(coin, chainConfig);
+        elements.push(<div key={i}>{formatted}</div>);
+    }
+    return <div>{elements}</div>;
+}
 
 export const formatCoins = formatAmounts;
 

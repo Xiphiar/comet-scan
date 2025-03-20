@@ -1,4 +1,4 @@
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
@@ -12,12 +12,23 @@ import { formatCoin, formatCoins, formatProposalStatus, formatProposalType } fro
 import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { defaultKeyContent } from "../../utils/messageParsing";
 import { v1beta1LcdProposal, v1LcdProposal } from "../../interfaces/lcdProposalResponse";
+import Spinner from "../../components/Spinner";
 
 const SingleProposalPage: FC = () => {
     const { chain: chainLookupId, proposalId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
     const { data, error } = useAsync<SingleProposalPageResponse>(getSingleProposalPage(chain.chainId, proposalId));
+    const [parsedContent, setParsedContent] = useState<([string, string | ReactNode][]) | undefined>(undefined);
+
+    useEffect(() => {
+        const fetchParsedContent = async () => {
+            if (!data) return;
+            const content = await parseProposal(chain, data.proposal.proposal);
+            setParsedContent(content);
+        };
+        fetchParsedContent();
+    }, [data, chain]);
 
     if (!chain) {
         return (
@@ -37,10 +48,10 @@ const SingleProposalPage: FC = () => {
     const totalWithAbstain = totalYesNo + Number(data.proposal.tally.abstain)
     const percentYes = Number(data.proposal.tally.yes) / totalYesNo;
     const turnoutPercent = totalWithAbstain / Number(data.bonded.amount)
-    const parsedContent = parseProposal(chain, data.proposal.proposal);
 
     let proposalType = data.proposal.proposalType;
     if (proposalType.includes('MsgExecLegacyContent')) proposalType = (data.proposal.proposal as v1LcdProposal).messages?.[0]?.content?.['@type'] || proposalType;
+
     return (
         <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={`Proposal ${proposalId}`} />
@@ -107,7 +118,11 @@ const SingleProposalPage: FC = () => {
                             : 'Unknown' }
                         </div>
                     </div>
-                    { parsedContent.map(([name, value]) => {
+                    { parsedContent === undefined ? (
+                        <div className="d-flex justify-content-center">
+                            <Spinner />
+                        </div>
+                    ) : parsedContent.map(([name, value]) => {
                         return (
                             <div className='d-flex'>
                                 <div className='col-3 font-weight-bold'>{name}</div>
@@ -143,7 +158,7 @@ const SingleProposalPage: FC = () => {
 
 export default SingleProposalPage;
 
-const parseProposal = (config: FrontendChainConfig, proposal: v1beta1LcdProposal | v1LcdProposal): [string, string | ReactNode][] => {
+const parseProposal = async (config: FrontendChainConfig, proposal: v1beta1LcdProposal | v1LcdProposal): Promise<[string, string | ReactNode][]> => {
     let content: any = undefined;
     if (config.govVersion === 'v1beta1') {
         content = (proposal as v1beta1LcdProposal).content;
@@ -176,7 +191,7 @@ const parseProposal = (config: FrontendChainConfig, proposal: v1beta1LcdProposal
         case '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal': {
             return [
                 ['Recipient', <Link to={`/${config.id}/accounts/${content.recipient}`}>{content.recipient}</Link>],
-                ['Amount', formatCoins(content.amount)]
+                ['Amount', await formatCoins(content.amount, config)]
             ]
         }
 

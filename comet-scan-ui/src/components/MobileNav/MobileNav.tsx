@@ -4,8 +4,10 @@ import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { NavLink } from "react-router-dom";
 import Toggle from "../Toggle/Toggle";
 import ConnectWallet from "../ConnectWallet/ConnectWallet";
+import { useUser } from "../../hooks/useUser";
 
 const MobileNav: FC<{show: boolean, hide: ()=>any, chain: FrontendChainConfig}> = ({show, hide, chain}) => {
+  const { user, disconnectWallet } = useUser();
   const links: [string, string][] = [
     ['Overview', `/${chain.id}/overview`],
     ['Blocks', `/${chain.id}/blocks`],
@@ -29,10 +31,26 @@ const MobileNav: FC<{show: boolean, hide: ()=>any, chain: FrontendChainConfig}> 
           </NavLink>
         </div>
         <div className='d-flex justify-content-end'>
-          <ConnectWallet chainConfig={chain} />
+          <ConnectWallet chainConfig={chain} isMobile={true} />
         </div>
+        {user && (
+          <NavLink to={`/${chain.id}/accounts/${user.address}`} onClick={()=>hide()}>
+            Your Account
+          </NavLink>
+        )}
         { links.map(l =>
           <NavLink to={l[1]} onClick={()=>hide()} key={l[0]}>{l[0]}</NavLink>
+        )}
+        {user && (
+          <NavLink 
+            to="#" 
+            onClick={(e) => {
+              e.preventDefault();
+              disconnectWallet();
+            }}
+          >
+            Disconnect Wallet
+          </NavLink>
         )}
         <div style={{paddingRight: '16px'}} className='d-flex justify-content-end'>
           <Toggle />

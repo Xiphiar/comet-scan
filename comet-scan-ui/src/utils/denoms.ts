@@ -36,6 +36,11 @@ const Denoms: DenomDetails[] = [
         symbol: 'USDC',
         decimals: 6,
     },
+    {
+        denom: 'udvpn',
+        symbol: 'DVPN',
+        decimals: 6,
+    },
 ]
 
 export const getDenomDetails = async (denom: string, chainConfig: FrontendChainConfig): Promise<DenomDetails> => {

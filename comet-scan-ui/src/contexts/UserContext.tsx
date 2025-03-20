@@ -24,6 +24,7 @@ import { FrontendChainConfig } from '../interfaces/config.interface';
   export interface UserContextState {
     user: CurrentWallet | undefined;
     connectWallet: ((chainConfig: FrontendChainConfig)=>Promise<void>);
+    disconnectWallet: (() => void);
     isLoading: boolean;
   }
   
@@ -33,6 +34,7 @@ import { FrontendChainConfig } from '../interfaces/config.interface';
   const UserContext = createContext<UserContextState>({
     user: undefined,
     connectWallet: whatever,
+    disconnectWallet: whatever,
     isLoading: false,
   });
   
@@ -101,9 +103,14 @@ import { FrontendChainConfig } from '../interfaces/config.interface';
       }
     }
   
+    const disconnectWallet = () => {
+      setUser(undefined);
+    }
+  
     const values: UserContextState = {
       user,
       connectWallet,
+      disconnectWallet,
       isLoading,
     };
   

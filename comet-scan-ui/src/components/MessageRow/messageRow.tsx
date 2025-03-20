@@ -7,9 +7,9 @@ const MessageRow: FC<{ message: ParsedMessage, messageIndex: number }> = ({ mess
         <div className={styles.messageRow}>
             <h4>#{messageIndex + 1} {message.title}</h4>
             <div className='d-flex flex-column gap-2 w-full mt-2'>
-                {message.content.map(item => {
+                {message.content.map((item, i) => {
                     return (
-                        <div className='d-flex w-full'>
+                        <div className='d-flex w-full' key={i}>
                             <div className='col col-3 font-weight-bold'>{item[0]}</div>
                             <div className='col'>{item[1]}</div>
                         </div>

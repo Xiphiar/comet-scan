@@ -1,19 +1,28 @@
-import { FC, ReactElement } from "react";
+import { FC, ReactElement, useState, useEffect } from "react";
 import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { Transaction } from "../../interfaces/models/transactions.interface";
 import { Link } from "react-router-dom";
 import styles from './TransactionRow.module.scss'
 import { formatAmounts, formatTime, truncateString } from "../../utils/format";
 import { weiFormatNice } from "../../utils/coin";
-import { formatTxType, parseMessages } from "../../utils/messageParsing";
+import { formatTxType, parseMessages, ParsedMessage } from "../../utils/messageParsing";
 import { combineCoins } from "../../utils/denoms";
+import SmallSpinner from "../SmallSpinner/smallSpinner";
 
 const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig }> = ({ transaction, chain }) => {
     const txType = transaction.transaction.tx.body.messages.length > 1 ? `${transaction.transaction.tx.body.messages.length} Messages` : transaction.transaction.tx.body.messages[0]["@type"];
     const fee = transaction.transaction.tx.auth_info.fee.amount.find(coin => coin.denom === chain.bondingDenom)?.amount || '0';
-    const parsedMessages = parseMessages(chain, transaction.transaction)
-    const allAmounts = combineCoins(parsedMessages.map(m => m.amounts));
+    const [parsedMessages, setParsedMessages] = useState<ParsedMessage[] | undefined>(undefined);
     const timeDisplay = formatTime(transaction.timestamp);
+
+    useEffect(() => {
+        (async () => {
+            const messages = await parseMessages(chain, transaction.transaction);
+            setParsedMessages(messages);
+        })();
+    }, [chain, transaction.transaction]);
+    
+    const allAmounts = parsedMessages ? combineCoins(parsedMessages.map(m => m.amounts)) : [];
     
     return (
         <Link
@@ -23,7 +32,15 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
         >
             <div className='d-none d-sm-flex col col-3'>{truncateString(transaction.hash, 4)}</div>
             <div className='col col-8 col-sm-6 col-md-4 col-lg-3'>{formatTxType(txType)}</div>
-            <div className='d-none d-md-flex col col-2 col-lg-2'>{formatAmounts(allAmounts)}</div>
+            <div className='d-none d-md-flex col col-2 col-lg-2'>
+                {parsedMessages === undefined ? (
+                    <div style={{marginLeft: '24px'}}>
+                        <SmallSpinner />
+                    </div>
+                ) : (
+                    formatAmounts(allAmounts)
+                )}
+            </div>
             <div className='d-none d-lg-flex col col-1'>{weiFormatNice(fee, chain.bondingDecimals)} {chain.bondingDisplayDenom}</div>
             <div className='col col-4 col-sm-3 align-items-end'>{timeDisplay}</div>
         </Link>

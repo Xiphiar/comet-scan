@@ -6,6 +6,7 @@ import { formatAmounts, formatCoin, truncateString } from "./format";
 import { Coin } from "../interfaces/models/blocks.interface";
 import { LcdTxResponse } from "../interfaces/lcdTxResponse";
 import MessageRow from "../components/MessageRow/messageRow";
+import { fromBase64, fromUtf8, EncryptionUtils } from "secretjs";
 
 export const formatTxType = (txType: string) => {
     switch(txType) {
@@ -41,9 +42,9 @@ export interface ParsedMessage {
     amounts: Coin[],
 }
 
-export const parseMessages = (config: FrontendChainConfig, tx: LcdTxResponse, skipExec = false): ParsedMessage[] => {
+export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxResponse, encryptionUtils?: EncryptionUtils, skipExec = false): Promise<ParsedMessage[]> => {
     const msgs = tx.tx.body.messages;
-    const parsed: ParsedMessage[] = msgs.map((msg, i):ParsedMessage => {
+    const parsed = await Promise.all(msgs.map(async (msg, i):Promise<ParsedMessage> => {
         switch(msg['@type']) {
 
             case '/cosmos.bank.v1beta1.MsgSend': {
@@ -72,12 +73,27 @@ export const parseMessages = (config: FrontendChainConfig, tx: LcdTxResponse, sk
             }
 
             case '/secret.compute.v1beta1.MsgExecuteContract': {
+                let messageDisplay: string | ReactElement = 'Encrypted';
+                if (encryptionUtils) {
+                    try {
+                        const contractInputMsgBytes = fromBase64(msg.msg);
+                        const nonce = contractInputMsgBytes.slice(0, 32);
+                        const ciphertext = contractInputMsgBytes.slice(64);
+
+                        const plaintext = await encryptionUtils.decrypt(ciphertext, nonce);
+                        const decryptedMsg = JSON.parse(fromUtf8(plaintext).slice(64)); // first 64 chars is the codeHash
+                        messageDisplay = defaultKeyContent(decryptedMsg);
+                    } catch (e) {
+                        // If decryption fails, keep showing "Encrypted"
+                    }
+                }
+
                 return {
                     title: formatTxType(msg['@type']),
                     content: [
                         ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                        ['Message', 'Encrypted'],
+                        ['Message', messageDisplay],
                         ['Sent Funds', !msg.sent_funds?.length ? 'None' : formatAmounts(msg.sent_funds)]
                     ],
                     amounts: msg.sent_funds,
@@ -180,7 +196,7 @@ export const parseMessages = (config: FrontendChainConfig, tx: LcdTxResponse, sk
                     amounts: [],
                 }
 
-                const parsedSubMessages = parseMessages(config, tx, true);
+                const parsedSubMessages = await parseMessages(config, tx, encryptionUtils, true);
                 const allAmounts = combineCoins(parsedSubMessages.map(m => m.amounts));
                 return {
                     title: formatTxType(msg['@type']),
@@ -288,7 +304,7 @@ export const parseMessages = (config: FrontendChainConfig, tx: LcdTxResponse, sk
             }
         }
 
-    })
+    }))
 
     return parsed;
 }

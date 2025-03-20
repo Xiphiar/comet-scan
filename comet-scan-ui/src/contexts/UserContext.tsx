@@ -6,7 +6,7 @@ import {
   import { connectKeplrWallet } from '../utils/keplr';
   import { toast } from 'react-fox-toast';
   
-  import { SecretNetworkClient } from 'secretjs';
+  import { SecretNetworkClient, EncryptionUtils } from 'secretjs';
 import { FrontendChainConfig } from '../interfaces/config.interface';
   
   interface Props {
@@ -18,6 +18,7 @@ import { FrontendChainConfig } from '../interfaces/config.interface';
     key_name: string;
     client:  SecretNetworkClient;
     address: string;
+    encryptionUtils: EncryptionUtils;
   }
   
   export interface UserContextState {
@@ -79,8 +80,8 @@ import { FrontendChainConfig } from '../interfaces/config.interface';
       try {
         setIsLoading(true);
         console.log('Connecting wallet')
-        const { client, address, keyName } = await connectKeplrWallet(chainConfig);
-        const newUser: CurrentWallet = {client, address, wallet_type: 'Keplr', key_name: keyName}
+        const { client, address, keyName, encryptionUtils } = await connectKeplrWallet(chainConfig);
+        const newUser: CurrentWallet = {client, address, wallet_type: 'Keplr', key_name: keyName, encryptionUtils}
         setUser(newUser)
   
       } catch(err: any){

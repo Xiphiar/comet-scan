@@ -1,4 +1,4 @@
-import { SecretNetworkClient, StdSignature } from 'secretjs';
+import { SecretNetworkClient, EncryptionUtils } from 'secretjs';
 import sleep from './sleep.ts';
 import { FrontendChainConfig } from '../interfaces/config.interface.ts';
 
@@ -6,6 +6,7 @@ export const connectKeplrWallet = async(chainConfig: FrontendChainConfig): Promi
     client: SecretNetworkClient;
     address: string;
     keyName: string;
+    encryptionUtils: EncryptionUtils;
 }> => {
   console.log('Connecting Keplr Wallet!!')
   if (!window.keplr) {
@@ -22,14 +23,15 @@ export const connectKeplrWallet = async(chainConfig: FrontendChainConfig): Promi
   const offlineSigner = window.keplr.getOfflineSignerOnlyAmino(chainConfig.chainId);
   const accounts = await offlineSigner.getAccounts();
   const address = accounts[0].address;
+  const encryptionUtils = window.keplr.getEnigmaUtils(chainConfig.chainId);
 
   const client = new SecretNetworkClient({
     url: chainConfig.lcd,
     chainId: chainConfig.chainId,
     walletAddress: address,
     wallet: offlineSigner,
-    encryptionUtils: window.keplr.getEnigmaUtils(chainConfig.chainId)
+    encryptionUtils
   });
   console.log('Wallet Connected:', accounts[0].address)
-  return {client, address: accounts[0].address, keyName}
+  return {client, address: accounts[0].address, keyName, encryptionUtils}
 }

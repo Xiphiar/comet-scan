@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
@@ -11,12 +11,26 @@ import { getSingleTransactionPage } from "../../api/pagesApi";
 import MessageRow from "../../components/MessageRow/messageRow";
 import { truncateString } from "../../utils/format";
 import { parseMessages } from "../../utils/messageParsing";
+import { ParsedMessage } from "../../utils/messageParsing";
+import { EncryptionUtils } from "secretjs";
+import { useUser } from "../../hooks/useUser";
+import Spinner from "../../components/Spinner";
 
 const SingleTransactionPage: FC = () => {
     const { chain: chainLookupId, transactionHash } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
     const { data, error } = useAsync<SingleTransactionPageResponse>(getSingleTransactionPage(chain.chainId, transactionHash));
+    const [parsedMessages, setParsedMessages] = useState<ParsedMessage[] | undefined>(undefined);
+    const { user } = useUser();
+
+    useEffect(() => {
+        if (!data) return;
+        (async () => {
+            const messages = await parseMessages(chain, data.transaction.transaction, user?.encryptionUtils);
+            setParsedMessages(messages);
+        })();
+    }, [data, user?.encryptionUtils, chain]);
 
     if (!chain) {
         return (
@@ -32,8 +46,6 @@ const SingleTransactionPage: FC = () => {
 
     const feeAmount = data.transaction.transaction.tx.auth_info.fee.amount.find(coin => coin.denom === chain.bondingDenom)?.amount || '0'; 
     console.log(data.transaction.transaction.tx_response)
-    const parsedMessages = parseMessages(chain, data.transaction.transaction);
-
 
     return (
         <div className='d-flex flex-column'>
@@ -96,9 +108,19 @@ const SingleTransactionPage: FC = () => {
             </Card>
             <Card conentClassName='d-flex flex-column gap-2'>
                 <h3>Messages</h3>
-                {parsedMessages.map((msg, i) =><>
-                    <MessageRow message={msg} messageIndex={i} key={`${msg.title}${i}`} />
-                </>)}
+                {parsedMessages === undefined ? (
+                    <div className='d-flex justify-content-center'>
+                        <Spinner />
+                    </div>
+                ) : (
+                    parsedMessages.map((msg, i) => (
+                        <MessageRow 
+                            message={msg} 
+                            messageIndex={i} 
+                            key={`${msg.title}-${i}-${msg.content.length}`} 
+                        />
+                    ))
+                )}
             </Card>
         </div>
     )

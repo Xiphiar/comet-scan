@@ -80,7 +80,7 @@ const SecretNetwork: ChainConfig = {
     startHeight: 17_550_000,
     features: ['secretwasm'],
     isTestnet: false,
-    enableWalletConnect: false,
+    enableWalletConnect: true,
 }
 
 const SecretNetworkPulsar3: ChainConfig = {

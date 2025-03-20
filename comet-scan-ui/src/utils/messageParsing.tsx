@@ -11,6 +11,7 @@ import { fromBase64, fromUtf8, EncryptionUtils } from "secretjs";
 export const formatTxType = (txType: string) => {
     switch(txType) {
         case '/secret.compute.v1beta1.MsgExecuteContract': return 'Execute Contract';
+        case '/secret.compute.v1beta1.MsgInstantiateContract': return 'Instantiate Contract';
         case '/cosmwasm.wasm.v1.MsgExecuteContract': return 'Execute Contract';
         case '/ibc.core.client.v1.MsgUpdateClient': return 'Update IBC Client';
         case '/ibc.core.channel.v1.MsgAcknowledgement': return 'IBC Packet Acknowledgement';
@@ -75,17 +76,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
             case '/secret.compute.v1beta1.MsgExecuteContract': {
                 let messageDisplay: string | ReactElement = 'Encrypted';
                 if (encryptionUtils) {
-                    try {
-                        const contractInputMsgBytes = fromBase64(msg.msg);
-                        const nonce = contractInputMsgBytes.slice(0, 32);
-                        const ciphertext = contractInputMsgBytes.slice(64);
-
-                        const plaintext = await encryptionUtils.decrypt(ciphertext, nonce);
-                        const decryptedMsg = JSON.parse(fromUtf8(plaintext).slice(64)); // first 64 chars is the codeHash
-                        messageDisplay = defaultKeyContent(decryptedMsg);
-                    } catch (e) {
-                        // If decryption fails, keep showing "Encrypted"
-                    }
+                    messageDisplay = await decryptSecretMessage(msg.msg, encryptionUtils);
                 }
 
                 return {
@@ -97,6 +88,26 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                         ['Sent Funds', !msg.sent_funds?.length ? 'None' : formatAmounts(msg.sent_funds)]
                     ],
                     amounts: msg.sent_funds,
+                }
+            }
+
+            case '/secret.compute.v1beta1.MsgInstantiateContract': {
+                let initMsgDisplay: string | ReactElement = 'Encrypted';
+                if (encryptionUtils) {
+                    initMsgDisplay = await decryptSecretMessage(msg.init_msg, encryptionUtils);
+                }
+
+                return {
+                    title: formatTxType(msg['@type']),
+                    content: [
+                        ['Code ID', msg.code_id],
+                        ['Label', msg.label],
+                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                        ['Admin', msg.admin ? <Link to={`/${config.id}/accounts/${msg.admin}`}>{msg.admin}</Link> : 'None'],
+                        ['Init Message', initMsgDisplay],
+                        ['Init Funds', !msg.init_funds?.length ? 'None' : formatAmounts(msg.init_funds)]
+                    ],
+                    amounts: msg.init_funds,
                 }
             }
 
@@ -293,6 +304,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
             }
 
             default: {
+                console.log('Unknown message type', msg['@type'], JSON.stringify(msg, null, 2));
                 return {
                     title: formatTxType(msg['@type']),
                     content: Object.keys(msg).map(key => {
@@ -336,5 +348,20 @@ const parseGrantType = (allowance: {type: string} & any): [string, string | Reac
         default: return [
             ['Type', allowance.type],
         ]
+    }
+}
+
+const decryptSecretMessage = async (encryptedMsg: string, encryptionUtils: EncryptionUtils): Promise<string | ReactElement> => {
+    try {
+        const contractInputMsgBytes = fromBase64(encryptedMsg);
+        const nonce = contractInputMsgBytes.slice(0, 32);
+        const ciphertext = contractInputMsgBytes.slice(64);
+
+        const plaintext = await encryptionUtils.decrypt(ciphertext, nonce);
+        const decryptedMsg = JSON.parse(fromUtf8(plaintext).slice(64)); // first 64 chars is the codeHash
+        return defaultKeyContent(decryptedMsg);
+    } catch (e) {
+        // If decryption fails, keep showing "Encrypted"
+        return 'Encrypted';
     }
 }

@@ -45,7 +45,6 @@ const SingleTransactionPage: FC = () => {
     }
 
     const feeAmount = data.transaction.transaction.tx.auth_info.fee.amount.find(coin => coin.denom === chain.bondingDenom)?.amount || '0'; 
-    console.log(data.transaction.transaction.tx_response)
 
     return (
         <div className='d-flex flex-column'>

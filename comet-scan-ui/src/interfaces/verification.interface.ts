@@ -13,6 +13,7 @@ export interface StartVerifyResponse {
 export interface VerifyParams {
     repo: string;
     commit?: string;
+    optimizer?: string;
 }
 
 export interface TaskStatus {

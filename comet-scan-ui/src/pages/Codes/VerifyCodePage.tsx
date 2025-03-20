@@ -34,6 +34,19 @@ const parseFailedStatus = (exitCode: number) => {
     return 'Unknown error.';
 }
 
+const optimizerVersions = [
+    "1.0.10",
+    "1.0.9",
+    "1.0.8",
+    "1.0.7",
+    "1.0.6",
+    "1.0.5",
+    "1.0.4",
+    "1.0.3",
+    "1.0.2",
+    "1.0.1",
+];
+
 const VerifyCodePage: FC = () => {
     const { chain: chainLookupId, taskId } = useParams();
     const { getChain } = useConfig();
@@ -42,6 +55,7 @@ const VerifyCodePage: FC = () => {
 
     const [repo, setRepo] = useState('');
     const [commit, setCommit] = useState('main');
+    const [optimizer, setOptimizer] = useState(optimizerVersions[0]);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<TaskStatus>();
     const [error, setError] = useState<string>();
@@ -94,6 +108,7 @@ const VerifyCodePage: FC = () => {
                         <>
                             <div>Verification task completed successfully!<br/>Check the contract page to see if the code was verified.</div>
                             <Link to={`/${chainLookupId}/codes/verify`} className='button'>Go Back</Link>
+                            {/* TODO display a list of codes that matched this commit */}
                         </>
                     }
                     { (data.status.Done?.Failed) &&
@@ -124,6 +139,7 @@ const VerifyCodePage: FC = () => {
                 const data = await startSecretWasmVerification({
                     repo,
                     commit: commit || undefined,
+                    optimizer,
                 })
                 setRepo(undefined);
                 setCommit('main');
@@ -145,10 +161,10 @@ const VerifyCodePage: FC = () => {
             <Card conentClassName='p-4'>
                 <h3>Verify Contract Code</h3>
                 <p>
-                    Enter a Git repository URL, and a tag or commit hash to start the verification process.<br />
+                    Enter a Git repository URL, a tag or commit hash, and an select the optimizer version your contract was compiled with to start the verification process.<br />
                     <br />
-                    The code will be compiled with every version of the contract optimizer. If the compiled code hash matches any contracts in our database, those contracts will be marked as verified.<br />
-                    <br />
+                    {/* The code will be compiled with every version of the contract optimizer. If the compiled code hash matches any contracts in our database, those contracts will be marked as verified.<br />
+                    <br /> */}
                     This process can take up to an hour to complete.<br />
                     <br />
                     <b>Do not attempt to verify any code that should be kept private.</b> Verified code will be made available to download by any user of Comet Scan.<br />
@@ -168,10 +184,20 @@ const VerifyCodePage: FC = () => {
                         Repository URL
                         <input value={repo} onChange={e => setRepo(e.target.value.trim())} className='p-2' placeholder='https://github.com/TriviumNode/example.git' />
                     </label>
-                    <label className='d-flex flex-column gap-1'>
-                        Tag, Branch, or Commit Hash
-                        <input value={commit} onChange={e => setCommit(e.target.value.trim())} className='p-2' />
-                    </label>
+                    <div className='d-flex gap-3'>
+                        <label className='d-flex flex-column gap-1 flex-grow-1'>
+                            Tag, Branch, or Commit Hash
+                            <input value={commit} onChange={e => setCommit(e.target.value.trim())} className='p-2' />
+                        </label>
+                        <label className='d-flex flex-column gap-1'>
+                            Optimizer Version
+                            <select value={optimizer} onChange={e => setOptimizer(e.target.value)} className='p-2'>
+                                {optimizerVersions.map(version => (
+                                    <option key={version} value={version}>{version}</option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
                     <div className='d-flex justify-content-center mt-2'>
                         <button type='submit' className='button' disabled={loading}>
                             Submit

@@ -5,7 +5,7 @@ import { VerifyParams, StartVerifyResponse, TaskStatus } from "../interfaces/ver
 
 export const verifySecretWasmContract = api<VerifyParams, StartVerifyResponse>(
     { expose: true, method: "POST", path: "/verify/secretwasm" },
-    async ({ repo, commit }): Promise<StartVerifyResponse> => {
+    async ({ repo, commit, optimizer }): Promise<StartVerifyResponse> => {
         if (!process.env.SECRETWASM_VERIFICATION_API) throw new APIError(ErrCode.Internal, 'Verification API not ready');
 
         if (repo.startsWith('http') && !repo.endsWith('.git')) throw new APIError(ErrCode.InvalidArgument, 'Repository must end with .git');
@@ -13,6 +13,7 @@ export const verifySecretWasmContract = api<VerifyParams, StartVerifyResponse>(
         const formData = new FormData();
         formData.append('repo', repo)
         if (commit) formData.append('commit', commit)
+        if (optimizer) formData.append('optimizer', optimizer)
         
         const {data} = await axios.post<number>(`${process.env.SECRETWASM_VERIFICATION_API}/enqueue`, formData);
         console.log(data, typeof data);

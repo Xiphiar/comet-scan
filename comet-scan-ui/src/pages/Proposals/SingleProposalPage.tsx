@@ -110,7 +110,7 @@ const SingleProposalPage: FC = () => {
                         <div className='col d-flex gap-2 align-items-center'>
                             { data.proposingValidator ?
                                 <Link to={`/${chainLookupId}/validators/${data.proposingValidator.operatorAddress}`} className='d-flex gap-2 align-items-center'>
-                                    <ValidatorAvatar avatarUrl={proposerDetails?.keybaseAvatarUrl} moniker={proposerDetails?.moniker} />
+                                    <ValidatorAvatar avatarUrl={proposerDetails?.keybaseAvatarUrl} moniker={proposerDetails?.moniker} operatorAddress={data.proposingValidator?.operatorAddress} />
                                     {proposerDetails?.moniker || data.proposingValidator?.operatorAddress}
                                 </Link>
                             : data.proposal.proposer ?

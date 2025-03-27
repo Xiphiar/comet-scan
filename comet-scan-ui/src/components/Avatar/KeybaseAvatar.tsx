@@ -5,12 +5,13 @@ import { stringToColor } from "../../utils/format";
 type Props = {
     avatarUrl: string | undefined;
     moniker: string | undefined;
+    operatorAddress: string | undefined;
     size?: string;
 }
 
 
-const ValidatorAvatar: FC<Props> = ({ avatarUrl, moniker, size = '40px' }) => {
-    const color = stringToColor(moniker);
+const ValidatorAvatar: FC<Props> = ({ avatarUrl, moniker, operatorAddress, size = '40px' }) => {
+    const color = stringToColor(operatorAddress || moniker);
     const filteredMoniker = moniker?.replace(/[^0-9a-zA-Z]/gi, '');
     const firstLetter = filteredMoniker?.charAt(0).toUpperCase();
     

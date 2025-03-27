@@ -43,7 +43,7 @@ const SingleValidatorPage: FC = () => {
             <Card>
                 <div>
                     <div className='d-flex align-items-center gap-2'>
-                        <ValidatorAvatar avatarUrl={currentDetails?.keybaseAvatarUrl} moniker={currentDetails?.moniker} size='70px' />
+                        <ValidatorAvatar avatarUrl={currentDetails?.keybaseAvatarUrl} moniker={currentDetails?.moniker} operatorAddress={data.validator.operatorAddress} size='70px' />
                         <h2>{currentDetails?.moniker || data.validator.operatorAddress}</h2>
                         {statusBadge}
                     </div>

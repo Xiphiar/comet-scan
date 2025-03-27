@@ -32,7 +32,7 @@ export const parseSecretWasmMessage = async (msg: any, encryptionUtils: Encrypti
 
         if (executeFunction === 'deposit' && msg.sent_funds?.length) {
             return {
-                title: 'Wrap Token',
+                title: 'Execute Contract: Wrap Token',
                 content: [
                     ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
                     ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
@@ -45,7 +45,7 @@ export const parseSecretWasmMessage = async (msg: any, encryptionUtils: Encrypti
         if (executeFunction === 'redeem') {
             console.log(decryptedMsg);
             return {
-                title: 'Unwrap Token',
+                title: 'Execute Contract: Unwrap Token',
                 content: [
                     ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
                     ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
@@ -55,9 +55,27 @@ export const parseSecretWasmMessage = async (msg: any, encryptionUtils: Encrypti
             }
         }
 
-        return defaultSecretWasmResponse(msg, defaultKeyContent(decryptedMsg), config);
+        return {
+            title: `Execute Contract: ${formatExecuteFunction(executeFunction)}`,
+            content: [
+                ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                ['Message', defaultKeyContent(decryptedMsg)],
+                ['Sent Funds', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)]
+            ],
+            amounts: msg.amount,
+        }
+
+        // return defaultSecretWasmResponse(msg, defaultKeyContent(decryptedMsg), config);
     } catch (e) {
         // If decryption fails, keep showing "Encrypted"
         return defaultSecretWasmResponse(msg, 'Encrypted', config);
     }
+}
+
+const formatExecuteFunction = (executeFunction: string) => {
+  return executeFunction
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 }

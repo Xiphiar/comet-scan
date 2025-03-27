@@ -255,9 +255,8 @@ export const getSingleAccount = api(
     if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
 
     let account: Account | null = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
-    // if (!account) throw new APIError(ErrCode.NotFound, 'Account not found.');
     if (!account) account = await importAccount(chainId, address)
-      if (!account) throw new APIError(ErrCode.NotFound, 'Account not found');
+    if (!account) throw new APIError(ErrCode.NotFound, 'Account not found');
 
     const recentTransactions = await Transactions.find({
       chainId,

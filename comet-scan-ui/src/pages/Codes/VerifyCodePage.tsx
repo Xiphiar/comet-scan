@@ -154,6 +154,42 @@ const VerifyCodePage: FC = () => {
             setLoading(false);
         }
     }
+
+    if (!chain.features.includes('secretwasm') && !chain.features.includes('cosmwasm')) {
+        return (
+            <div className='d-flex flex-column'>
+                <TitleAndSearch chain={chain} title={title} excludeNetworkName={true} />
+                <Card conentClassName='p-4'>
+                    <h3>Verify Contract Code</h3>
+                    <p>
+                        Contract verification is not supported for this chain.
+                    </p>
+                    <div>
+                        {/* -1 should go back to the previous page. Typescript doesn't like this though, and it might break in the future. */}
+                        <Link to={-1 as any} className='button'>Go Back</Link>
+                    </div>
+                </Card>
+            </div>
+        )
+    }
+
+    if (!chain.features.includes('secretwasm')) {
+        return (
+            <div className='d-flex flex-column'>
+                <TitleAndSearch chain={chain} title={title} excludeNetworkName={true} />
+                <Card conentClassName='p-4'>
+                    <h3>Verify Contract Code</h3>
+                    <p>
+                        CosmWasm contract verification is not currently supported.
+                    </p>
+                    <div>
+                        {/* -1 should go back to the previous page. Typescript doesn't like this though, and it might break in the future. */}
+                        <Link to={-1 as any} className='button'>Go Back</Link>
+                    </div>
+                </Card>
+            </div>
+        )
+    }
  
     return (
         <div className='d-flex flex-column'>

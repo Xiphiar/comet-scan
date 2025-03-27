@@ -1,5 +1,4 @@
 import { Coin } from "../interfaces/models/blocks.interface";
-import { weiFormatNice } from "./coin";
 import { truncateString } from "./format";
 import { FrontendChainConfig } from "../interfaces/config.interface";
 
@@ -8,6 +7,7 @@ export interface DenomDetails {
     symbol: string;
     decimals: number;
     image?: string;
+    // TODO add name and image
 }
 
 const Denoms: DenomDetails[] = [

@@ -8,8 +8,9 @@ import { weiFormatNice } from "../../utils/coin";
 import { formatTxType, parseMessages, ParsedMessage } from "../../utils/messageParsing";
 import { combineCoins } from "../../utils/denoms";
 import { SmallSpinner } from "../SmallSpinner/smallSpinner";
-
+import { useUser } from "../../hooks/useUser";
 const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig }> = ({ transaction, chain }) => {
+    const { user } = useUser();
     const txType = transaction.transaction.tx.body.messages.length > 1 ? `${transaction.transaction.tx.body.messages.length} Messages` : transaction.transaction.tx.body.messages[0]["@type"];
     const fee = transaction.transaction.tx.auth_info.fee.amount.find(coin => coin.denom === chain.bondingDenom)?.amount || '0';
     const [parsedMessages, setParsedMessages] = useState<ParsedMessage[] | undefined>(undefined);
@@ -18,11 +19,11 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
 
     useEffect(() => {
         (async () => {
-            const messages = await parseMessages(chain, transaction.transaction);
+            const messages = await parseMessages(chain, transaction.transaction, user?.encryptionUtils);
             setParsedMessages(messages);
             processAmounts(messages);
         })();
-    }, [chain, transaction.transaction]);
+    }, [chain, transaction.transaction, user?.encryptionUtils]);
     
     // const allAmounts = parsedMessages ? combineCoins(parsedMessages.map(m => m.amounts)) : [];
 
@@ -43,7 +44,15 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
             key={transaction.hash}
         >
             <div className='d-none d-sm-flex col col-3'>{truncateString(transaction.hash, 4)}</div>
-            <div className='col col-8 col-sm-6 col-md-4 col-lg-3'>{formatTxType(txType)}</div>
+            <div className='col col-8 col-sm-6 col-md-4 col-lg-3'>
+                {/* {formatTxType(txType)} */}
+                {/* TODO maybe prefix execute transactions with 'Execute Contract' */}
+                { parsedMessages ?
+                    (transaction.transaction.tx.body.messages.length > 1 ? `${transaction.transaction.tx.body.messages.length} Messages` : parsedMessages[0].title)
+                :
+                    formatTxType(txType)
+                }
+            </div>
             <div className='d-none d-md-flex col col-2 col-lg-2'>
                 {allAmounts === undefined ? (
                     <div style={{marginLeft: '24px'}}>

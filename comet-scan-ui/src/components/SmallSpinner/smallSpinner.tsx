@@ -1,7 +1,6 @@
 import styles from './smallSpinner.module.scss';
 
-const SmallSpinner = () => <i className={styles['c-inline-spinner']} />
-export default SmallSpinner;
+export const SmallSpinner = () => <i className={styles['c-inline-spinner']} />
 
 export const SmallSpinnerWhite = () => <i className={styles['c-inline-spinner-white']} />
 

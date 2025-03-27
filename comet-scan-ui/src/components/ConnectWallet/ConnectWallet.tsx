@@ -1,7 +1,7 @@
 import { FC, useState, useRef, useEffect } from 'react';
 import { FrontendChainConfig } from '../../interfaces/config.interface';
 import { useUser } from '../../hooks/useUser';
-import SmallSpinnerBlack from '../SmallSpinner/smallSpinner';
+import { SmallSpinnerBlack } from '../SmallSpinner/smallSpinner';
 import { truncateString } from '../../utils/format';
 import styles from './ConnectWallet.module.scss';
 import { Link } from 'react-router-dom';

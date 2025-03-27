@@ -4,7 +4,7 @@ import styles from './AssetRow.module.scss'
 import { weiFormatNice } from "../../utils/coin";
 import { Coin } from "../../interfaces/models/blocks.interface";
 import { getDenomDetails, DenomDetails } from "../../utils/denoms";
-import SmallSpinner from "../SmallSpinner/smallSpinner";
+import { SmallSpinner } from "../SmallSpinner/smallSpinner";
 
 const AssetRow: FC<{ coin: Coin, chain: FrontendChainConfig }> = ({ coin, chain }) => {
     const [denomDetails, setDenomDetails] = useState<DenomDetails | undefined>();

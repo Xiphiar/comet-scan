@@ -7,7 +7,7 @@ import { formatAmounts, formatTime, truncateString } from "../../utils/format";
 import { weiFormatNice } from "../../utils/coin";
 import { formatTxType, parseMessages, ParsedMessage } from "../../utils/messageParsing";
 import { combineCoins } from "../../utils/denoms";
-import SmallSpinner from "../SmallSpinner/smallSpinner";
+import { SmallSpinner } from "../SmallSpinner/smallSpinner";
 
 const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig }> = ({ transaction, chain }) => {
     const txType = transaction.transaction.tx.body.messages.length > 1 ? `${transaction.transaction.tx.body.messages.length} Messages` : transaction.transaction.tx.body.messages[0]["@type"];

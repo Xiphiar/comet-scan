@@ -10,7 +10,7 @@ import { TaskStatus } from "../../interfaces/verification.interface";
 import Spinner from "../../components/Spinner";
 import parseError from "../../utils/parseError";
 import { toast } from "react-fox-toast";
-import SmallSpinner from "../../components/SmallSpinner/smallSpinner";
+import { SmallSpinner } from "../../components/SmallSpinner/smallSpinner";
 
 const ALREADY_VERIFIED_EXIT_CODE = 124;
 const DB_ERROR_EXIT_CODE = 125;

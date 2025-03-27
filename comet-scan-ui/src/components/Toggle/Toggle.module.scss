@@ -33,6 +33,10 @@
     box-sizing: border-box;
     z-index: 100;
 }
+
+.sun, .moon {
+    height: 100%;
+}
   
 .checkbox-label .ball {
     background-color: var(--main);

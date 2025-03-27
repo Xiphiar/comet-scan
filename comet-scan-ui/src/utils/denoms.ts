@@ -41,6 +41,66 @@ const Denoms: DenomDetails[] = [
         symbol: 'DVPN',
         decimals: 6,
     },
+    {
+        denom: 'untrn',
+        symbol: 'NTRN',
+        decimals: 6,
+    },
+    {
+        denom: 'utia',
+        symbol: 'TIA',
+        decimals: 6,
+    },
+    {
+        denom: 'uaxl',
+        symbol: 'AXL',
+        decimals: 6,
+    },
+    {
+        denom: 'adydx',
+        symbol: 'DYDX',
+        decimals: 18,
+    },
+    {
+        denom: 'usei',
+        symbol: 'SEI',
+        decimals: 6,
+    },
+    {
+        denom: 'usaga',
+        symbol: 'SAGA',
+        decimals: 6,
+    },
+    {
+        denom: 'uom',
+        symbol: 'OM',
+        decimals: 6,
+    },
+    {
+        denom: 'afet',
+        symbol: 'FET',
+        decimals: 18,
+    },
+    {
+        denom: 'aarch',
+        symbol: 'ARCH',
+        decimals: 18,
+    },
+    {
+        denom: 'adym',
+        symbol: 'DYM',
+        decimals: 18,
+    },
+    {
+        denom: 'uusd',
+        symbol: 'USTC',
+        decimals: 6,
+    },
+    {
+        denom: 'inj',
+        symbol: 'INJ',
+        decimals: 18,
+    },
 ]
 
 export const getDenomDetails = async (denom: string, chainConfig: FrontendChainConfig): Promise<DenomDetails> => {

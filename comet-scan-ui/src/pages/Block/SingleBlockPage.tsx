@@ -10,6 +10,7 @@ import { SingleBlockPageResponse } from "../../interfaces/responses/explorerApiR
 import { getSingleBlockPage } from "../../api/pagesApi";
 import TransactionRow, { TransactionLabels } from "../../components/TransactionRow/TransactionRow";
 import ValidatorAvatar from "../../components/Avatar/KeybaseAvatar";
+import { formatTimeSeconds } from "../../utils/format";
 
 const SingleBlockPage: FC = () => {
     const { chain: chainLookupId, blockHeight } = useParams();
@@ -72,7 +73,7 @@ const SingleBlockPage: FC = () => {
                     { !!data.block.blockTime &&
                         <div className='d-flex'>
                             <div className='col-3 font-weight-bold'>Time Since Previous Block</div>
-                            <div className='col'>{(data.block.blockTime / 1000).toFixed(2)} seconds</div>
+                            <div className='col'>{formatTimeSeconds(data.block.blockTime / 1000, data.block.blockTime > 60_000 ? true : false)}</div>
                         </div>
                     }
                     <div className='d-flex'>

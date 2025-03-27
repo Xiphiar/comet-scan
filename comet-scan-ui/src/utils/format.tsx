@@ -102,3 +102,56 @@ export const formatTime = (date: string | Date) => {
     const days = Math.ceil(msOld / DayMs);
     return `${days} ${maybePlural('day', days)} ago`
 }
+
+export const formatTimeSeconds = (seconds: number, compressed: boolean = false) => {
+    if (seconds < 60) {
+        const secondsFormatted = seconds.toLocaleString(undefined, { maximumFractionDigits: 2 });
+        return compressed ? `${secondsFormatted}s` : `${secondsFormatted} seconds`;
+    }
+
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(seconds % 60);
+
+    if (seconds < 3600) {
+        if (compressed) {
+            return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+        }
+        return remainingSeconds > 0 ? `${minutes} minute${minutes !== 1 ? 's' : ''} ${remainingSeconds} seconds` : `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    }
+
+    const hours = Math.floor(seconds / 3600);
+    const hoursRemainingMinutes = Math.floor((seconds % 3600) / 60);
+    const hoursRemainingSeconds = Math.round(seconds % 60);
+
+    if (seconds < 86400) {
+        if (compressed) {
+            const parts = [`${hours}h`];
+            if (hoursRemainingMinutes > 0) parts.push(`${hoursRemainingMinutes}m`);
+            if (hoursRemainingSeconds > 0) parts.push(`${hoursRemainingSeconds}s`);
+            return parts.join(' ');
+        }
+        const parts = [`${hours} hour${hours !== 1 ? 's' : ''}`];
+        if (hoursRemainingMinutes > 0) parts.push(`${hoursRemainingMinutes} minute${hoursRemainingMinutes !== 1 ? 's' : ''}`);
+        if (hoursRemainingSeconds > 0) parts.push(`${hoursRemainingSeconds} seconds`);
+        return parts.join(' ');
+    }
+
+    const days = Math.floor(seconds / 86400);
+    const daysRemainingHours = Math.floor((seconds % 86400) / 3600);
+    const daysRemainingMinutes = Math.floor((seconds % 3600) / 60);
+    const daysRemainingSeconds = Math.round(seconds % 60);
+
+    if (compressed) {
+        const parts = [`${days}d`];
+        if (daysRemainingHours > 0) parts.push(`${daysRemainingHours}h`);
+        if (daysRemainingMinutes > 0) parts.push(`${daysRemainingMinutes}m`);
+        if (daysRemainingSeconds > 0) parts.push(`${daysRemainingSeconds}s`);
+        return parts.join(' ');
+    }
+
+    const parts = [`${days} day${days !== 1 ? 's' : ''}`];
+    if (daysRemainingHours > 0) parts.push(`${daysRemainingHours} hour${daysRemainingHours !== 1 ? 's' : ''}`);
+    if (daysRemainingMinutes > 0) parts.push(`${daysRemainingMinutes} minute${daysRemainingMinutes !== 1 ? 's' : ''}`);
+    if (daysRemainingSeconds > 0) parts.push(`${daysRemainingSeconds} seconds`);
+    return parts.join(' ');
+}

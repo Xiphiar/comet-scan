@@ -11,10 +11,10 @@ const Toggle: FC = () => {
             <label htmlFor="checkbox" className={styles['checkbox-label']}>
 
                 {/* <i className="fas fa-moon" style={{color: '#FFF'}} /> */}
-                <img src='moon.svg' alt='Dark' className={styles.moon} />
+                <img src='/moon.svg' alt='Dark' className={styles.moon} />
 
                 {/* <i className="fas fa-sun" style={{color: '#f39c12'}} /> */}
-                <img src='sun.svg' alt='Light' className={styles.sun} />
+                <img src='/sun.svg' alt='Light' className={styles.sun} />
 
                 <span className={styles.ball} />
             </label>

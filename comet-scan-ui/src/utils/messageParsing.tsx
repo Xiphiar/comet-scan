@@ -311,7 +311,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                 return {
                     title: formatTxType(msg['@type']),
                     content,
-                    amounts: [],
+                    amounts: [msg.token],
                 }
             }
 

@@ -57,14 +57,17 @@ const MainLayout: FC = () => {
                         <a href="https://trivium.network" target="_blank" rel="noopener noreferrer" title="Website">
                             <img src='/world-globe-white-icon.svg' alt="Website" className={styles.socialIcon} />
                         </a>
-                        <a href="#" target="_blank" rel="noopener noreferrer" title="Discord">
+                        <a href="https://discord.gg/tZj7ZhhdP5" target="_blank" rel="noopener noreferrer" title="Discord">
                             <img src='/discord-white-icon.svg' alt="Discord" className={styles.socialIcon} />
                         </a>
-                        <a href="#" target="_blank" rel="noopener noreferrer" title="X">
+                        <a href="https://x.com/TriviumNode" target="_blank" rel="noopener noreferrer" title="X">
                             <img src='/x-social-media-white-icon.svg' alt="X" className={styles.socialIcon} />
                         </a>
-                        <a href="#" target="_blank" rel="noopener noreferrer" title="Telegram">
+                        <a href="https://t.me/TriviumNode" target="_blank" rel="noopener noreferrer" title="Telegram">
                             <img src='/telegram-white-icon.svg' alt="Telegram" className={styles.socialIcon} />
+                        </a>
+                        <a href="https://github.com/TriviumNode" target="_blank" rel="noopener noreferrer" title="Github">
+                            <img src='/github-mark-white.svg' alt="Github" className={styles.socialIcon} />
                         </a>
                     </div>
                 </div>

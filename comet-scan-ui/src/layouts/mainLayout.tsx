@@ -20,7 +20,7 @@ const MainLayout: FC = () => {
                         <svg height={'30px'} width={'36px'}>
                             <use xlinkHref="/logo.svg#cometscanLogo" height={'30px'} width={'36px'} />
                         </svg>
-                        <div style={{fontFamily: 'Bunken Tech', fontSize: '20px', marginTop: '4px', color: 'var(--main)'}}>Comet Scan</div>
+                        <div style={{fontFamily: 'Bunken Tech', fontSize: '20px', marginTop: '4px', color: 'var(--main)', whiteSpace: 'nowrap'}}>Comet Scan</div>
                     </Link>
                     <Link to={`/${chain}`} className='d-none d-lg-flex'>Overview</Link>
                     <Link to={`/${chain}/blocks`} className='d-none d-lg-flex'>Blocks</Link>

@@ -12,12 +12,13 @@ const txHashRegex = /[0-9A-Fa-f]/g;
 
 type ParsedBech32 = {
     type: 'ADDRESS' | 'VALIDATOR',
+    length: number;
     prefix: string;
     chain: FrontendChainConfig;
 }
 const parseBech32 = (addr: string, chains: FrontendChainConfig[], currentChain: FrontendChainConfig): ParsedBech32 | undefined => {
     try {
-        const {prefix} = fromBech32(addr);
+        const {prefix, data} = fromBech32(addr);
         if (prefix.includes('pub')) return undefined;
         if (prefix.includes('valcons')) return undefined;
 
@@ -34,11 +35,13 @@ const parseBech32 = (addr: string, chains: FrontendChainConfig[], currentChain: 
 
         if (prefix.includes('valoper')) return {
             type: 'VALIDATOR',
+            length: data.length,
             prefix: cleanPrefix,
             chain,
         }
         return {
             type: 'ADDRESS',
+            length: data.length,
             prefix,
             chain,
         }
@@ -99,14 +102,37 @@ const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string, excludeNetw
         }
 
         if (data && data.type === 'ADDRESS') {
-            searchResults.push({
-                title: `${data.chain.name} Account ${searchInput}`,
-                link: `/${data.chain.id}/accounts/${searchInput}`
-            })
-            if (data.chain.features.includes('cosmwasm') || data.chain.features.includes('secretwasm')) {
+            if (data.chain.features.includes('secretwasm')) {
+                // SecretWasm contract address are the same length as an address, so it could be either
+                searchResults.push(
+                    {
+                        title: `${data.chain.name} Account ${searchInput}`,
+                        link: `/${data.chain.id}/accounts/${searchInput}`
+                    },
+                    {
+                        title: `${data.chain.name} Contract ${searchInput}`,
+                        link: `/${data.chain.id}/contracts/${searchInput}`
+                    }
+                )
+            } else if (data.chain.features.includes('cosmwasm')) {
+                // Check length to see if it's a contract or an account.
+                // Accounts have a lenght of 20, contracts 32. We'll use 25 as a buffer just in case
+                if (data.length > 25) {
+                    searchResults.push({
+                        title: `${data.chain.name} Contract ${searchInput}`,
+                        link: `/${data.chain.id}/contracts/${searchInput}`
+                    })
+                } else {
+                    searchResults.push({
+                        title: `${data.chain.name} Account ${searchInput}`,
+                        link: `/${data.chain.id}/accounts/${searchInput}`
+                    })
+                }
+            } else {
+                // Will just be an account of non-wasm chains
                 searchResults.push({
-                    title: `${data.chain.name} Contract ${searchInput}`,
-                    link: `/${data.chain.id}/contracts/${searchInput}`
+                    title: `${data.chain.name} Account ${searchInput}`,
+                    link: `/${data.chain.id}/accounts/${searchInput}`
                 })
             }
         }

@@ -17,7 +17,9 @@ const MainLayout: FC = () => {
             <header>
                 <div className={styles.navbar}>
                     <Link to='/' className='d-flex align-items-center px-4 gap-2'>
-                        <img src='/logo.svg' style={{height: '30px', marginBottom: '8px'}} />
+                        <svg height={'30px'} width={'36px'}>
+                            <use xlinkHref="/logo.svg#cometscanLogo" height={'30px'} width={'36px'} />
+                        </svg>
                         <div style={{fontFamily: 'Bunken Tech', fontSize: '20px', marginTop: '4px', color: 'var(--main)'}}>Comet Scan</div>
                     </Link>
                     <Link to={`/${chain}`} className='d-none d-lg-flex'>Overview</Link>

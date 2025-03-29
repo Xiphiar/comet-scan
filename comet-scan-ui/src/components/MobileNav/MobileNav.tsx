@@ -27,7 +27,9 @@ const MobileNav: FC<{show: boolean, hide: ()=>any, chain: FrontendChainConfig}> 
             𐌗
           </button>
           <NavLink to='/' onClick={()=>hide()}>
-            <img src='/logo.svg' className={styles.navbarLogo} />
+            <svg height={'64px'} width={'76px'}>
+                <use xlinkHref="/logo.svg#cometscanLogo" height={'64px'} width={'76px'} />
+            </svg>
           </NavLink>
         </div>
         <div className='d-flex justify-content-end'>

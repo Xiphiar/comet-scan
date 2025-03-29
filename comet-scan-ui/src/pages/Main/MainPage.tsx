@@ -33,7 +33,9 @@ const MainPage: FC<Props> = ({isLoading, loadingError}) => {
                     
         <div className='d-flex flex-column align-items-center' style={{paddingTop: '15vh'}}>
             <div className='d-flex align-items-center gap-4' style={{color: 'var(--main)'}}>
-                <img src='/logo.svg' style={{height: '120px', fill: 'red'}} />
+                <svg height={'120px'} width={'142px'}>
+                    <use xlinkHref="/logo.svg#cometscanLogo" height={'120px'} width={'142px'} />
+                </svg>
                 <h1 style={{marginTop: '32px', fontFamily: 'Bunken Tech'}}>Comet Scan</h1>
             </div>
             { isLoading ?

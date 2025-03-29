@@ -15,8 +15,6 @@
 
   --very-dark-gray: #2d2f31;
   --very-dark-grey: #2d2f31;
-
-  --main: #22b8dd;
 }
 
 #root {
@@ -26,7 +24,7 @@
 }
 
 .theme-light {
-  /* --main: #1985a1; */
+  --main: #1985a1;
 
   color: #000;
   --text-color: #000;
@@ -43,7 +41,7 @@
 }
 
 .theme-dark {
-  /* --main: #22b8dd; */
+  --main: #22b8dd;
   
   color: #FFF;
   --text-color: #FFF;

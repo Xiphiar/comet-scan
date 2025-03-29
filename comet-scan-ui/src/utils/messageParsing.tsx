@@ -8,6 +8,7 @@ import { LcdTxResponse } from "../interfaces/lcdTxResponse";
 import MessageRow from "../components/MessageRow/messageRow";
 import { fromBase64, fromUtf8, EncryptionUtils } from "secretjs";
 import { parseSecretWasmMessage } from "./secretWasmMessageParsing";
+import { fromBech32 } from "@cosmjs/encoding";
 
 export const formatTxType = (txType: string) => {
     switch(txType) {
@@ -47,7 +48,7 @@ export interface ParsedMessage {
     amounts: Coin[];
 }
 
-export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxResponse, encryptionUtils: EncryptionUtils | undefined, skipExec = false): Promise<ParsedMessage[]> => {
+export const parseMessages = async (config: FrontendChainConfig, allConfigs: FrontendChainConfig[], tx: LcdTxResponse, encryptionUtils: EncryptionUtils | undefined, skipExec = false): Promise<ParsedMessage[]> => {
     const msgs = tx.tx.body.messages;
     const parsed = await Promise.all(msgs.map(async (msg, i):Promise<ParsedMessage> => {
         switch(msg['@type']) {
@@ -248,7 +249,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                     amounts: [],
                 }
 
-                const parsedSubMessages = await parseMessages(config, tx, encryptionUtils, true);
+                const parsedSubMessages = await parseMessages(config, allConfigs, tx, encryptionUtils, true);
                 const allAmounts = combineCoins(parsedSubMessages.map(m => m.amounts));
                 return {
                     title: formatTxType(msg['@type']),
@@ -297,9 +298,24 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
                 // TODO determine if receiver is on a chain we support, and link to that account
                 // TODO once we index IBC, show destination chain info
 
+                let receiver: string | ReactElement = msg.receiver;
+
+                // If a mainnet chain, check and see of the receiver is on a chain we support
+                if (!config.isTestnet) {
+                    // Get prefix from receiver address
+                    const prefix = fromBech32(msg.receiver).prefix;
+
+                    // Try to find a mainnet chain in the config with this prefix
+                    const c = allConfigs.filter(c => !c.isTestnet && c.prefix === prefix);
+
+                    // If we found only 1 matching chain, display a link to the account on that chain
+                    // Maybe if we start indexing IBC channels in the future, we could do this with testnet chains too
+                    if (c.length === 1) receiver = <Link to={`/${c[0].id}/accounts/${msg.receiver}`}>{msg.receiver}</Link>
+                }
+
                 const content: Array<[string, ReactElement | string]> = [
                     ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                    ['Receiver', msg.receiver],
+                    ['Receiver', receiver],
                     ['Amount', await formatCoin(msg.token, config)],
                     ['Memo', defaultKeyContent(msg.memo)],
                     ['Source Channel', defaultKeyContent(msg.source_channel)],

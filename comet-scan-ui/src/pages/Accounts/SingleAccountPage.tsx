@@ -68,7 +68,7 @@ const SingleAccountPage: FC = () => {
         <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={title} />
             <div className='d-flex flex-wrap'>
-                <Card className="col">
+                <Card className="col" conentClassName="justify-content-start">
                     <h3>Overview</h3>
                     <div style={{borderBottom: '1px solid var(--light-gray)', paddingTop: '8px'}} />
                     <div className='d-flex flex-column gap-3 mt-3'>
@@ -104,7 +104,7 @@ const SingleAccountPage: FC = () => {
                     {/* TODO fix shitty scrolling. maybe use pages instead */}
 
                     {data.account.nativeAssets.length ?
-                        <div style={{overflowY: 'scroll', height: 'calc(100% - 24px)', paddingRight: '8px'}}>
+                        <div style={{overflowY: 'scroll', height: 'calc(100% - 24px)', maxHeight: '320px', paddingRight: '8px'}}>
                             {data.account.nativeAssets.map((coin, i) =><>
                                 <AssetRow coin={coin} chain={chain} />
                                 { i < data.account.nativeAssets.length - 1 && <div style={{borderBottom: '1px solid var(--light-gray)'}} />}

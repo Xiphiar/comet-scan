@@ -19,7 +19,7 @@ import JsonView from "react18-json-view";
 
 const SingleTransactionPage: FC = () => {
     const { chain: chainLookupId, transactionHash } = useParams();
-    const { getChain } = useConfig();
+    const { getChain, chains: allChains } = useConfig();
     const chain = getChain(chainLookupId);
     const { data, error } = useAsync<SingleTransactionPageResponse>(getSingleTransactionPage(chain.chainId, transactionHash));
     const [parsedMessages, setParsedMessages] = useState<ParsedMessage[] | undefined>(undefined);
@@ -28,10 +28,10 @@ const SingleTransactionPage: FC = () => {
     useEffect(() => {
         if (!data) return;
         (async () => {
-            const messages = await parseMessages(chain, data.transaction.transaction, user?.encryptionUtils);
+            const messages = await parseMessages(chain, allChains, data.transaction.transaction, user?.encryptionUtils);
             setParsedMessages(messages);
         })();
-    }, [data, user?.encryptionUtils, chain]);
+    }, [data, user?.encryptionUtils, chain, allChains]);
 
     if (!chain) {
         return (

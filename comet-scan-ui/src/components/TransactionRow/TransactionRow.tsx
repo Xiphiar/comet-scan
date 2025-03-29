@@ -9,8 +9,10 @@ import { formatTxType, parseMessages, ParsedMessage } from "../../utils/messageP
 import { combineCoins } from "../../utils/denoms";
 import { SmallSpinner } from "../SmallSpinner/smallSpinner";
 import { useUser } from "../../hooks/useUser";
+import useConfig from "../../hooks/useConfig";
 const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig }> = ({ transaction, chain }) => {
     const { user } = useUser();
+    const { chains: allChains } = useConfig();
     const txType = transaction.transaction.tx.body.messages.length > 1 ? `${transaction.transaction.tx.body.messages.length} Messages` : transaction.transaction.tx.body.messages[0]["@type"];
     const fee = transaction.transaction.tx.auth_info.fee.amount.find(coin => coin.denom === chain.bondingDenom)?.amount || '0';
     const [parsedMessages, setParsedMessages] = useState<ParsedMessage[] | undefined>(undefined);
@@ -19,7 +21,7 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
 
     useEffect(() => {
         (async () => {
-            const messages = await parseMessages(chain, transaction.transaction, user?.encryptionUtils);
+            const messages = await parseMessages(chain, allChains, transaction.transaction, user?.encryptionUtils);
             setParsedMessages(messages);
             processAmounts(messages);
         })();

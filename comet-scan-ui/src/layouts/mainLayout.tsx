@@ -38,13 +38,34 @@ const MainLayout: FC = () => {
                 </div>
             </header>
             <MobileNav show={showMobileNav} hide={()=>setShowMobileNav(false)} chain={chainConfig} />
-            <div style={{display: 'flex', justifyContent: 'center'}}>
-                <div style={{width: '100%', maxWidth: '1400px'}} className='px-md-4'>
+            <div style={{display: 'flex', justifyContent: 'center', flexGrow: 1}}>
+                <div style={{width: '100%', maxWidth: '1400px'}} className='d-flex flex-column flex-grow-1 px-md-4'>
                     <Outlet />
                 </div>
             </div>
-            <footer>
-                <div style={{height: '16px'}} />
+            <footer className={styles.footer}>
+                <div className={styles.footerContent}>
+                    <div className={styles.footerSection}>
+                        <div className={styles.developedBy}>Developed by</div>
+                        <a href="https://trivium.network" target="_blank" rel="noopener noreferrer">
+                            <img src='/Trivium_w_name_white.svg' alt="Trivium" className={styles.footerLogo} />
+                        </a>
+                    </div>
+                    <div className={styles.socialLinks}>
+                        <a href="https://trivium.network" target="_blank" rel="noopener noreferrer" title="Website">
+                            <img src='/world-globe-white-icon.svg' alt="Website" className={styles.socialIcon} />
+                        </a>
+                        <a href="#" target="_blank" rel="noopener noreferrer" title="Discord">
+                            <img src='/discord-white-icon.svg' alt="Discord" className={styles.socialIcon} />
+                        </a>
+                        <a href="#" target="_blank" rel="noopener noreferrer" title="X">
+                            <img src='/x-social-media-white-icon.svg' alt="X" className={styles.socialIcon} />
+                        </a>
+                        <a href="#" target="_blank" rel="noopener noreferrer" title="Telegram">
+                            <img src='/telegram-white-icon.svg' alt="Telegram" className={styles.socialIcon} />
+                        </a>
+                    </div>
+                </div>
             </footer>
         </>
     )

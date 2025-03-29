@@ -8,6 +8,7 @@ import { ToastContainer } from "react-fox-toast"
 
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import 'bootstrap/dist/css/bootstrap-utilities.min.css';
+import 'react18-json-view/src/style.css'
 import './index.css'
 
 import MainLayout from './layouts/mainLayout.tsx';

@@ -12,9 +12,10 @@ import MessageRow from "../../components/MessageRow/messageRow";
 import { truncateString } from "../../utils/format";
 import { parseMessages } from "../../utils/messageParsing";
 import { ParsedMessage } from "../../utils/messageParsing";
-import { EncryptionUtils } from "secretjs";
 import { useUser } from "../../hooks/useUser";
 import Spinner from "../../components/Spinner";
+import TabbedCard from "../../components/TabbedCard";
+import JsonView from "react18-json-view";
 
 const SingleTransactionPage: FC = () => {
     const { chain: chainLookupId, transactionHash } = useParams();
@@ -76,7 +77,7 @@ const SingleTransactionPage: FC = () => {
                     <div className='d-flex'>
                         <div className='col-3 font-weight-bold'>Transaction Height</div>
                         <div className='col'>
-                            <Link to={`/${chain.id}/blocks/${data.transaction.blockHeight}`}>{data.transaction.blockHeight}</Link>
+                            <Link to={`/${chain.id}/blocks/${data.transaction.blockHeight}`}>{data.transaction.blockHeight.toLocaleString()}</Link>
                         </div>
                     </div>
                     <div className='d-flex'>
@@ -105,22 +106,41 @@ const SingleTransactionPage: FC = () => {
                     </div>
                 </div>
             </Card>
-            <Card conentClassName='d-flex flex-column gap-2'>
-                <h3>Messages</h3>
-                {parsedMessages === undefined ? (
-                    <div className='d-flex justify-content-center'>
-                        <Spinner />
-                    </div>
-                ) : (
-                    parsedMessages.map((msg, i) => (
-                        <MessageRow 
-                            message={msg} 
-                            messageIndex={i} 
-                            key={`${msg.title}-${i}-${msg.content.length}`} 
-                        />
-                    ))
-                )}
-            </Card>
+            <TabbedCard 
+                conentClassName='d-flex flex-column gap-2'
+                tabs={[
+                    {
+                        title: "Messages",
+                        content: (
+                            <>
+                                <h3>Messages</h3>
+                                {parsedMessages === undefined ? (
+                                    <div className='d-flex justify-content-center'>
+                                        <Spinner />
+                                    </div>
+                                ) : (
+                                    parsedMessages.map((msg, i) => (
+                                        <MessageRow 
+                                            message={msg} 
+                                            messageIndex={i} 
+                                            key={`${msg.title}-${i}-${msg.content.length}`} 
+                                        />
+                                    ))
+                                )}
+                            </>
+                        )
+                    },
+                    {
+                        title: "JSON",
+                        content: (
+                            <>
+                                <h3>Transaction JSON</h3>
+                                <JsonView src={data.transaction.transaction} />
+                            </>
+                        )
+                    }
+                ]}
+            />
         </div>
     )
 }

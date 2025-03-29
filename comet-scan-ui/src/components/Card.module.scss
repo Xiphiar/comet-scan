@@ -16,3 +16,12 @@
     justify-content: center;
     flex-grow: 1;
 }
+
+.tab {
+    cursor: pointer;
+}
+
+.activeTab {
+    border-color: var(--main) !important;
+    cursor: default;
+}

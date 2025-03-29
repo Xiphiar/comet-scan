@@ -37,12 +37,14 @@ export const formatTxType = (txType: string) => {
 
 type Input = { "@type": string } & any;
 
+export type ParsedMessageContent = Array<
+    [string, string | ReactElement]
+>;
+
 export interface ParsedMessage {
     title: string;
-    content: Array<
-        [string, string | ReactElement]
-    >,
-    amounts: Coin[],
+    content: ParsedMessageContent;
+    amounts: Coin[];
 }
 
 export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxResponse, encryptionUtils: EncryptionUtils | undefined, skipExec = false): Promise<ParsedMessage[]> => {
@@ -76,23 +78,7 @@ export const parseMessages = async (config: FrontendChainConfig, tx: LcdTxRespon
             }
 
             case '/secret.compute.v1beta1.MsgExecuteContract': {
-                return parseSecretWasmMessage(msg, encryptionUtils, config);
-
-                // let messageDisplay: string | ReactElement = 'Encrypted';
-                // if (encryptionUtils) {
-                //     messageDisplay = await decryptSecretMessage(msg.msg, encryptionUtils);
-                // }
-
-                // return {
-                //     title: formatTxType(msg['@type']),
-                //     content: [
-                //         ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
-                //         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                //         ['Message', messageDisplay],
-                //         ['Sent Funds', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)]
-                //     ],
-                //     amounts: msg.sent_funds,
-                // }
+                return parseSecretWasmMessage(msg, i.toString(), tx, encryptionUtils, config);
             }
 
             case '/secret.compute.v1beta1.MsgInstantiateContract': {

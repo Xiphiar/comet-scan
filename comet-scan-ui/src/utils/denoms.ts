@@ -101,6 +101,11 @@ const Denoms: DenomDetails[] = [
         symbol: 'INJ',
         decimals: 18,
     },
+    {
+        denom: 'uumee',
+        symbol: 'UMEE',
+        decimals: 6,
+    },
 ]
 
 export const getDenomDetails = async (denom: string, chainConfig: FrontendChainConfig): Promise<DenomDetails> => {

@@ -2,9 +2,10 @@ import { EncryptionUtils, fromBase64, fromUtf8 } from "secretjs";
 import { defaultKeyContent, formatTxType, ParsedMessage, ParsedMessageContent } from "./messageParsing";
 import { Link } from "react-router-dom";
 import { FrontendChainConfig } from "../interfaces/config.interface";
-import { formatAmounts } from "./format";
+import { formatAmounts, maybeParseJson } from "./format";
 import { LcdTxResponse } from "../interfaces/lcdTxResponse";
 import { match, P } from "ts-pattern";
+import JsonView from "react18-json-view";
 
 const getAllExecutedContracts = (tx: LcdTxResponse, messageIndex: string, exclude?: string): string[] => {
     // Get all wasm events
@@ -96,7 +97,6 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                 }
             })
             .with({ transfer: { recipient: P.string, amount: P.string, memo: P.optional(P.string), decoys: P.optional(P.array(P.string)), entropy: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
-                console.log('Transfer Decrypted Msg:', decryptedMsg)
                 parsedData = {
                     title: 'Execute Contract: Transfer Token',
                     content: [
@@ -107,12 +107,12 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                     ],
                     amounts: undefined, // TODO
                 }
-                if (decryptedMsg.transfer.memo) parsedData.content.push(['Memo', decryptedMsg.transfer.memo])
+                if (decryptedMsg.transfer.memo) parsedData.content.push(['Memo', defaultKeyContent(decryptedMsg.transfer.memo)])
                 if (decryptedMsg.transfer.decoys?.length) parsedData.title = 'Execute Contract: Transfer Token With Decoys'
             })
             .with({ send: { recipient: P.string, recipient_code_hash: P.optional(P.string), amount: P.string, msg: P.optional(P.string), memo: P.optional(P.string), decoys: P.optional(P.array(P.string)), entropy: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
                 // msg is base64, decode it
-                const decodedSubMsg = decryptedMsg.send.msg ? Buffer.from(decryptedMsg.send.msg, 'base64').toString('utf8') : undefined;
+                const decodedSubMsg = decryptedMsg.send.msg ? fromUtf8(fromBase64(decryptedMsg.send.msg)) : undefined;
 
                 parsedData = {
                     title: 'Execute Contract: Send Token',
@@ -130,8 +130,8 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                     amounts: undefined, // TODO
                 }
 
-                if (decodedSubMsg) parsedData.content.push(['Message', decodedSubMsg])
-                if (decryptedMsg.send.memo) parsedData.content.push(['Memo', decryptedMsg.send.memo])
+                if (decodedSubMsg) parsedData.content.push(['Message', defaultKeyContent(decodedSubMsg)])
+                if (decryptedMsg.send.memo) parsedData.content.push(['Memo', defaultKeyContent(decryptedMsg.send.memo)])
                 if (decryptedMsg.send.decoys?.length) parsedData.title = 'Execute Contract: Send Token With Decoys'
             })
             .with({ create_viewing_key: { entropy: P.string, padding: P.optional(P.string) }}, () => {
@@ -167,11 +167,11 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                     ],
                     amounts: undefined, // TODO
                 }
-                if (decryptedMsg.transfer_nft.memo) parsedData.content.push(['Memo', decryptedMsg.transfer_nft.memo])
+                if (decryptedMsg.transfer_nft.memo) parsedData.content.push(['Memo', defaultKeyContent(decryptedMsg.transfer_nft.memo)])
             })
             .with({ send_nft: { contract: P.string, receiver_info: P.optional(P.any), token_id: P.string, msg: P.optional(P.string), memo: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
                 // msg is base64, decode it
-                const decodedSubMsg = decryptedMsg.send_nft.msg ? Buffer.from(decryptedMsg.send_nft.msg, 'base64').toString('utf8') : undefined;
+                const decodedSubMsg = decryptedMsg.send_nft.msg ? fromUtf8(fromBase64(decryptedMsg.send_nft.msg)) : undefined;
 
                 parsedData = {
                     title: 'Execute Contract: Send NFT',
@@ -184,8 +184,8 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                     amounts: undefined, // TODO
                 }
 
-                if (decodedSubMsg) parsedData.content.push(['Message', decodedSubMsg]);
-                if (decryptedMsg.send_nft.memo) parsedData.content.push(['Memo', decryptedMsg.send_nft.memo]);
+                if (decodedSubMsg) parsedData.content.push(['Message', defaultKeyContent(decodedSubMsg)]);
+                if (decryptedMsg.send_nft.memo) parsedData.content.push(['Memo', defaultKeyContent(decryptedMsg.send_nft.memo)]);
             })
             .with({ revoke_permit: { permit_name: P.string, padding: P.optional(P.string) }}, (decryptedMsg) => {
                 parsedData = {
@@ -206,7 +206,8 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
         ])
 
         return parsedData;
-    } catch {
+    } catch (e) {
+        // if (encryptionUtils) console.log(`Decryption failed for message ${messageIndex} on transaction ${tx.tx_response.txhash}:`, e)
         // If decryption fails, keep showing "Encrypted"
         return defaultSecretWasmResponse(msg, messageIndex, tx, 'Encrypted', config);
     }

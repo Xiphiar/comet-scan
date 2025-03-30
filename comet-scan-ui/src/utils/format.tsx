@@ -55,7 +55,6 @@ export const stringToColor = (str?: string) => {
 }
 
 export const formatCoin = async (coin: Coin, chainConfig: FrontendChainConfig): Promise<string> => {
-    console.log('Coin', coin)
     const details = await getDenomDetails(coin.denom, chainConfig);
 
     return `${weiFormatNice(coin.amount, details.decimals)} ${details.symbol}`
@@ -154,4 +153,12 @@ export const formatTimeSeconds = (seconds: number, compressed: boolean = false) 
     if (daysRemainingMinutes > 0) parts.push(`${daysRemainingMinutes} minute${daysRemainingMinutes !== 1 ? 's' : ''}`);
     if (daysRemainingSeconds > 0) parts.push(`${daysRemainingSeconds} seconds`);
     return parts.join(' ');
+}
+
+export function maybeParseJson(str: string) {
+    try {
+        return JSON.parse(str);
+    } catch {
+        return str;
+    }
 }

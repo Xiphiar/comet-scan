@@ -9,6 +9,7 @@ import MessageRow from "../components/MessageRow/messageRow";
 import { fromBase64, fromUtf8, EncryptionUtils } from "secretjs";
 import { parseSecretWasmMessage } from "./secretWasmMessageParsing";
 import { fromBech32 } from "@cosmjs/encoding";
+import JsonView from "react18-json-view";
 
 export const formatTxType = (txType: string) => {
     switch(txType) {
@@ -378,14 +379,25 @@ export const parseMessages = async (config: FrontendChainConfig, allConfigs: Fro
     return parsed;
 }
 
-export const defaultKeyContent = (value: any): string => {
+export const isJson = (str: string): boolean => {
+    try {
+        JSON.parse(str);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export const defaultKeyContent = (value: any): string | ReactElement => {
     if (!value) {
         console.log('NO VALUE', value);
         return value || '';
     }
-    if (typeof value === 'object') value = JSON.stringify(value, undefined, 2);
+    // if (typeof value === 'object') value = JSON.stringify(value, undefined, 2);
+    if (typeof value === 'object') return <JsonView src={value} />
+    if (isJson(value)) return <JsonView src={JSON.parse(value)} />
 
-    if (value.length > 64) value = (
+    if (value.length > 64) return (
         <details className='detailsOpenHide'>
             <summary data-open="Close" data-close="Show">{truncateString(value, 30)}</summary>
             <div className='text-break'>{value}</div>

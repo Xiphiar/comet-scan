@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, Fragment, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
@@ -105,10 +105,10 @@ const SingleAccountPage: FC = () => {
 
                     {data.account.nativeAssets.length ?
                         <div style={{overflowY: 'scroll', height: 'calc(100% - 24px)', maxHeight: '320px', paddingRight: '8px'}}>
-                            {data.account.nativeAssets.map((coin, i) =><>
+                            {data.account.nativeAssets.map((coin, i) =><Fragment key={i}>
                                 <AssetRow coin={coin} chain={chain} />
                                 { i < data.account.nativeAssets.length - 1 && <div style={{borderBottom: '1px solid var(--light-gray)'}} />}
-                            </>)}
+                            </Fragment>)}
                         </div>
                     :
                         <div className='py-4 w-full text-center'>
@@ -122,10 +122,10 @@ const SingleAccountPage: FC = () => {
                 {!!data.recentTransactions.length &&
                     <TransactionLabels />
                 }
-                { transactions.map((tx) =><>
+                { transactions.map((tx) =><Fragment key={tx.hash}>
                     <div style={{borderBottom: '1px solid var(--light-gray)'}} />
                     <TransactionRow transaction={tx} chain={chain} />
-                </>)}
+                </Fragment>)}
                 {(!transactions.length) && <div className='py-4 w-full text-center'>
                     No transactions found.
                 </div>}
@@ -169,10 +169,10 @@ const SingleAccountPage: FC = () => {
                     </div>
                     <div style={{borderBottom: '1px solid var(--light-gray)'}} />
                 </>}
-                {data.instantiatedContracts.map((contract, i) =><>
+                {data.instantiatedContracts.map((contract, i) =><Fragment key={i}>
                     <ContractRow contract={contract} chain={chain} />
                     { i < data.instantiatedContracts.length - 1 && <div style={{borderBottom: '1px solid var(--light-gray)'}} />}
-                </>)}
+                </Fragment>)}
                 {!data.instantiatedContracts.length && <div className='py-4 w-full text-center'>
                     No created contracts.
                 </div>}
@@ -199,10 +199,10 @@ const SingleAccountPage: FC = () => {
                     </div>
                     <div style={{borderBottom: '1px solid var(--light-gray)'}} />
                 </>}
-                {data.administratedContracts.map((contract, i) =><>
+                {data.administratedContracts.map((contract, i) =><Fragment key={i}>
                     <ContractRow contract={contract} chain={chain} />
                     { i < data.administratedContracts.length - 1 && <div style={{borderBottom: '1px solid var(--light-gray)'}} />}
-                </>)}
+                </Fragment>)}
                 {!data.administratedContracts.length && <div className='py-4 w-full text-center'>
                     No administered contracts.
                 </div>}

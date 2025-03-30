@@ -68,7 +68,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                 ['Message', defaultKeyContent(_decryptedMsg)],
                 ['Sent Funds', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)]
             ],
-            amounts: msg.amount,
+            amounts: msg.sent_funds,
         }
 
         // Use rust style pattern matching on the execute message. This way we shouldn't have to get the contract type for every contract
@@ -82,7 +82,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         ['Amount', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)]
                     ],
-                    amounts: msg.amount,
+                    amounts: msg.sent_funds,
                 }
             })
             .with({ redeem: { amount: P.string, denom: P.optional(P.string), padding: P.optional(P.string) }}, () => {

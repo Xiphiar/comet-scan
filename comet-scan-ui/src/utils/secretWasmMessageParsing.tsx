@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { FrontendChainConfig } from "../interfaces/config.interface";
 import { formatAmounts } from "./format";
 import { LcdTxResponse } from "../interfaces/lcdTxResponse";
+import { match, P } from "ts-pattern";
 
 const getAllExecutedContracts = (tx: LcdTxResponse, messageIndex: string, exclude?: string): string[] => {
     // Get all wasm events
@@ -51,11 +52,11 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
         const ciphertext = contractInputMsgBytes.slice(64);
 
         const plaintext = await encryptionUtils.decrypt(ciphertext, nonce);
-        const decryptedMsg = JSON.parse(fromUtf8(plaintext).slice(64)); // first 64 chars is the codeHash
+        const _decryptedMsg = JSON.parse(fromUtf8(plaintext).slice(64)); // first 64 chars is the codeHash
 
         // TODO determine the type of contract from the address. For now we'll just parse some basic SNIP20 messages
 
-        const executeFunction = Object.keys(decryptedMsg)[0];
+        const executeFunction = Object.keys(_decryptedMsg)[0];
         const calledContracts = getAllExecutedContracts(tx, messageIndex, msg.contract);
 
         let parsedData: ParsedMessage = {
@@ -63,36 +64,141 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
             content: [
                 ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
                 ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                ['Message', defaultKeyContent(decryptedMsg)],
+                ['Message', defaultKeyContent(_decryptedMsg)],
                 ['Sent Funds', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)]
             ],
             amounts: msg.amount,
         }
 
-        if (executeFunction === 'deposit' && msg.sent_funds?.length) {
-            parsedData = {
-                title: 'Execute Contract: Wrap Token',
-                content: [
-                    ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
-                    ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                    ['Amount', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)]
-                ],
-                amounts: msg.amount,
-            }
-        }
+        // Use rust style pattern matching on the execute message. This way we shouldn't have to get the contract type for every contract
+        // TODO we do still need to get the token info for tokens though
+        await match(_decryptedMsg)
+            .with({ deposit: { padding: P.optional(P.string) }}, async () => {
+                parsedData = {
+                    title: 'Execute Contract: Wrap Token',
+                    content: [
+                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                        ['Amount', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)]
+                    ],
+                    amounts: msg.amount,
+                }
+            })
+            .with({ redeem: { amount: P.string, denom: P.optional(P.string), padding: P.optional(P.string) }}, () => {
+                parsedData = {
+                    title: 'Execute Contract: Unwrap Token',
+                    content: [
+                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                        // TODO get amount from logs, or denom from backend?
+                    ],
+                    amounts: undefined, // TODO
+                }
+            })
+            .with({ transfer: { recipient: P.string, amount: P.string, memo: P.optional(P.string), decoys: P.optional(P.array(P.string)), entropy: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
+                console.log('Transfer Decrypted Msg:', decryptedMsg)
+                parsedData = {
+                    title: 'Execute Contract: Transfer Token',
+                    content: [
+                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                        ['Recipient', <Link to={`/${config.id}/accounts/${decryptedMsg.transfer.recipient}`}>{decryptedMsg.transfer.recipient}</Link>],
+                        // TODO get amount from logs, or denom from backend?
+                    ],
+                    amounts: undefined, // TODO
+                }
+                if (decryptedMsg.transfer.memo) parsedData.content.push(['Memo', decryptedMsg.transfer.memo])
+                if (decryptedMsg.transfer.decoys?.length) parsedData.title = 'Execute Contract: Transfer Token With Decoys'
+            })
+            .with({ send: { recipient: P.string, recipient_code_hash: P.optional(P.string), amount: P.string, msg: P.optional(P.string), memo: P.optional(P.string), decoys: P.optional(P.array(P.string)), entropy: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
+                // msg is base64, decode it
+                const decodedSubMsg = decryptedMsg.send.msg ? Buffer.from(decryptedMsg.send.msg, 'base64').toString('utf8') : undefined;
 
-        if (executeFunction === 'redeem') {
-            console.log(decryptedMsg);
-            parsedData = {
-                title: 'Execute Contract: Unwrap Token',
-                content: [
-                    ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
-                    ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                    // ['Amount', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)] // TODO get amount from logs, or denom from backend?
-                ],
-                amounts: msg.amount,
-            }
-        }
+                parsedData = {
+                    title: 'Execute Contract: Send Token',
+                    content: [
+                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                        // For recipient, if msg is defined assume the recipient is a contract
+                        [
+                            'Recipient',
+                            decryptedMsg.send.msg ? <Link to={`/${config.id}/contracts/${decryptedMsg.send.recipient}`}>{decryptedMsg.send.recipient}</Link>
+                            : <Link to={`/${config.id}/accounts/${decryptedMsg.send.recipient}`}>{decryptedMsg.send.recipient}</Link>
+                        ],
+                        // TODO get amount from logs, or denom from backend?
+                    ],
+                    amounts: undefined, // TODO
+                }
+
+                if (decodedSubMsg) parsedData.content.push(['Message', decodedSubMsg])
+                if (decryptedMsg.send.memo) parsedData.content.push(['Memo', decryptedMsg.send.memo])
+                if (decryptedMsg.send.decoys?.length) parsedData.title = 'Execute Contract: Send Token With Decoys'
+            })
+            .with({ create_viewing_key: { entropy: P.string, padding: P.optional(P.string) }}, () => {
+                parsedData = {
+                    title: 'Execute Contract: Create Viewing Key',
+                    content: [
+                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                        // TODO decrypt tx.tx_response.data to get the set key
+                    ],
+                    amounts: undefined, // TODO
+                }
+            })
+            .with({ set_viewing_key: { key: P.string, padding: P.optional(P.string) }}, (decryptedMsg) => {
+                parsedData = {
+                    title: 'Execute Contract: Set Viewing Key',
+                    content: [
+                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                        ['Key', decryptedMsg.set_viewing_key.key], // TODO hide
+                    ],
+                    amounts: undefined, // TODO
+                }
+            })
+            .with({ transfer_nft: { recipient: P.string, token_id: P.string, memo: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
+                parsedData = {
+                    title: 'Execute Contract: Transfer NFT',
+                    content: [
+                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                        ['Recipient', <Link to={`/${config.id}/accounts/${decryptedMsg.transfer_nft.recipient}`}>{decryptedMsg.transfer_nft.recipient}</Link>],
+                        ['Token ID', decryptedMsg.transfer_nft.token_id],
+                    ],
+                    amounts: undefined, // TODO
+                }
+                if (decryptedMsg.transfer_nft.memo) parsedData.content.push(['Memo', decryptedMsg.transfer_nft.memo])
+            })
+            .with({ send_nft: { contract: P.string, receiver_info: P.optional(P.any), token_id: P.string, msg: P.optional(P.string), memo: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
+                // msg is base64, decode it
+                const decodedSubMsg = decryptedMsg.send_nft.msg ? Buffer.from(decryptedMsg.send_nft.msg, 'base64').toString('utf8') : undefined;
+
+                parsedData = {
+                    title: 'Execute Contract: Send NFT',
+                    content: [
+                        ['NFT Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                        ['Recipient Contract', <Link to={`/${config.id}/contracts/${decryptedMsg.send_nft.contract}`}>{decryptedMsg.send_nft.contract}</Link>],
+                        ['Token ID', decryptedMsg.send_nft.token_id],
+                    ],
+                    amounts: undefined, // TODO
+                }
+
+                if (decodedSubMsg) parsedData.content.push(['Message', decodedSubMsg]);
+                if (decryptedMsg.send_nft.memo) parsedData.content.push(['Memo', decryptedMsg.send_nft.memo]);
+            })
+            .with({ revoke_permit: { permit_name: P.string, padding: P.optional(P.string) }}, (decryptedMsg) => {
+                parsedData = {
+                    title: 'Execute Contract: Revoke Permit',
+                    content: [
+                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
+                        ['Permit Name', decryptedMsg.revoke_permit.permit_name],
+                    ],
+                    amounts: undefined, // TODO
+                }
+            })
+            .otherwise(() => { /* This is required for async handlers to work properly */ })
 
         if (calledContracts.length) parsedData.content.push([
             'Called Contracts',

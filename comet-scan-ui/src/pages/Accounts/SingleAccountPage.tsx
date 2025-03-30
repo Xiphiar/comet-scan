@@ -21,7 +21,7 @@ const SingleAccountPage: FC = () => {
     const { chain: chainLookupId, accountAddress } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data, error } = useAsync<SingleAccountPageResponse>(getSingleAccountPage(chain.chainId, accountAddress));
+    const { data, error } = useAsync<SingleAccountPageResponse>(getSingleAccountPage(chain.chainId, accountAddress), { updateOn: [chain.chainId, accountAddress] });
     const title = `Account`;
 
     const [transactions, setTransactions] = useState<Transaction[] | undefined>(data?.recentTransactions);

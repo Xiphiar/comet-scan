@@ -10,6 +10,7 @@ import { fromBase64, fromUtf8, EncryptionUtils } from "secretjs";
 import { parseSecretWasmMessage } from "./secretWasmMessageParsing";
 import { fromBech32 } from "@cosmjs/encoding";
 import JsonView from "react18-json-view";
+import { LightWasmContract } from "../interfaces/models/contracts.interface";
 
 export const formatTxType = (txType: string) => {
     switch(txType) {
@@ -49,7 +50,7 @@ export interface ParsedMessage {
     amounts: Coin[];
 }
 
-export const parseMessages = async (config: FrontendChainConfig, allConfigs: FrontendChainConfig[], tx: LcdTxResponse, encryptionUtils: EncryptionUtils | undefined, skipExec = false): Promise<ParsedMessage[]> => {
+export const parseMessages = async (config: FrontendChainConfig, allConfigs: FrontendChainConfig[], tx: LcdTxResponse, executedContracts: LightWasmContract[], encryptionUtils: EncryptionUtils | undefined, skipExec = false): Promise<ParsedMessage[]> => {
     const msgs = tx.tx.body.messages;
     const parsed = await Promise.all(msgs.map(async (msg, i):Promise<ParsedMessage> => {
         switch(msg['@type']) {
@@ -80,7 +81,7 @@ export const parseMessages = async (config: FrontendChainConfig, allConfigs: Fro
             }
 
             case '/secret.compute.v1beta1.MsgExecuteContract': {
-                return parseSecretWasmMessage(msg, i.toString(), tx, encryptionUtils, config);
+                return parseSecretWasmMessage(msg, i.toString(), tx, executedContracts, encryptionUtils, config);
             }
 
             case '/secret.compute.v1beta1.MsgInstantiateContract': {
@@ -250,7 +251,7 @@ export const parseMessages = async (config: FrontendChainConfig, allConfigs: Fro
                     amounts: [],
                 }
 
-                const parsedSubMessages = await parseMessages(config, allConfigs, tx, encryptionUtils, true);
+                const parsedSubMessages = await parseMessages(config, allConfigs, tx, executedContracts, encryptionUtils, true);
                 const allAmounts = combineCoins(parsedSubMessages.map(m => m.amounts));
                 return {
                     title: formatTxType(msg['@type']),

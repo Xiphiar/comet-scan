@@ -2,11 +2,14 @@ import { EncryptionUtils, fromBase64, fromUtf8 } from "secretjs";
 import { defaultKeyContent, formatTxType, ParsedMessage, ParsedMessageContent } from "./messageParsing";
 import { Link } from "react-router-dom";
 import { FrontendChainConfig } from "../interfaces/config.interface";
-import { formatAmounts, maybeParseJson } from "./format";
+import { formatAmounts, maybeParseJson, truncateStringEnd } from "./format";
 import { LcdTxResponse } from "../interfaces/lcdTxResponse";
 import { match, P } from "ts-pattern";
 import JsonView from "react18-json-view";
+import { LightWasmContract } from "../interfaces/models/contracts.interface";
+import { Coin } from "@keplr-wallet/types";
 
+// Get executed contract addresses from events for a specific message index
 const getAllExecutedContracts = (tx: LcdTxResponse, messageIndex: string, exclude?: string): string[] => {
     // Get all wasm events
     const wasmEvents = tx.tx_response.events.filter(e => e.type === 'wasm');
@@ -26,18 +29,31 @@ const getAllExecutedContracts = (tx: LcdTxResponse, messageIndex: string, exclud
     return contracts.filter(c => c !== exclude);
 }
 
-const defaultSecretWasmResponse = async (msg: any, messageIndex: string, tx: LcdTxResponse, messageDisplay: any, config: FrontendChainConfig): Promise<ParsedMessage> => {
+// Returns the label and address if the address is found in contractInfos, otherwise just returns the address
+const getContractLinkString = (address: string, contractInfos: LightWasmContract[]): string => {
+    const contractInfo = contractInfos.find(ci => ci.contractAddress === address);
+    if (!contractInfo) return address;
+    return `${truncateStringEnd(contractInfo.label)} - ${address}`
+}
+
+const defaultSecretWasmResponse = async (msg: any, messageIndex: string, tx: LcdTxResponse, executedContracts: LightWasmContract[], messageDisplay: any, config: FrontendChainConfig): Promise<ParsedMessage> => {
+    // Get the addresses of contracts called for this message
     const calledContracts = getAllExecutedContracts(tx, messageIndex, msg.contract)
 
     const content: ParsedMessageContent = [
-        ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+        [
+            'Executed Contract',
+            <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>
+        ],
         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
         ['Message', messageDisplay],
         ['Sent Funds', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)],
     ];
     if (calledContracts.length) content.push([
         'Called Contracts',
-        <div className='d-flex flex-column gap-1 align-items-start'>{calledContracts.map(c => <Link key={c} to={`/${config.id}/contracts/${c}`}>{c}</Link>)}</div>
+        <div className='d-flex flex-column gap-1 align-items-start'>
+            {calledContracts.map(c => <Link key={c} to={`/${config.id}/contracts/${c}`}>{getContractLinkString(c, executedContracts)}</Link>)}
+        </div>
     ])
     return {
         title: formatTxType(msg['@type']),
@@ -46,7 +62,7 @@ const defaultSecretWasmResponse = async (msg: any, messageIndex: string, tx: Lcd
     }
 }
 
-export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx: LcdTxResponse, encryptionUtils: EncryptionUtils, config: FrontendChainConfig): Promise<ParsedMessage> => {
+export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx: LcdTxResponse, executedContracts: LightWasmContract[], encryptionUtils: EncryptionUtils, config: FrontendChainConfig): Promise<ParsedMessage> => {
     try {
         const contractInputMsgBytes = fromBase64(msg.msg);
         const nonce = contractInputMsgBytes.slice(0, 32);
@@ -63,7 +79,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
         let parsedData: ParsedMessage = {
             title: `Execute Contract: ${formatExecuteFunction(executeFunction)}`,
             content: [
-                ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                 ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                 ['Message', defaultKeyContent(_decryptedMsg)],
                 ['Sent Funds', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)]
@@ -78,29 +94,37 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                 parsedData = {
                     title: 'Execute Contract: Wrap Token',
                     content: [
-                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         ['Amount', !msg.sent_funds?.length ? 'None' : await formatAmounts(msg.sent_funds, config)]
                     ],
                     amounts: msg.sent_funds,
                 }
             })
-            .with({ redeem: { amount: P.string, denom: P.optional(P.string), padding: P.optional(P.string) }}, () => {
+            .with({ redeem: { amount: P.string, denom: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
+                const tokenInfo = executedContracts.find(ec => ec.contractAddress === msg.contract)?.tokenInfo;
+
+                const amounts: Coin[] | undefined = tokenInfo ?
+                    [{ denom: tokenInfo.symbol, amount: (parseInt(decryptedMsg.redeem.amount) / Math.pow(10, tokenInfo.decimals)).toLocaleString() }]
+                    : undefined;
+
                 parsedData = {
                     title: 'Execute Contract: Unwrap Token',
                     content: [
-                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                        // TODO get amount from logs, or denom from backend?
                     ],
-                    amounts: undefined, // TODO
+                    amounts: amounts, // This is processed based on denom, as long as we don't have the token denom on file (we shouldn't), it should display correctly
                 }
+                if (tokenInfo) parsedData.content.push([
+                    'Amount', `${(parseInt(decryptedMsg.redeem.amount) / Math.pow(10, tokenInfo.decimals)).toLocaleString()} ${tokenInfo.symbol}`
+                ])
             })
             .with({ transfer: { recipient: P.string, amount: P.string, memo: P.optional(P.string), decoys: P.optional(P.array(P.string)), entropy: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
                 parsedData = {
                     title: 'Execute Contract: Transfer Token',
                     content: [
-                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         ['Recipient', <Link to={`/${config.id}/accounts/${decryptedMsg.transfer.recipient}`}>{decryptedMsg.transfer.recipient}</Link>],
                         // TODO get amount from logs, or denom from backend?
@@ -117,7 +141,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                 parsedData = {
                     title: 'Execute Contract: Send Token',
                     content: [
-                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         // For recipient, if msg is defined assume the recipient is a contract
                         [
@@ -138,7 +162,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                 parsedData = {
                     title: 'Execute Contract: Create Viewing Key',
                     content: [
-                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         // TODO decrypt tx.tx_response.data to get the set key
                     ],
@@ -149,7 +173,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                 parsedData = {
                     title: 'Execute Contract: Set Viewing Key',
                     content: [
-                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         ['Key', decryptedMsg.set_viewing_key.key], // TODO hide
                     ],
@@ -160,7 +184,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                 parsedData = {
                     title: 'Execute Contract: Transfer NFT',
                     content: [
-                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         ['Recipient', <Link to={`/${config.id}/accounts/${decryptedMsg.transfer_nft.recipient}`}>{decryptedMsg.transfer_nft.recipient}</Link>],
                         ['Token ID', decryptedMsg.transfer_nft.token_id],
@@ -176,7 +200,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                 parsedData = {
                     title: 'Execute Contract: Send NFT',
                     content: [
-                        ['NFT Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['NFT Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         ['Recipient Contract', <Link to={`/${config.id}/contracts/${decryptedMsg.send_nft.contract}`}>{decryptedMsg.send_nft.contract}</Link>],
                         ['Token ID', decryptedMsg.send_nft.token_id],
@@ -191,7 +215,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                 parsedData = {
                     title: 'Execute Contract: Revoke Permit',
                     content: [
-                        ['Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{msg.contract}</Link>],
+                        ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         ['Permit Name', decryptedMsg.revoke_permit.permit_name],
                     ],
@@ -202,14 +226,16 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
 
         if (calledContracts.length) parsedData.content.push([
             'Called Contracts',
-            <div className='d-flex flex-column gap-1 align-items-start'>{calledContracts.map(c => <Link key={c} to={`/${config.id}/contracts/${c}`}>{c}</Link>)}</div>
+            <div className='d-flex flex-column gap-1 align-items-start'>
+                {calledContracts.map(c => <Link key={c} to={`/${config.id}/contracts/${c}`}>{getContractLinkString(c, executedContracts)}</Link>)}
+            </div>
         ])
 
         return parsedData;
     } catch (e) {
         // if (encryptionUtils) console.log(`Decryption failed for message ${messageIndex} on transaction ${tx.tx_response.txhash}:`, e)
         // If decryption fails, keep showing "Encrypted"
-        return defaultSecretWasmResponse(msg, messageIndex, tx, 'Encrypted', config);
+        return defaultSecretWasmResponse(msg, messageIndex, tx, executedContracts, 'Encrypted', config);
     }
 }
 

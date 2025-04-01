@@ -12,6 +12,12 @@ export const truncateString = (str: string, charactersToKeep = 6) => {
     return `${start}...${end}`
 }
 
+export const truncateStringEnd = (str: string, charactersToKeep = 15) => {
+    if (str.length < charactersToKeep) return str;
+    const start = str.substring(0, charactersToKeep);
+    return `${start}...`
+}
+
 export const formatProposalStatus = (status: ProposalStatus) => {
     switch(status) {
         case 'PROPOSAL_STATUS_PASSED': return 'Passed';

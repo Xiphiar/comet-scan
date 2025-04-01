@@ -12,7 +12,7 @@ import Accounts from "../models/accounts.model";
 import { importAccount } from "../tasks/importAccounts";
 import { Account } from "../interfaces/models/accounts.interface";
 import { getChainConfig } from "../config/chains";
-import { WasmContract } from "../interfaces/models/contracts.interface";
+import { LightWasmContract, WasmContract } from "../interfaces/models/contracts.interface";
 import Contracts from "../models/contracts.model";
 import Codes from "../models/codes.model";
 import { addContractStats } from "../common/contracts";
@@ -202,9 +202,24 @@ export const getSingleTransactionPage = api(
     const transaction = await Transactions.findOne({ chainId, hash }, { _id: false, __v: false }).lean();
     if (!transaction) throw new APIError(ErrCode.NotFound, 'Transaction not found');
 
+    const uniqueExecutedContracts = Array.from(new Set(transaction.executedContracts));
+    const executedContractInfo: LightWasmContract[] = [];
+    for (const contractAddress of uniqueExecutedContracts) {
+      const contract = await Contracts.findOne({ chainId, contractAddress }).lean();
+      if (!contract) continue;
+      executedContractInfo.push({
+        chainId,
+        contractAddress,
+        label: contract.label,
+        tokenInfo: contract.tokenInfo,
+        nftInfo: contract.nftInfo,
+      })
+    }
+
 
     return {
       transaction,
+      executedContracts: executedContractInfo
     };
   }
 );

@@ -34,13 +34,17 @@ export const formatProposalType = (type: string) => {
         case '/cosmos.upgrade.v1beta1.SoftwareUpgradeProposal': return 'Software Upgrade';
         case '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade': return 'Software Upgrade';
         case '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal': return 'Community Pool Spend';
-        case '/cosmos.params.v1beta1.ParameterChangeProposal': return 'Parameter Change';
-        case '/cosmos.consensus.v1.MsgUpdateParams': return 'Parameter Change';
-        case '/cosmos.gov.v1.MsgUpdateParams': return 'Parameter Change';
         case '/cosmos.gov.v1beta1.TextProposal': return 'Text';
         case '/ibc.core.client.v1.ClientUpdateProposal': return 'IBC Client Update';
         case '/ibc.core.client.v1.MsgRecoverClient': return 'IBC Client Update';
-        default: return type.replace(/\/.*v1beta1\./, '').replace(/\/.*v1\./, '');
+        case '/secret.compute.v1beta1.MsgUpdateParams':
+        case '/cosmos.params.v1beta1.ParameterChangeProposal':
+        case '/cosmos.consensus.v1.MsgUpdateParams':
+        case '/cosmos.gov.v1.MsgUpdateParams': return 'Parameter Change';
+        default: {
+            console.log('Found unknown proposal type:', type)
+            return type.replace(/\/.*v1beta1\./, '').replace(/\/.*v1\./, '');
+        }
         // default: return type;
     }
 }

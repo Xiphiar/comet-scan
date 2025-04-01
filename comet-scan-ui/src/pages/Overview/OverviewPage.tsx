@@ -60,7 +60,7 @@ const OverviewPage: FC = () => {
                 </Card>
             </div>
             <div className='d-flex flex-wrap'>
-                <div className='col col-12 col-lg-6'>
+                <div className='col col-12 col-xl-6'>
                     <ValidatorsCard
                         validators={data.topValidators}
                         totalValidators={data.metrics.activeValidators}
@@ -70,7 +70,7 @@ const OverviewPage: FC = () => {
                         showMoreLink={true}
                     />
                 </div>
-                <div className='col col-12 col-lg-6'>
+                <div className='col col-12 col-xl-6'>
                     <ProposalsCard proposals={data.recentProposals} totalProposals={data.metrics.totalProposals} chain={chain} showMoreLink={true} />
                 </div>
             </div>

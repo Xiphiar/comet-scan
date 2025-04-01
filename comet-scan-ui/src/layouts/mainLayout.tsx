@@ -12,7 +12,6 @@ const MainLayout: FC = () => {
     const chainConfig = getChain(chain);
     const [showMobileNav, setShowMobileNav] = useState(false);
     const {pathname} = useLocation();
-    console.log('pathname', pathname)
 
     return (
         <>

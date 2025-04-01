@@ -33,7 +33,7 @@ const getAllExecutedContracts = (tx: LcdTxResponse, messageIndex: string, exclud
 const getContractLinkString = (address: string, contractInfos: LightWasmContract[]): string => {
     const contractInfo = contractInfos.find(ci => ci.contractAddress === address);
     if (!contractInfo) return address;
-    return `${truncateStringEnd(contractInfo.label)} - ${address}`
+    return `${address} (${truncateStringEnd(contractInfo.label)})`
 }
 
 const defaultSecretWasmResponse = async (msg: any, messageIndex: string, tx: LcdTxResponse, executedContracts: LightWasmContract[], messageDisplay: any, config: FrontendChainConfig): Promise<ParsedMessage> => {
@@ -146,8 +146,8 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                         // For recipient, if msg is defined assume the recipient is a contract
                         [
                             'Recipient',
-                            decryptedMsg.send.msg ? <Link to={`/${config.id}/contracts/${decryptedMsg.send.recipient}`}>{decryptedMsg.send.recipient}</Link>
-                            : <Link to={`/${config.id}/accounts/${decryptedMsg.send.recipient}`}>{decryptedMsg.send.recipient}</Link>
+                            decryptedMsg.send.msg ? <Link to={`/${config.id}/contracts/${decryptedMsg.send.recipient}`}>{getContractLinkString(decryptedMsg.send.recipient, executedContracts)}</Link>
+                            : <Link to={`/${config.id}/accounts/${decryptedMsg.send.recipient}`}>{getContractLinkString(decryptedMsg.send.recipient, executedContracts)}</Link>
                         ],
                         // TODO get amount from logs, or denom from backend?
                     ],
@@ -202,7 +202,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                     content: [
                         ['NFT Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                        ['Recipient Contract', <Link to={`/${config.id}/contracts/${decryptedMsg.send_nft.contract}`}>{decryptedMsg.send_nft.contract}</Link>],
+                        ['Recipient Contract', <Link to={`/${config.id}/contracts/${decryptedMsg.send_nft.contract}`}>{getContractLinkString(decryptedMsg.send_nft.contract, executedContracts)}</Link>],
                         ['Token ID', decryptedMsg.send_nft.token_id],
                     ],
                     amounts: undefined, // TODO

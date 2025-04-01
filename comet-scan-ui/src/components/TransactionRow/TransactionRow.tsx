@@ -21,7 +21,7 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
 
     useEffect(() => {
         (async () => {
-            const messages = await parseMessages(chain, allChains, transaction.transaction, user?.encryptionUtils);
+            const messages = await parseMessages(chain, allChains, transaction.transaction, [], user?.encryptionUtils);
             setParsedMessages(messages);
             processAmounts(messages);
         })();

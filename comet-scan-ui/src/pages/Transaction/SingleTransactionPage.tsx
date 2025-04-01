@@ -28,7 +28,7 @@ const SingleTransactionPage: FC = () => {
     useEffect(() => {
         if (!data) return;
         (async () => {
-            const messages = await parseMessages(chain, allChains, data.transaction.transaction, user?.encryptionUtils);
+            const messages = await parseMessages(chain, allChains, data.transaction.transaction, data.executedContracts, user?.encryptionUtils);
             setParsedMessages(messages);
         })();
     }, [data, user?.encryptionUtils, chain, allChains]);

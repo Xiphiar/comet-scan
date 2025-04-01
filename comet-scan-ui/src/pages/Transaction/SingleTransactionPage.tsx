@@ -16,6 +16,9 @@ import { useUser } from "../../hooks/useUser";
 import Spinner from "../../components/Spinner";
 import TabbedCard from "../../components/TabbedCard";
 import JsonView from "react18-json-view";
+import { GrStatusGood, GrStatusCritical } from "react-icons/gr";
+import { FaGasPump, FaRegClock } from "react-icons/fa6";
+import { RiCoinsLine } from "react-icons/ri";
 
 const SingleTransactionPage: FC = () => {
     const { chain: chainLookupId, transactionHash } = useParams();
@@ -52,19 +55,19 @@ const SingleTransactionPage: FC = () => {
             <TitleAndSearch chain={chain} title={`Transaction ${truncateString(transactionHash)}`} />
             <div className='d-flex flex-wrap w-full'>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Time</h5>
+                    <div className='statTitle'><FaRegClock /><h5>Time</h5></div>
                     {new Date(data.transaction.timestamp).toLocaleString()}
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Status</h5>
+                    <div className='statTitle'>{data.transaction.succeeded ? <GrStatusGood /> : <GrStatusCritical />}<h5>Status</h5></div>
                     {data.transaction.succeeded ? 'Succeeded' : <span style={{color: 'red'}}>Failed</span>}
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Gas Used</h5>
+                    <div className='statTitle'><FaGasPump /><h5>Gas Used</h5></div>
                     {data.transaction.gasUsed.toLocaleString()} / {data.transaction.gasLimit.toLocaleString()}
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Fee</h5>
+                    <div className='statTitle'><RiCoinsLine /><h5>Fee</h5></div>
                     {weiFormatNice(feeAmount, chain.bondingDecimals)} {chain.bondingDisplayDenom}
                 </Card>
             </div>

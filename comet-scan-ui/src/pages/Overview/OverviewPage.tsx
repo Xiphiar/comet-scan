@@ -10,6 +10,12 @@ import ProposalsCard from "./ProposalsCard";
 import { OverviewPageResponse } from "../../interfaces/responses/explorerApiResponses";
 import ContentLoading from "../../components/ContentLoading";
 import TitleAndSearch from "../../components/TitleAndSearch";
+import { AiOutlineBlock } from "react-icons/ai";
+import { GrTransaction } from "react-icons/gr";
+import { BiSolidBank } from "react-icons/bi";
+import { FaArrowUpRightDots } from "react-icons/fa6";
+import { RiCodeBlock } from "react-icons/ri";
+import styles from './OverviewPage.module.scss';
 
 const OverviewPage: FC = () => {
     const { chain: chainLookupId } = useParams();
@@ -37,19 +43,19 @@ const OverviewPage: FC = () => {
             <TitleAndSearch chain={chain} title='Overview' />
             <div className='d-flex w-full flex-wrap'>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Block Height</h5>
+                    <div className='statTitle'><RiCodeBlock /><h5>Block Height</h5></div>
                     {data.metrics.height.toLocaleString() || '...'}
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Daily Transactions</h5>
+                    <div className='statTitle'><GrTransaction /><h5>Daily Transactions</h5></div>
                     {data.metrics.dailyTransactions?.toLocaleString?.() || '...'}
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Total Supply</h5>
+                    <div className='statTitle'><BiSolidBank /><h5>Total Supply</h5></div>
                     {supply || '...'} {chain.bondingDisplayDenom}
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Inflation</h5>
+                    <div className='statTitle'><FaArrowUpRightDots /><h5>Inflation</h5></div>
                     {inflation?.toFixed(2) || '...'}%
                 </Card>
             </div>

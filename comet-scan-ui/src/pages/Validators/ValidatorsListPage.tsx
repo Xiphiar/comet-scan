@@ -9,6 +9,8 @@ import TitleAndSearch from "../../components/TitleAndSearch";
 import { secondsToDhms } from "../../utils/time";
 import ValidatorsCard from "../Overview/ValidatorsCard";
 import useConfig from "../../hooks/useConfig";
+import { FaPercent, FaRegClock } from "react-icons/fa6";
+import { GrValidate, GrStakeholder } from "react-icons/gr";
 
 const ValidatorsListPage: FC<{inactive?: boolean}> = ({inactive}) => {
     const { chain: chainLookupId } = useParams();
@@ -41,19 +43,19 @@ const ValidatorsListPage: FC<{inactive?: boolean}> = ({inactive}) => {
             <TitleAndSearch chain={chain} title='Validators' />
             <div className='d-flex flex-wrap w-full'>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Active Validators</h5>
+                    <div className='statTitle'><GrValidate /><h5>Active Validators</h5></div>
                     {data.stakingMetrics.activeValidators}
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Staking APR</h5>
+                    <div className='statTitle'><FaPercent /><h5>Staking APR</h5></div>
                     {(data.stakingMetrics.nominalApr * 100).toFixed(2)}%
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Bond Rate</h5>
+                    <div className='statTitle'><GrStakeholder /><h5>Bond Rate</h5></div>
                     {(data.stakingMetrics.bondRate * 100).toFixed(2)}%
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Unbonding Time</h5>
+                    <div className='statTitle'><FaRegClock /><h5>Unbonding Time</h5></div>
                     {secondsToDhms(data.stakingMetrics.unbondingPeriodSeconds)}
                 </Card>
             </div>

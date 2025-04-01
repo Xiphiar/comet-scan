@@ -149,7 +149,7 @@ const TitleAndSearch: FC<{chain: FrontendChainConfig, title: string, excludeNetw
                     type='text'
                     ref={searchInputElement}
                     tabIndex={1}
-                    placeholder='Search for an address, transaction, or block'
+                    placeholder='&#x1F50E; Search for an address, transaction, or block'
                     value={searchInput}
                     onChange={e => setSearchInput(e.target.value.trim())}
                     onFocus={() => setFocused(true)}

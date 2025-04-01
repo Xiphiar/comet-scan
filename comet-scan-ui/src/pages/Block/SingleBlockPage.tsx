@@ -11,6 +11,9 @@ import { getSingleBlockPage } from "../../api/pagesApi";
 import TransactionRow, { TransactionLabels } from "../../components/TransactionRow/TransactionRow";
 import ValidatorAvatar from "../../components/Avatar/KeybaseAvatar";
 import { formatTimeSeconds } from "../../utils/format";
+import { GrTransaction } from "react-icons/gr";
+import { FaGasPump, FaRegClock } from "react-icons/fa6";
+import { RiCoinsLine } from "react-icons/ri";
 
 const SingleBlockPage: FC = () => {
     const { chain: chainLookupId, blockHeight } = useParams();
@@ -36,19 +39,19 @@ const SingleBlockPage: FC = () => {
             <TitleAndSearch chain={chain} title={`Block ${blockHeight}`} />
             <div className='d-flex flex-wrap w-full'>
                 <Card className='col col-6 col-md-3 flex-grow-1'>
-                    <h5>Time</h5>
+                    <div className='statTitle'><FaRegClock /><h5>Time</h5></div>
                     {new Date(data.block.timestamp).toLocaleString()}
                 </Card>
                 <Card className='col col-6 col-md-3 flex-grow-1'>
-                    <h5>Transactions</h5>
+                    <div className='statTitle'><GrTransaction /><h5>Transactions</h5></div>
                     {data.transactions.length}
                 </Card>
                 <Card className='col col-6 col-md-3 flex-grow-1'>
-                    <h5>Gas Used</h5>
+                    <div className='statTitle'><FaGasPump /><h5>Gas Used</h5></div>
                     {data.block.totalGasUsed.toLocaleString()}
                 </Card>
                 <Card className='col col-6 col-md-3 flex-grow-1'>
-                    <h5>Total Fee</h5>
+                    <div className='statTitle'><RiCoinsLine /><h5>Total Fee</h5></div>
                     {weiFormatNice(data.block.totalFees.find(f => f.denom === chain.bondingDenom)?.amount || '0', chain.bondingDecimals)} {chain.bondingDisplayDenom}
                 </Card>
             </div>

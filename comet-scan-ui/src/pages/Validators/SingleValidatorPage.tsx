@@ -73,19 +73,19 @@ const SingleValidatorPage: FC = () => {
             </Card>
             <div className='d-flex flex-wrap w-full'>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Total Bonded</h5>
+                    <div className='statTitle'><h5>Total Bonded</h5></div>
                     {weiFormatNice(data.validator.delegatedAmount, chain.bondingDecimals)} {chain.bondingDisplayDenom} {active && `(#${data.rank})`}
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Self Bonded</h5>
+                    <div className='statTitle'><h5>Self Bonded</h5></div>
                     {weiFormatNice(data.validator.selfBondedAmount, chain.bondingDecimals)} {chain.bondingDisplayDenom}
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Voting Power</h5>
+                    <div className='statTitle'><h5>Voting Power</h5></div>
                     {data.votingPower * 100}%
                 </Card>
                 <Card className='col col-6 col-md-3'>
-                    <h5>Commission Rate</h5>
+                    <div className='statTitle'><h5>Commission Rate</h5></div>
                     {parseFloat(data.validator.commission.rates[0].rate) * 100}%
                 </Card>
             </div>

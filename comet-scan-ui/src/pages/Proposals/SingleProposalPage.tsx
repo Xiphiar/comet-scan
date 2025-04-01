@@ -8,11 +8,15 @@ import TitleAndSearch from "../../components/TitleAndSearch";
 import { SingleProposalPageResponse } from "../../interfaces/responses/explorerApiResponses";
 import { getSingleProposalPage } from "../../api/pagesApi";
 import ValidatorAvatar from "../../components/Avatar/KeybaseAvatar";
-import { formatCoin, formatCoins, formatProposalStatus, formatProposalType } from "../../utils/format";
+import { formatCoins, formatProposalStatus, formatProposalType } from "../../utils/format";
 import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { defaultKeyContent } from "../../utils/messageParsing";
 import { v1beta1LcdProposal, v1LcdProposal } from "../../interfaces/lcdProposalResponse";
 import Spinner from "../../components/Spinner";
+import { FaRegClock, FaVoteYea } from "react-icons/fa";
+import { GrStatusGood, GrStatusCritical } from "react-icons/gr";
+import { PiHandDepositBold } from "react-icons/pi";
+import { BsFillPeopleFill } from "react-icons/bs";
 
 const SingleProposalPage: FC = () => {
     const { chain: chainLookupId, proposalId } = useParams();
@@ -52,20 +56,29 @@ const SingleProposalPage: FC = () => {
     let proposalType = data.proposal.proposalType;
     if (proposalType.includes('MsgExecLegacyContent')) proposalType = (data.proposal.proposal as v1LcdProposal).messages?.[0]?.content?.['@type'] || proposalType;
 
+    const statusIcon =
+        data.proposal.status === 'PROPOSAL_STATUS_DEPOSIT_PERIOD' ? <PiHandDepositBold />
+        : data.proposal.status === 'PROPOSAL_STATUS_VOTING_PERIOD' ? <FaVoteYea />
+        : data.proposal.status === 'PROPOSAL_STATUS_PASSED' ? <GrStatusGood />
+        : data.proposal.status === 'PROPOSAL_STATUS_FAILED'
+        || data.proposal.status === 'PROPOSAL_STATUS_REJECTED' ? <GrStatusCritical />
+        : <></>
+
+
     return (
         <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={`Proposal ${proposalId}`} />
             <div className='d-flex flex-wrap w-full'>
                 <Card className='col col-12 col-sm-4'>
-                    <h5>Submitted</h5>
+                    <div className='statTitle'><FaRegClock /><h5>Submitted</h5></div>
                     {new Date(data.proposal.submitTime).toLocaleString()}
                 </Card>
                 <Card className='col col-12 col-sm-4'>
-                    <h5>Status</h5>
+                    <div className='statTitle'>{statusIcon}<h5>Status</h5></div>
                     {formatProposalStatus(data.proposal.status)}
                 </Card>
                 <Card className='col col-12 col-sm-4'>
-                    <h5>Turout</h5>
+                    <div className='statTitle'><BsFillPeopleFill /><h5>Turout</h5></div>
                     {(turnoutPercent * 100).toFixed(2)}%
                 </Card>
             </div>

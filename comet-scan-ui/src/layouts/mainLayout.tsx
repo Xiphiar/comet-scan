@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { Link, Outlet, useParams } from "react-router-dom";
+import { Link, Outlet, useLocation, useParams } from "react-router-dom";
 import styles from './mainLayout.module.scss';
 import useConfig from "../hooks/useConfig";
 import Toggle from "../components/Toggle/Toggle";
@@ -11,6 +11,8 @@ const MainLayout: FC = () => {
     const { getChain } = useConfig()
     const chainConfig = getChain(chain);
     const [showMobileNav, setShowMobileNav] = useState(false);
+    const {pathname} = useLocation();
+    console.log('pathname', pathname)
 
     return (
         <>
@@ -22,13 +24,13 @@ const MainLayout: FC = () => {
                         </svg>
                         <div style={{fontFamily: 'Bunken Tech', fontSize: '20px', marginTop: '4px', color: 'var(--main)', whiteSpace: 'nowrap'}}>Comet Scan</div>
                     </Link>
-                    <Link to={`/${chain}`} className='d-none d-lg-flex'>Overview</Link>
-                    <Link to={`/${chain}/blocks`} className='d-none d-lg-flex'>Blocks</Link>
-                    <Link to={`/${chain}/transactions`} className='d-none d-lg-flex'>Transactions</Link>
-                    <Link to={`/${chain}/proposals`} className='d-none d-lg-flex'>Proposals</Link>
-                    <Link to={`/${chain}/validators`} className='d-none d-lg-flex'>Validators</Link>
+                    <Link to={`/${chain}`} className={pathname === `/${chain}` ? styles.activeLink : undefined}>Overview</Link>
+                    <Link to={`/${chain}/blocks`} className={pathname.startsWith(`/${chain}/blocks`) ? styles.activeLink : undefined}>Blocks</Link>
+                    <Link to={`/${chain}/transactions`} className={pathname.startsWith(`/${chain}/transactions`) ? styles.activeLink : undefined}>Transactions</Link>
+                    <Link to={`/${chain}/proposals`} className={pathname.startsWith(`/${chain}/proposals`) ? styles.activeLink : undefined}>Proposals</Link>
+                    <Link to={`/${chain}/validators`} className={pathname.startsWith(`/${chain}/validators`) ? styles.activeLink : undefined}>Validators</Link>
                     { (chainConfig.features.includes('secretwasm') || chainConfig.features.includes('cosmwasm')) &&
-                        <Link to={`/${chain}/contracts`} className='d-none d-lg-flex'>Contracts</Link>
+                        <Link to={`/${chain}/contracts`} className={pathname.startsWith(`/${chain}/contracts`) ? styles.activeLink : undefined}>Contracts</Link>
                     }
                     <div style={{marginLeft: 'auto', paddingRight: '16px'}} className='d-none d-lg-flex align-items-center gap-3'>
                         <ConnectWallet chainConfig={chainConfig} />
@@ -50,7 +52,9 @@ const MainLayout: FC = () => {
                     <div className={styles.footerSection}>
                         <div className={styles.developedBy}>Developed by</div>
                         <a href="https://trivium.network" target="_blank" rel="noopener noreferrer">
-                            <img src='/Trivium_w_name_white.svg' alt="Trivium" className={styles.footerLogo} />
+                            <svg height={'60px'} width={'224px'}>
+                                <use xlinkHref="/Trivium_w_name_white.svg#triviumLogo" height={'60px'} width={'224px'} />
+                            </svg>
                         </a>
                     </div>
                     <div className={styles.socialLinks}>

@@ -8,6 +8,9 @@ import TitleAndSearch from "../../components/TitleAndSearch";
 import ContractRow from "../../components/ContractRow/ContractRow";
 import { getAllContractsPage } from "../../api/pagesApi";
 import { AllContractsPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { IoDocuments } from "react-icons/io5";
+import { FaFileSignature } from "react-icons/fa6";
+import { Ri24HoursFill } from "react-icons/ri";
 
 
 const AllContractsPage: FC = () => {
@@ -34,15 +37,15 @@ const AllContractsPage: FC = () => {
             <TitleAndSearch chain={chain} title={title} />
             <div className='d-flex w-full flex-wrap'>
                 <Card className='col col-12 col-sm-4'>
-                    <h5>Total Contracts</h5>
+                    <div className='statTitle'><IoDocuments /><h5>Total Contracts</h5></div>
                     {data.totalContracts.toLocaleString()}
                 </Card>
                 <Card className='col col-12 col-sm-4'>
-                    <h5>Total Executions</h5>
+                    <div className='statTitle'><FaFileSignature /><h5>Total Executions</h5></div>
                     {data.totalExecutions.toLocaleString()}
                 </Card>
                 <Card className='col col-12 col-sm-4'>
-                    <h5>Daily Executions</h5>
+                    <div className='statTitle'><Ri24HoursFill /><h5>Daily Executions</h5></div>
                     {data.dailyExecutions.toLocaleString()}
                 </Card>
             </div>

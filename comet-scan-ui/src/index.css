@@ -38,6 +38,7 @@
   --input-border: var(--light-gray);
   --shadow-color: #00000014;
   --footer-bg: var(--main);
+  --triviumLogoColor: white;
 }
 
 .theme-dark {
@@ -55,6 +56,7 @@
   --input-border: var(--card-border);
   --shadow-color: #c5c3c614;
   --footer-bg: var(--bg);
+  --triviumLogoColor: var(--main);
   --footer-border: 0.5px solid var(--nav-bottom-border);
 }
 
@@ -113,6 +115,7 @@ h1 {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   color: var(--text-color);
+  border-radius: 6px;
 }
 .button:hover, button:hover {
   text-decoration: underline;
@@ -186,8 +189,9 @@ h1 {
 input {
   box-shadow: 3px 3px 7px 1px var(--shadow-color);
   border: 0.5px solid var(--input-border);
+  border-radius: 6px;
   background-color: var(--card-bg);
-  color: var(--text-color)
+  color: var(--text-color);
 }
 
 .twoLineLimit {
@@ -246,12 +250,12 @@ ul.react-paginate li.disabled a {
 select {
   box-shadow: 3px 3px 7px 1px var(--shadow-color);
   border: 0.5px solid var(--input-border);
+  border-radius: 6px;
   background-color: var(--card-bg);
   color: var(--text-color);
   padding: 6px 12px;
   font-size: 14px;
   font-family: inherit;
-  border-radius: 0px;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
 }
@@ -262,4 +266,17 @@ select:hover {
 
 select:focus {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Class for the div containing stat titles (e.g. Block Height card on the overview page)  */
+.statTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--main);
+  margin-bottom: 4px;
+  > h5 {
+      font-size: 15px;
+      font-weight: 600;
+  }
 }

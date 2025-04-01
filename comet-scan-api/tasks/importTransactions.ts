@@ -152,7 +152,7 @@ export const getExecutedContractsForTx = (
                 const wasmEvent = msgLogs.events.find(e => e.type === 'wasm');
                 if (!wasmEvent) continue;
                 for (const attribute of wasmEvent.attributes) {
-                    if (attribute.key === 'contract_address') executedContracts.push(attribute.value);
+                    if (attribute.key === 'contract_address' && !executedContracts.includes(attribute.value)) executedContracts.push(attribute.value);
                 }
             }
         } else {
@@ -160,7 +160,7 @@ export const getExecutedContractsForTx = (
             for (const wasmEvent of wasmEvents) {
                 const addressAttributes = wasmEvent.attributes.filter(a => a.key === 'contract_address');
                 addressAttributes.forEach(a => {
-                    executedContracts.push(a.value);
+                    if (!executedContracts.includes(a.value)) executedContracts.push(a.value);
                 })
             }
         }

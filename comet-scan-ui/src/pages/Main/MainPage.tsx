@@ -32,11 +32,11 @@ const MainPage: FC<Props> = ({isLoading, loadingError}) => {
         </div>
                     
         <div className='d-flex flex-column align-items-center' style={{paddingTop: '15vh'}}>
-            <div className='d-flex align-items-center gap-4' style={{color: 'var(--main)'}}>
+            <div className='d-flex flex-wrap align-items-center justify-content-center gap-4' style={{color: 'var(--main)'}}>
                 <svg height={'120px'} width={'142px'}>
                     <use xlinkHref="/logo.svg#cometscanLogo" height={'120px'} width={'142px'} />
                 </svg>
-                <h1 style={{marginTop: '32px', fontFamily: 'Bunken Tech'}}>Comet Scan</h1>
+                <h1 className={styles.title}>Comet Scan</h1>
             </div>
             { isLoading ?
                 <div className='d-flex justify-content-center align-items-center pt-4 mt-4'>

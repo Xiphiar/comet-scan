@@ -9,3 +9,10 @@
 .chainCard:hover {
     background-color: var(--main);
 }
+
+.title {
+    font-family: 'Bunken Tech';
+    @media(min-width: 478px) {
+        margin-top: 40px;
+    }
+}

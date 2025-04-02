@@ -33,6 +33,7 @@ const Selector: FC<Props> = ({ options, selected, onSelect, className = '', styl
                     style={{
                         height: `${buttonHeight}px`,
                         borderRadius: `${buttonHeight}px`,
+                        outline: 'none',
                     }}
                 >
                     {option}

@@ -9,7 +9,7 @@
         flex-grow: 1;
         > input {
             height: 48px;
-            width: 100%;
+            width: calc(100% - 1rem);
             padding: 0px 0.5rem;
         }
     }

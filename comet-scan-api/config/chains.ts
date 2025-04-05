@@ -25,7 +25,7 @@ const CosmosHub: ChainConfig = {
         'https://cosmoshub-api.cosmosrescue.dev',
     ],
     startHeight: 24_860_000,
-    features: ['cosmwasm'],
+    features: ['cosmwasm', 'no_denom_trace'],
     isTestnet: false,
     pruneBlocksAfter: 500_000,
     pruneTransactions: true,

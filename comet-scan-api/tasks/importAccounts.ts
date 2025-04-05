@@ -308,7 +308,8 @@ const getBalancesForAccount = async (config: ChainConfig, address: string): Prom
 
     const nativeAssets: Coin[] = [];
     for (const coin of allBalancesResponse.balances) {
-        if (coin.denom.toLowerCase().startsWith('ibc/')) {
+        // Only denom trace if the chain does NOT have the `no_denom_trace` feature
+        if (coin.denom.toLowerCase().startsWith('ibc/') && !config.features.includes('no_denom_trace')) {
             try {
                 // Trace denom
                 const denom = await getDenomTrace(config.chainId, coin.denom);

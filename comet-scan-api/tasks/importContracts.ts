@@ -1,4 +1,3 @@
-import axios from "axios";
 import { getSecretNftContractInfo, getSecretNftTokenCount, getSecretTokenInfo, getSecretTokenPermitSupport } from "../common/chainQueries";
 import { getSecretWasmClient } from "../common/cosmWasmClient";
 import Chains, { getChainConfig } from "../config/chains";
@@ -10,6 +9,7 @@ import Codes from "../models/codes.model";
 import Contracts from "../models/contracts.model";
 import Transactions from "../models/transactions";
 import { LcdCosmWasmCodesResponse, LcdCosmWasmContractInfoResponse } from "../interfaces/lcdCosmwasmResponses";
+import { getLcdClient } from "../config/clients";
 
 const contractImportRunning = new Map<string, boolean>();
 const updateContractsForChain = async (config: ChainConfig) => {
@@ -197,7 +197,8 @@ export const importSecretWasmContractsByCodeId = async (config: ChainConfig, cod
 
 const updateCosmWasmContracts = async (config: ChainConfig) => {
     console.log('Updating Wasm Contracts on', config.chainId);
-    const {data} = await axios.get<LcdCosmWasmCodesResponse>(`${config.lcds[0]}/cosmwasm/wasm/v1/code?pagination.limit=1000`);
+    const lcdClient = getLcdClient(config.chainId);
+    const data = await lcdClient.get<LcdCosmWasmCodesResponse>(`/cosmwasm/wasm/v1/code?pagination.limit=1000`);
 
     if (!data?.code_infos?.length) return;
 
@@ -227,7 +228,7 @@ const updateCosmWasmContracts = async (config: ChainConfig) => {
     for (const code of dbCodes) try {
         console.log(`Importing contracts with code ID ${code.codeId} on ${config.chainId}`)
 
-        const {data: contractsResponse} = await axios.get(`${config.lcds[0]}/cosmwasm/wasm/v1/code/${code.codeId}/contracts`);
+        const contractsResponse = await lcdClient.get<any>(`/cosmwasm/wasm/v1/code/${code.codeId}/contracts`);
         const contracts: string[] = contractsResponse.contracts;
         for (const contractAddress of contracts) {
             await importCosmWasmContract(config, contractAddress);
@@ -239,7 +240,8 @@ const updateCosmWasmContracts = async (config: ChainConfig) => {
 }
 
 export const importCosmWasmContract = async (config: ChainConfig, contractAddress: string): Promise<WasmContract> => {
-    const {data} = await axios.get<LcdCosmWasmContractInfoResponse>(`${config.lcds[0]}/cosmwasm/wasm/v1/contract/${contractAddress}`);
+    const lcdClient = getLcdClient(config.chainId);
+    const data = await lcdClient.get<LcdCosmWasmContractInfoResponse>(`/cosmwasm/wasm/v1/contract/${contractAddress}`);
 
     const executions = await Transactions.find({ chainId: config.chainId, executedContracts: contractAddress }).countDocuments();
 

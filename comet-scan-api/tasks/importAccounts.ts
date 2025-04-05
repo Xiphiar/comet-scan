@@ -1,21 +1,19 @@
 import { Transaction } from "../interfaces/models/transactions.interface";
 import Blocks from "../models/blocks";
-import Chains, { getChainConfig } from "../config/chains";
-import axios from "axios";
+import { getChainConfig } from "../config/chains";
 import Transactions from "../models/transactions";
 import { Block, Coin } from "../interfaces/models/blocks.interface";
 import Accounts from "../models/accounts.model";
 import { Account, Delegation, Unbonding } from "../interfaces/models/accounts.interface";
 import { BaseAccountDetails, LcdAuthAccount, ModuleAccount, v1beta1ContinuousVestingAccount } from "../interfaces/lcdAuthAccountResponse";
 import { importTransactionsForBlock } from "./importTransactions";
-import { processBlock } from "./importBlocks";
 import { LcdBalance, LcdBalancesResponse } from "../interfaces/LcdBalanceResponse";
 import { LcdDelegationsResponse, LcdUnbondingResponse } from "../interfaces/lcdBondingResponse";
 import { ChainConfig } from "../interfaces/config.interface";
 import { getDenomTrace } from "../common/chainQueries";
-import pMap from "p-map";
 import KvStore from "../models/kv";
 import { syncBlock } from "./sync";
+import { getLcdClient } from "../config/clients";
 
 const key = 'accounts-import-processed-block'
 export const updateAccountsV2 = async ({chainId}: ChainConfig) => {
@@ -168,6 +166,8 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
     const config = getChainConfig(chainId);
     if (!config) throw `Config not found for ${chainId}`;
 
+    const lcdClient = getLcdClient(chainId);
+
     try {
         const existingAccount = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
         if (existingAccount) {
@@ -204,7 +204,7 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
             return updatedAccount!;
         } else {
             // otherwise add non-existant accounts
-            const {data} = await axios.get<LcdAuthAccount>(`${config.lcds[0]}/cosmos/auth/v1beta1/accounts/${address}`);
+            const data = await lcdClient.get<LcdAuthAccount>(`/cosmos/auth/v1beta1/accounts/${address}`);
 
             let baseAccount: BaseAccountDetails;
             switch (data.account["@type"]) {
@@ -268,11 +268,13 @@ interface AccountBalances {
     nativeAssets: Coin[];
 }
 const getBalancesForAccount = async (config: ChainConfig, address: string): Promise<AccountBalances> => {
+    const lcdClient = getLcdClient(config.chainId);
+
     const balanceUpdateTime = new Date();
-    const {data: balanceResponse} = await axios.get<LcdBalance>(`${config.lcds[0]}/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=${config.bondingDenom}`);
-    const {data: allBalancesResponse} = await axios.get<LcdBalancesResponse>(`${config.lcds[0]}/cosmos/bank/v1beta1/balances/${address}`);
-    const { data: _delegations } = await axios.get<LcdDelegationsResponse>(`${config.lcds[0]}/cosmos/staking/v1beta1/delegations/${address}`);
-    const { data: _unbondings } = await axios.get<LcdUnbondingResponse>(`${config.lcds[0]}/cosmos/staking/v1beta1/delegators/${address}/unbonding_delegations`);
+    const balanceResponse = await lcdClient.get<LcdBalance>(`/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=${config.bondingDenom}`);
+    const allBalancesResponse = await lcdClient.get<LcdBalancesResponse>(`/cosmos/bank/v1beta1/balances/${address}`);
+    const _delegations = await lcdClient.get<LcdDelegationsResponse>(`/cosmos/staking/v1beta1/delegations/${address}`);
+    const _unbondings = await lcdClient.get<LcdUnbondingResponse>(`/cosmos/staking/v1beta1/delegators/${address}/unbonding_delegations`);
 
     const delegations = _delegations.delegation_responses.map(d => {
         return {

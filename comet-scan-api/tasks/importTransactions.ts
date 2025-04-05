@@ -7,12 +7,14 @@ import Transactions from "../models/transactions";
 import { Block } from "../interfaces/models/blocks.interface";
 import { processBlock } from "./importBlocks";
 import { ChainConfig } from "../interfaces/config.interface";
-import AxiosFallbackClient from "../utils/axiosFallbackClient";
+import { getLcdClient } from "../config/clients";
 
 export const importTransactionsForBlock = async (chainId: string, blockHeight: number) => {
     // console.log(`Importing transactions for block ${blockHeight} on ${chainId}`)
     const config = getChainConfig(chainId);
     if (!config) throw `Config not found for ${chainId}`;
+
+    const lcdClient = getLcdClient(chainId);
 
     let block: Block | null = await Blocks.findOne({ chainId, height: blockHeight }).lean();
     if (!block) {
@@ -27,20 +29,11 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
 
     // const txs = await client.query.txsQuery(`tx.height=${blockHeight}`);
 
-    const fallbackClient = new AxiosFallbackClient(
-        config.lcds,
-        {
-            params: {
-                'pagination.limit': 100,
-            },
-            timeout: 15_000,
-        }
-    )
     const allTxs: LcdTxSearchTx[] = [];
     const allResults: LcdTxSearchResult[] = [];
     let offset = 0;
     while (true) {
-        const data = await fallbackClient.get<LcdTxSearchResponse>(
+        const data = await lcdClient.get<LcdTxSearchResponse>(
             `/cosmos/tx/v1beta1/txs`,
             {
                 params: {

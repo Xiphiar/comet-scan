@@ -1,4 +1,3 @@
-import axios from "axios";
 import Chains from "../config/chains";
 import { Amount, StakingMetrics } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
@@ -6,6 +5,7 @@ import { getSecretWasmClient } from "./cosmWasmClient";
 import { Cache } from "./cache";
 import { NftContractInfoResponse, TokenInfoResponse } from "../interfaces/secretQueryResponses";
 import { Coin } from "../interfaces/models/blocks.interface";
+import { getLcdClient } from "../config/clients";
 
 export const getTotalSupply = async (chainId: string): Promise<Amount> => {
     const chainConfig = Chains.find(c => c.chainId === chainId);
@@ -14,10 +14,12 @@ export const getTotalSupply = async (chainId: string): Promise<Amount> => {
     const cached = Cache.get<Amount>(`${chainId}-total-supply`);
     if (cached) return cached;
 
+    const lcdClient = getLcdClient(chainId);
+
     // TODO, should probably try this first and fallback to getting all supplies if it fails
-    // const {data: _data} = await axios.get(`${chainConfig.lcds[0]}/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.bondingDenom}`);
+    // const {data: _data} = await lcdClient.get(`/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.bondingDenom}`);
     
-    const {data: _data}: { data: { supply: Coin[] }} = await axios.get(`${chainConfig.lcds[0]}/cosmos/bank/v1beta1/supply`, {
+    const {data: _data}: { data: { supply: Coin[] }} = await lcdClient.get(`/cosmos/bank/v1beta1/supply`, {
         params: {
             'pagination.limit': 10_000, // Does this work for all chains? If not we'll need to loop through all the pages
         }
@@ -191,9 +193,11 @@ export const getDenomTrace = async (chainId: string, denomHash: string): Promise
         const cached = Cache.get<string>(key);
         if (cached) return cached;
 
+        const lcdClient = getLcdClient(chainId);
+
         const cleanHash = denomHash.replace('ibc/', '');
-        const url = `${chainConfig.lcds[0]}/ibc/${chainConfig.ibcVersion === 'v1' ? 'apps' : 'applications'}/transfer/${chainConfig.ibcVersion}/denom_traces/${cleanHash}`;
-        const {data} = await axios.get<DenomTraceResponse>(url);
+        const url = `/ibc/${chainConfig.ibcVersion === 'v1' ? 'apps' : 'applications'}/transfer/${chainConfig.ibcVersion}/denom_traces/${cleanHash}`;
+        const data = await lcdClient.get<DenomTraceResponse>(url);
         const denom = data.denom_trace.base_denom;
         
         Cache.set(key, denom);

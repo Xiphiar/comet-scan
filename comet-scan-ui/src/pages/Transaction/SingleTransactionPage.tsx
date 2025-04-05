@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from "react";
+import { FC, useState, useEffect, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
@@ -21,6 +21,8 @@ import { FaGasPump, FaRegClock } from "react-icons/fa6";
 import { RiCoinsLine } from "react-icons/ri";
 import EventRow from "../../components/EventRow/EventRow";
 import { TxEvent } from "../../interfaces/lcdTxResponse";
+import decodeTxResponse from "../../utils/secret";
+import { fromAscii, fromUtf8, toBase64, TxResponse } from "secretjs";
 
 const SingleTransactionPage: FC = () => {
     const { chain: chainLookupId, transactionHash } = useParams();
@@ -29,6 +31,7 @@ const SingleTransactionPage: FC = () => {
     const { data, error } = useAsync<SingleTransactionPageResponse>(getSingleTransactionPage(chain.chainId, transactionHash));
     const [parsedMessages, setParsedMessages] = useState<ParsedMessage[] | undefined>(undefined);
     const [eventsByMsgIndex, setEventsByMsgIndex] = useState<Map<number, TxEvent[]>>(new Map());
+    const [decryptedTx, setDecrypedTx] = useState<TxResponse | undefined>(undefined);
     const { user } = useUser();
 
     useEffect(() => {
@@ -39,10 +42,32 @@ const SingleTransactionPage: FC = () => {
         })();
     }, [data, user?.encryptionUtils, chain, allChains]);
 
+    // Decrypt events when user is logged in
+    useEffect(() => {
+        if (!data || !user?.encryptionUtils || !chain.features.includes('secretwasm')) return;
+        
+        const decryptTx = async () => {
+            try {
+                const decodedTx = await decodeTxResponse(
+                    user.encryptionUtils, 
+                    data.transaction.transaction.tx_response
+                );
+
+                setDecrypedTx(decodedTx);
+            } catch (error) {
+                console.error("Failed to decrypt events:", error);
+            }
+        };
+        
+        decryptTx();
+    }, [chain.features, data, user?.encryptionUtils]);
+
+    // Group events by message index (use decrypted events if available)
     useEffect(() => {
         if (!data) return;
-        // Group events by message index
-        const events = data.transaction.transaction.tx_response.events;
+        
+        // Use decrypted events if available, otherwise use original events
+        const events = decryptedTx?.events as TxEvent[] || data.transaction.transaction.tx_response.events;
         const groupedEvents = new Map<number, TxEvent[]>();
         
         events.forEach(event => {
@@ -57,7 +82,20 @@ const SingleTransactionPage: FC = () => {
         });
         
         setEventsByMsgIndex(groupedEvents);
-    }, [data]);
+    }, [data, decryptedTx]);
+
+    const decodedResponses: string[] | undefined = useMemo(()=>{
+        if (!decryptedTx) return undefined;
+
+        const data: string[] = []
+        for (const d of decryptedTx.data) {
+            const string = Buffer.from(d).toString('utf8');
+            // Strip unicode special characters (probably leftover from protobuf encoding)
+            data.push(string.replace(/[\u{FFF0}-\u{FFFF}]/gu,""))
+        }
+
+        return data;
+    }, [decryptedTx])
 
     if (!chain) {
         return (
@@ -166,26 +204,28 @@ const SingleTransactionPage: FC = () => {
                                         <Spinner />
                                     </div>
                                 ) : (
-                                    Array.from(eventsByMsgIndex.entries()).map(([msgIndex, events]) => {
-                                        // Find the message title for this msg_index
-                                        const msgTitle = msgIndex < parsedMessages.length 
-                                            ? parsedMessages[msgIndex].title 
-                                            : formatTxType(data.transaction.transaction.tx.body.messages[msgIndex]['@type']);
-                                        
-                                        return (
-                                            <EventRow 
-                                                key={`events-msg-${msgIndex}`}
-                                                events={events}
-                                                messageIndex={msgIndex}
-                                                messageTitle={msgTitle}
-                                            />
-                                        );
-                                    })
-                                )}
-                                {eventsByMsgIndex.size === 0 && (
-                                    <div className="text-center p-4">
-                                        No events with message index found
-                                    </div>
+                                    <>
+                                        {Array.from(eventsByMsgIndex.entries()).map(([msgIndex, events]) => {
+                                            // Find the message title for this msg_index
+                                            const msgTitle = msgIndex < parsedMessages.length 
+                                                ? parsedMessages[msgIndex].title 
+                                                : formatTxType(data.transaction.transaction.tx.body.messages[msgIndex]['@type']);
+                                            
+                                            return (
+                                                <EventRow 
+                                                    key={`events-msg-${msgIndex}`}
+                                                    events={events}
+                                                    messageIndex={msgIndex}
+                                                    messageTitle={msgTitle}
+                                                />
+                                            );
+                                        })}
+                                        {eventsByMsgIndex.size === 0 && (
+                                            <div className="text-center p-4">
+                                                No events found
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </>
                         )

@@ -63,6 +63,8 @@ export const updateAccountsV2 = async ({chainId}: ChainConfig) => {
         await importAccount(chainId, address, tx);
     }
     await KvStore.findByIdAndUpdate(document?._id, { value: highestProcessed.toString() })
+
+    console.log('Done updating accounts on', chainId)
 }
 
 type AddressUpdate = {
@@ -204,6 +206,7 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
             return updatedAccount!;
         } else {
             // otherwise add non-existant accounts
+            // TODO sometimes this will return 404 if the account hasn't made a tx (but has received), make the auth fields optional and import just balances.
             const data = await lcdClient.get<LcdAuthAccount>(`/cosmos/auth/v1beta1/accounts/${address}`);
 
             let baseAccount: BaseAccountDetails;
@@ -253,7 +256,8 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
         }
     } catch (err: any) {
         console.error(`Failed to import account ${address} on ${chainId}:`, err.toString())
-        return null;
+        if (err.toString().includes('Request failed with status code 404')) return null
+        else throw new Error(`Failed to import account ${address} on ${chainId}: ${err.toString()}`)
     }
 }
 

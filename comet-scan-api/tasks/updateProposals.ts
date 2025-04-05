@@ -87,6 +87,8 @@ export const updateProposalsForChain_v1 = async (chain: ChainConfig) => {
 
     const proposals: v1LcdProposal[] = data.proposals;
 
+    console.log(`Found ${proposals.length} proposals on ${chain.chainId}`)
+
     for (const prop of proposals) {
         // console.log(`Updating proposal ${prop.id} on ${chain.chainId}`)
 

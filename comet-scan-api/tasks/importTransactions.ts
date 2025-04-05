@@ -31,8 +31,16 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
 
     const allTxs: LcdTxSearchTx[] = [];
     const allResults: LcdTxSearchResult[] = [];
+
+    // Can cosmos stop changing the fucking API?!
+    // Some chains use offset via `pagination.offset`, but some (cosmoshub-4) uses pages via `page` ?!?!?
+    // What kind of bullshit is this?! Fuck it, we'll just pass both, fucking cosmos devs.
+    // They better not fucking change the max or default limit to something lower than 100.
+    let page = 1; // Page doesnt start at 0, page 1 is first page.
     let offset = 0;
     while (true) {
+        if (offset > block.transactionsCount) throw `TX offset is greater than expected TX count. Did cosmos fuck with pagination again?`
+
         const data = await lcdClient.get<LcdTxSearchResponse>(
             `/cosmos/tx/v1beta1/txs`,
             {
@@ -40,6 +48,7 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
                     'events': config.sdkVersion === 'pre-50' ? 'tx.height=' + blockHeight : undefined,
                     'query': config.sdkVersion === 'pre-50' ? undefined : 'tx.height=' + blockHeight,
                     'pagination.offset': offset,
+                    'page': page,
                 }
             },
             (result) => {
@@ -59,6 +68,7 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
         if (data.txs.length < 100) break;
         if (allTxs.length === block.transactionsCount) break;
         offset = allTxs.length;
+        page++;
     }
     
     if (allTxs.length !== block.transactionsCount) throw `Block ${blockHeight} on ${chainId} has ${block.transactionsCount} transactions but ${allTxs.length} were returned by LCD.`

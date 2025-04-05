@@ -10,8 +10,4 @@ export default defineConfig({
       include: ['buffer'],
     }),
   ],
-  build: {
-    // Temporary change for debugging production build
-    sourcemap: true,
-  }
 })

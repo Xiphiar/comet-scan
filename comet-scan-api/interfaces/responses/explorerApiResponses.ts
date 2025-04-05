@@ -1,3 +1,4 @@
+import { FrontendChainConfig } from "../config.interface";
 import { Account } from "../models/accounts.interface";
 import { Block, BlockWithProposer } from "../models/blocks.interface";
 import { WasmCode } from "../models/codes.interface";
@@ -120,4 +121,16 @@ export interface SingleCodePageResponse {
   code: WasmCode,
   contracts: ContractWithStats[],
   verification: ContractVerification | undefined;
+}
+
+export interface StatusPageResponse {
+  chainStatuses: ChainStatus[];
+}
+
+export interface ChainStatus {
+  chainConfig: FrontendChainConfig;
+  earliestBlockHeight: number;
+  earliestBlockTime: string;
+  latestBlockHeight: number;
+  latestBlockTime: string;
 }

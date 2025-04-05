@@ -1,5 +1,5 @@
 import { WasmContract } from "../interfaces/models/contracts.interface";
-import { AllContractsPageResponse, AllProposalsPageResponse, BlocksPageResponse, PaginatedTransactionsResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleCodePageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
+import { AllContractsPageResponse, AllProposalsPageResponse, BlocksPageResponse, PaginatedTransactionsResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleCodePageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, StatusPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
 import http from "./apiClient"
 
 export const getOverviewPage = async (chainId: string) => {
@@ -158,6 +158,17 @@ export const getSingleContractPage = async (chainId: string, contractAddress: st
 
 export const getSingleCodePage = async (chainId: string, codeId: string): Promise<SingleCodePageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/codes/${codeId}`,
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+    return data;
+}
+
+export const getStatusPage = async (): Promise<StatusPageResponse> => {
+    const {data} = await http.get(`/explorer/status`,
         {
             headers: {
                 'Content-Type': 'application/json'

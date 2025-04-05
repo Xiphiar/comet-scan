@@ -27,7 +27,8 @@ const MainPage: FC<Props> = ({isLoading, loadingError}) => {
 
     return (<>
     
-        <div style={{position: 'absolute', top: '16px', right: '16px'}}>
+        <div style={{position: 'absolute', top: '16px', right: '16px'}} className="d-flex gap-3 align-items-center">
+            <a href="/status" className={styles.statusLink}>Chain Status</a>
             <Toggle />
         </div>
                     

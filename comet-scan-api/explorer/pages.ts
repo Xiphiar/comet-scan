@@ -1,7 +1,7 @@
 import { api, APIError, ErrCode } from "encore.dev/api";
-import { dayMs, get24hBlocksCount, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb } from "../common/dbQueries";
+import { dayMs, get24hBlocksCount, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getOldestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
-import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse, PaginatedTransactionsResponse } from "../interfaces/responses/explorerApiResponses";
+import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse, PaginatedTransactionsResponse, StatusPageResponse, ChainStatus } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
 import Blocks from "../models/blocks";
 import Transactions from "../models/transactions";
@@ -11,7 +11,7 @@ import { ProposalWithProposingValidator } from "../interfaces/models/proposals.i
 import Accounts from "../models/accounts.model";
 import { importAccount } from "../tasks/importAccounts";
 import { Account } from "../interfaces/models/accounts.interface";
-import { getChainConfig } from "../config/chains";
+import Chains, { getChainConfig } from "../config/chains";
 import { LightWasmContract, WasmContract } from "../interfaces/models/contracts.interface";
 import Contracts from "../models/contracts.model";
 import Codes from "../models/codes.model";
@@ -464,5 +464,32 @@ export const getAccountTransactionsPage = api(
       page: page || pageNumber,
       per_page: limit,
     };
+  }
+);
+
+export const getStatusPage = api(
+  { expose: true, method: "GET", path: "/explorer/status" }, // 1-indexed page number
+  async (): Promise<StatusPageResponse> => {
+    const chainStatuses: ChainStatus[] = [];
+
+    for (const { lcds, rpc, startHeight, ...chain } of Chains) {
+      const earliestBlock = await getOldestBlock(chain.chainId);
+      const latestBlock = await getLatestBlock(chain.chainId);
+
+      if (!earliestBlock) throw new APIError(ErrCode.Internal, `Failed to get the earliest block for chain ${chain.chainId}`);
+      if (!latestBlock) throw new APIError(ErrCode.Internal, `Failed to get the latest block for chain ${chain.chainId}`);
+
+      chainStatuses.push({
+        chainConfig: {...chain, lcd: lcds[0]},
+        earliestBlockHeight: earliestBlock.height,
+        earliestBlockTime: earliestBlock.timestamp.toISOString(),
+        latestBlockHeight: latestBlock.height,
+        latestBlockTime: latestBlock.timestamp.toISOString(),
+      })
+    }
+
+    return {
+      chainStatuses
+    }
   }
 );

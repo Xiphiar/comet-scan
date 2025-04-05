@@ -16,3 +16,14 @@
         margin-top: 40px;
     }
 }
+
+.statusLink {
+    color: var(--main);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
+
+.statusLink:hover {
+    opacity: 0.8;
+}

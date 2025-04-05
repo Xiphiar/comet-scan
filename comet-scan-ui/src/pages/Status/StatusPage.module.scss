@@ -1,0 +1,83 @@
+.statusCard {
+    transition: background-color 0.2s ease;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+}
+
+.title {
+    font-family: 'Bunken Tech';
+    @media(min-width: 478px) {
+        margin-top: 40px;
+    }
+}
+
+.statusHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin-bottom: 8px;
+    
+    h3 {
+        margin-top: 8px;
+        margin-bottom: 0;
+    }
+}
+
+.statusIndicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 20px;
+}
+
+.statusIconGood {
+    color: #28a745;
+}
+
+.statusIconWarning {
+    color: #ffc107;
+}
+
+.statusIconCritical {
+    color: #dc3545;
+}
+
+.statusInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.statusItem {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
+}
+
+.label {
+    font-weight: 600;
+    margin-right: 4px;
+}
+
+.timeInfo {
+    font-size: 0.85rem;
+    margin-top: 4px;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.statusWarning {
+    border-left: 4px solid #ffc107;
+}
+
+.statusCritical {
+    border-left: 4px solid #dc3545;
+} 

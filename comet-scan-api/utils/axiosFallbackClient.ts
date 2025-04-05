@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 type Verifier<T> = (result: T) => boolean;
 
@@ -36,7 +36,8 @@ export default class AxiosFallbackClient {
                 return data;
             } catch (error: any) {
                 errors.push(error);
-                this.timedOutUrls.set(url, Date.now());
+                // Only timeout if status code is not 501 (501 on LCD indicates a logic issue, not a server issue)
+                if ((error as AxiosError).response?.status !== 501) this.timedOutUrls.set(url, Date.now());
             }
         }
 

@@ -309,12 +309,16 @@ const getBalancesForAccount = async (config: ChainConfig, address: string): Prom
     const nativeAssets: Coin[] = [];
     for (const coin of allBalancesResponse.balances) {
         if (coin.denom.toLowerCase().startsWith('ibc/')) {
-            // Trace denom
-            const denom = await getDenomTrace(config.chainId, coin.denom);
-            nativeAssets.push({
-                denom,
-                amount: coin.amount,
-            })
+            try {
+                // Trace denom
+                const denom = await getDenomTrace(config.chainId, coin.denom);
+                nativeAssets.push({
+                    denom,
+                    amount: coin.amount,
+                })
+            } catch (err) {
+                // Do nothing, IBC assets aren't critical
+            }
         } else {
             nativeAssets.push(coin);
         }

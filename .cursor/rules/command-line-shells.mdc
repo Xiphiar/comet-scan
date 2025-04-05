@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Command Line Shells
+
+The shell might be powershell or bash depending on what we are working on.
+
+In most cases, the shell will be powershell and any commands should work in powershell.
+
+When working with rust, the shell will be bash, and any commands to compile, test, or lint rust code should work in a bash shell.

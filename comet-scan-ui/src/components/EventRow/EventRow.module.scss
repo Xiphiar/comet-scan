@@ -1,0 +1,54 @@
+.eventRow {
+    padding: 0;
+    border: 1px solid var(--light-grey);
+    margin-bottom: 12px;
+
+    details[open] {
+        summary {
+            color: transparent;
+        }
+        summary::marker {
+            color: var(--text-color);
+        }
+    }
+}
+
+.eventHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    cursor: pointer;
+    background-color: var(--lightest-grey);
+    
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+
+    h4 {
+        margin: 0;
+    }
+}
+
+.arrow {
+    transition: transform 0.3s ease;
+}
+
+.arrowOpen {
+    transform: rotate(180deg);
+}
+
+.eventContent {
+    padding: 0 12px 12px 12px;
+}
+
+.eventItem {
+    margin-bottom: 12px;
+    padding: 8px;
+    background-color: var(--lightest-grey);
+    border-radius: 4px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+} 

@@ -6,6 +6,7 @@ import { SingleAccountPageResponse } from "../../interfaces/responses/explorerAp
 import { getPaginatedAccountTransactions, getSingleAccountPage } from "../../api/pagesApi";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
+import TabbedCard from "../../components/TabbedCard";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import { weiFormatNice } from "../../utils/coin";
 import TransactionRow, { TransactionLabels } from "../../components/TransactionRow/TransactionRow";
@@ -40,7 +41,7 @@ const SingleAccountPage: FC = () => {
             setPage(newPage);
             setLoadingTransactions(true);
             await sleep(2000)
-            const txs = await getPaginatedAccountTransactions(chain.chainId, accountAddress, page);
+            const txs = await getPaginatedAccountTransactions(chain.chainId, accountAddress, newPage);
             setTransactions(txs.transactions);
         } catch (err: any) {
             console.error(`Error Loading Transactions page ${page}:`, err);
@@ -147,66 +148,79 @@ const SingleAccountPage: FC = () => {
                     </div>
                 }
             </Card>
-            <Card>
-                <h3>Created Contracts</h3>
-                {!!data.instantiatedContracts.length && <>
-                    <div className='d-flex mt-4 mb-1'>
-                        <div className='col col-5 col-md-4'>
-                            Label
-                        </div>
-                        <div className='col col-5 col-md-3'>
-                            Address
-                        </div>
-                        <div className='col col-2 col-md-1 text-end text-md-start'>
-                            Code ID
-                        </div>
-                        <div className='col col-2 d-none d-md-block'>
-                            Created
-                        </div>
-                        <div className='col col-2 d-none d-md-block'>
-                            Executions
-                        </div>
-                    </div>
-                    <div style={{borderBottom: '1px solid var(--light-gray)'}} />
-                </>}
-                {data.instantiatedContracts.map((contract, i) =><Fragment key={i}>
-                    <ContractRow contract={contract} chain={chain} />
-                    { i < data.instantiatedContracts.length - 1 && <div style={{borderBottom: '1px solid var(--light-gray)'}} />}
-                </Fragment>)}
-                {!data.instantiatedContracts.length && <div className='py-4 w-full text-center'>
-                    No created contracts.
-                </div>}
-            </Card>
-            <Card>
-                <h3>Administered Contracts</h3>
-                {!!data.administratedContracts.length && <>
-                    <div className='d-flex mt-4 mb-1'>
-                        <div className='col col-5 col-md-4'>
-                            Label
-                        </div>
-                        <div className='col col-5 col-md-3'>
-                            Address
-                        </div>
-                        <div className='col col-2 col-md-1 text-end text-md-start'>
-                            Code ID
-                        </div>
-                        <div className='col col-2 d-none d-md-block'>
-                            Created
-                        </div>
-                        <div className='col col-2 d-none d-md-block'>
-                            Executions
-                        </div>
-                    </div>
-                    <div style={{borderBottom: '1px solid var(--light-gray)'}} />
-                </>}
-                {data.administratedContracts.map((contract, i) =><Fragment key={i}>
-                    <ContractRow contract={contract} chain={chain} />
-                    { i < data.administratedContracts.length - 1 && <div style={{borderBottom: '1px solid var(--light-gray)'}} />}
-                </Fragment>)}
-                {!data.administratedContracts.length && <div className='py-4 w-full text-center'>
-                    No administered contracts.
-                </div>}
-            </Card>
+            <TabbedCard
+                title="Contracts"
+                tabs={[
+                    {
+                        title: "Created",
+                        content: (
+                            <>
+                                {!!data.instantiatedContracts.length && <>
+                                    <div className='d-flex mt-4 mb-1'>
+                                        <div className='col col-5 col-md-4'>
+                                            Label
+                                        </div>
+                                        <div className='col col-5 col-md-3'>
+                                            Address
+                                        </div>
+                                        <div className='col col-2 col-md-1 text-end text-md-start'>
+                                            Code ID
+                                        </div>
+                                        <div className='col col-2 d-none d-md-block'>
+                                            Created
+                                        </div>
+                                        <div className='col col-2 d-none d-md-block'>
+                                            Executions
+                                        </div>
+                                    </div>
+                                    <div style={{borderBottom: '1px solid var(--light-gray)'}} />
+                                </>}
+                                {data.instantiatedContracts.map((contract, i) =><Fragment key={i}>
+                                    <ContractRow contract={contract} chain={chain} />
+                                    { i < data.instantiatedContracts.length - 1 && <div style={{borderBottom: '1px solid var(--light-gray)'}} />}
+                                </Fragment>)}
+                                {!data.instantiatedContracts.length && <div className='py-4 w-full text-center'>
+                                    No created contracts.
+                                </div>}
+                            </>
+                        )
+                    },
+                    {
+                        title: "Administered",
+                        content: (
+                            <>
+                                {!!data.administratedContracts.length && <>
+                                    <div className='d-flex mt-4 mb-1'>
+                                        <div className='col col-5 col-md-4'>
+                                            Label
+                                        </div>
+                                        <div className='col col-5 col-md-3'>
+                                            Address
+                                        </div>
+                                        <div className='col col-2 col-md-1 text-end text-md-start'>
+                                            Code ID
+                                        </div>
+                                        <div className='col col-2 d-none d-md-block'>
+                                            Created
+                                        </div>
+                                        <div className='col col-2 d-none d-md-block'>
+                                            Executions
+                                        </div>
+                                    </div>
+                                    <div style={{borderBottom: '1px solid var(--light-gray)'}} />
+                                </>}
+                                {data.administratedContracts.map((contract, i) =><Fragment key={i}>
+                                    <ContractRow contract={contract} chain={chain} />
+                                    { i < data.administratedContracts.length - 1 && <div style={{borderBottom: '1px solid var(--light-gray)'}} />}
+                                </Fragment>)}
+                                {!data.administratedContracts.length && <div className='py-4 w-full text-center'>
+                                    No administered contracts.
+                                </div>}
+                            </>
+                        )
+                    }
+                ]}
+            />
         </div>
     )
 }

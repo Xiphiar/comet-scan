@@ -5,6 +5,8 @@ import { weiFormatNice } from "../../utils/coin";
 import { Coin } from "../../interfaces/models/blocks.interface";
 import { getDenomDetails, DenomDetails } from "../../utils/denoms";
 import { SmallSpinner } from "../SmallSpinner/smallSpinner";
+import { FaInfoCircle } from "react-icons/fa";
+import Tooltip from "../Tooltip/Tooltip";
 
 const AssetRow: FC<{ coin: Coin, chain: FrontendChainConfig }> = ({ coin, chain }) => {
     const [denomDetails, setDenomDetails] = useState<DenomDetails | undefined>();
@@ -42,7 +44,13 @@ const AssetRow: FC<{ coin: Coin, chain: FrontendChainConfig }> = ({ coin, chain 
     const formattedAmount = weiFormatNice(coin.amount, denomDetails?.decimals || 6);
     return (
         <div className={styles.dataRow}>
-            <div className='col col-8'>{denomDetails?.symbol || coin.denom}</div>
+            <div className='col col-8 flex-row'>
+                {denomDetails?.symbol || coin.denom}
+                {denomDetails.unknown && <>&nbsp;<Tooltip
+                    content="We don't have this asset in our database, the symbol and amount displayed may be incorrect."
+                    width={200}
+                ><FaInfoCircle /></Tooltip></>}
+            </div>
             <div className='col col-4 text-end'>{formattedAmount}</div>
         </div>
     );

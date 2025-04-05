@@ -29,6 +29,7 @@
   color: #000;
   --text-color: #000;
   --secondary-text-color: var(--gray);
+  --banner-text-color: white;
 
   --bg: #eee;
   --nav-bg: var(--xlight-gray);
@@ -47,6 +48,7 @@
   color: #FFF;
   --text-color: #FFF;
   --secondary-text-color: var(--light-gray);
+  --banner-text-color: black;
 
   --bg: rgb(51, 51, 51, 1);
   --nav-bg: rgb(51, 51, 51, 1);

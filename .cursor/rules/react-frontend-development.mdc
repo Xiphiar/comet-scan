@@ -1,0 +1,26 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# React Frontend Development
+
+Avoid using additional libraries or dependencies whenever possible. Create components as needed when additional functionality is required.
+
+Components that are only used on one page should be placed in the same folder as the page component.
+
+Components that can be used in multiple places should be placed in it's own folder in the src/components folder. The folder name, and the tsx file name should be named the same as the component. If CSS styling is required for a component, create a ComponentName.module.scss file in the component's folder for the CSS.
+
+When using `width: 100%`, remember that padding is in addition to this width, so an element with `padding: 8px` and `width: 100%` would be 16px wider than the parent container. Use the CSS calc() function to avoid this, e.g. `width: calc(100% - 16px)`
+
+Bootstrap utility classes are available (e.g. `d-flex`, `col-6`, `mt-4`) and can be used in simple cases when custom CSS is not required. Bootstrap components (e.g. the `btn` class or the `<Button>` component) are not available.
+
+When using `&&` to conditionally render elements, it expects a boolean value. If the tested value is not a boolean, a 0 might be rendered. Use !!variable to avoid this, e.g.:
+```
+const testVar: string | undefined = 'test`
+
+return (
+    {!!testVar && <div>Test Variable is not undefined!</div>}
+)
+```

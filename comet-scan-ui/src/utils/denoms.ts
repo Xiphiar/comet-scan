@@ -3,6 +3,7 @@ import { truncateString } from "./format";
 import { FrontendChainConfig } from "../interfaces/config.interface";
 
 export interface DenomDetails {
+    unknown?: true;
     denom: string;
     symbol: string;
     decimals: number;
@@ -116,6 +117,7 @@ export const getDenomDetails = async (denom: string, chainConfig: FrontendChainC
 
     const details = Denoms.find(d => d.denom === denom);
     return details || {
+        unknown: true,
         decimals: 1,
         denom,
         symbol: denom.length > 15 ? truncateString(denom) : denom,

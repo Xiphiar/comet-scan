@@ -10,7 +10,7 @@ import { SingleTransactionPageResponse } from "../../interfaces/responses/explor
 import { getSingleTransactionPage } from "../../api/pagesApi";
 import MessageRow from "../../components/MessageRow/messageRow";
 import { truncateString } from "../../utils/format";
-import { parseMessages } from "../../utils/messageParsing";
+import { parseMessages, formatTxType } from "../../utils/messageParsing";
 import { ParsedMessage } from "../../utils/messageParsing";
 import { useUser } from "../../hooks/useUser";
 import Spinner from "../../components/Spinner";
@@ -19,6 +19,8 @@ import JsonView from "react18-json-view";
 import { GrStatusGood, GrStatusCritical } from "react-icons/gr";
 import { FaGasPump, FaRegClock } from "react-icons/fa6";
 import { RiCoinsLine } from "react-icons/ri";
+import EventRow from "../../components/EventRow/EventRow";
+import { TxEvent } from "../../interfaces/lcdTxResponse";
 
 const SingleTransactionPage: FC = () => {
     const { chain: chainLookupId, transactionHash } = useParams();
@@ -26,6 +28,7 @@ const SingleTransactionPage: FC = () => {
     const chain = getChain(chainLookupId);
     const { data, error } = useAsync<SingleTransactionPageResponse>(getSingleTransactionPage(chain.chainId, transactionHash));
     const [parsedMessages, setParsedMessages] = useState<ParsedMessage[] | undefined>(undefined);
+    const [eventsByMsgIndex, setEventsByMsgIndex] = useState<Map<number, TxEvent[]>>(new Map());
     const { user } = useUser();
 
     useEffect(() => {
@@ -35,6 +38,26 @@ const SingleTransactionPage: FC = () => {
             setParsedMessages(messages);
         })();
     }, [data, user?.encryptionUtils, chain, allChains]);
+
+    useEffect(() => {
+        if (!data) return;
+        // Group events by message index
+        const events = data.transaction.transaction.tx_response.events;
+        const groupedEvents = new Map<number, TxEvent[]>();
+        
+        events.forEach(event => {
+            const msgIndexAttr = event.attributes.find(attr => attr.key === 'msg_index');
+            if (msgIndexAttr) {
+                const msgIndex = parseInt(msgIndexAttr.value);
+                if (!groupedEvents.has(msgIndex)) {
+                    groupedEvents.set(msgIndex, []);
+                }
+                groupedEvents.get(msgIndex)?.push(event);
+            }
+        });
+        
+        setEventsByMsgIndex(groupedEvents);
+    }, [data]);
 
     if (!chain) {
         return (
@@ -129,6 +152,40 @@ const SingleTransactionPage: FC = () => {
                                             key={`${msg.title}-${i}-${msg.content.length}`} 
                                         />
                                     ))
+                                )}
+                            </>
+                        )
+                    },
+                    {
+                        title: "Events",
+                        content: (
+                            <>
+                                <h3>Events</h3>
+                                {parsedMessages === undefined ? (
+                                    <div className='d-flex justify-content-center'>
+                                        <Spinner />
+                                    </div>
+                                ) : (
+                                    Array.from(eventsByMsgIndex.entries()).map(([msgIndex, events]) => {
+                                        // Find the message title for this msg_index
+                                        const msgTitle = msgIndex < parsedMessages.length 
+                                            ? parsedMessages[msgIndex].title 
+                                            : formatTxType(data.transaction.transaction.tx.body.messages[msgIndex]['@type']);
+                                        
+                                        return (
+                                            <EventRow 
+                                                key={`events-msg-${msgIndex}`}
+                                                events={events}
+                                                messageIndex={msgIndex}
+                                                messageTitle={msgTitle}
+                                            />
+                                        );
+                                    })
+                                )}
+                                {eventsByMsgIndex.size === 0 && (
+                                    <div className="text-center p-4">
+                                        No events with message index found
+                                    </div>
                                 )}
                             </>
                         )

@@ -5,6 +5,7 @@ import useConfig from "../hooks/useConfig";
 import Toggle from "../components/Toggle/Toggle";
 import MobileNav from "../components/MobileNav/MobileNav";
 import ConnectWallet from "../components/ConnectWallet/ConnectWallet";
+import BetaBanner from "../components/BetaBanner/BetaBanner";
 
 const MainLayout: FC = () => {
     const { chain } = useParams();
@@ -15,6 +16,7 @@ const MainLayout: FC = () => {
 
     return (
         <>
+            <BetaBanner />
             <header>
                 <div className={styles.navbar}>
                     <Link to='/' className='d-flex align-items-center px-4 gap-2'>

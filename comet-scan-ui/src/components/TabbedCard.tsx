@@ -12,6 +12,7 @@ type Props = {
     style?: CSSProperties;
     gap?: string;
     tabs: Tab[];
+    title?: string;
 };
 
 const TabbedCard: FC<Props> = ({
@@ -19,7 +20,8 @@ const TabbedCard: FC<Props> = ({
     conentClassName,
     style,
     gap = '8px',
-    tabs
+    tabs,
+    title
 }) => {
     const [activeTabIndex, setActiveTabIndex] = useState(0);
 
@@ -29,6 +31,7 @@ const TabbedCard: FC<Props> = ({
                 margin: gap,
                 ...style
             }}>
+                {!!title && <h3 className='mb-3'>{title}</h3>}
                 <div className="d-flex mb-3">
                     {tabs.map((tab, index) => (
                         <div 

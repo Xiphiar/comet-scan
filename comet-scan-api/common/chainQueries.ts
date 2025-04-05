@@ -17,9 +17,9 @@ export const getTotalSupply = async (chainId: string): Promise<Amount> => {
     const lcdClient = getLcdClient(chainId);
 
     // TODO, should probably try this first and fallback to getting all supplies if it fails
-    // const {data: _data} = await lcdClient.get(`/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.bondingDenom}`);
+    // const _data = await lcdClient.get(`/cosmos/bank/v1beta1/supply/by_denom?denom=${chainConfig.bondingDenom}`);
     
-    const {data: _data}: { data: { supply: Coin[] }} = await lcdClient.get(`/cosmos/bank/v1beta1/supply`, {
+    const _data = await lcdClient.get<{ supply: Coin[] }>(`/cosmos/bank/v1beta1/supply`, {
         params: {
             'pagination.limit': 10_000, // Does this work for all chains? If not we'll need to loop through all the pages
         }

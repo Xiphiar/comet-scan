@@ -9,7 +9,7 @@ import Selector from "../../components/Selector/Selector";
 import { formatTime } from "../../utils/format";
 import { GrStatusGood, GrStatusWarning, GrStatusCritical } from "react-icons/gr";
 import { BiBlock } from "react-icons/bi";
-import { MdOutlineAccessTime } from "react-icons/md";
+import { MdFirstPage, MdLastPage, MdOutlineAccessTime } from "react-icons/md";
 import { HiDatabase } from "react-icons/hi";
 
 type Props = {
@@ -104,20 +104,28 @@ const StatusPage: FC<Props> = ({isLoading: propsIsLoading, loadingError: propsLo
                                         </div>
                                         <div className={styles.statusInfo}>
                                             <div className={styles.statusItem}>
-                                                <BiBlock /> <span className={styles.label}>Earliest Block:</span> {chainStatus.earliestBlockHeight}
+                                                <div className='d-flex flex-wrap gap-1 align-items-center'>
+                                                    <MdFirstPage />
+                                                    <span className={styles.label}>Earliest Block:</span>
+                                                    {chainStatus.earliestBlockHeight.toLocaleString()}
+                                                </div>
                                                 <div className={styles.timeInfo}>
                                                     <MdOutlineAccessTime /> {new Date(chainStatus.earliestBlockTime).toLocaleString()}
                                                 </div>
                                             </div>
                                             <div className={styles.statusItem}>
-                                                <BiBlock /> <span className={styles.label}>Latest Block:</span> {chainStatus.latestBlockHeight}
+                                                <div className='d-flex flex-wrap gap-1 align-items-center'>
+                                                    <MdLastPage />
+                                                    <span className={styles.label}>Latest Block:</span>
+                                                    {chainStatus.latestBlockHeight.toLocaleString()}
+                                                </div>
                                                 <div className={styles.timeInfo}>
                                                     <MdOutlineAccessTime /> {latestBlockTime.toLocaleString()}
                                                     <div>{formatTime(chainStatus.latestBlockTime)}</div>
                                                 </div>
                                             </div>
                                             <div className={styles.statusItem}>
-                                                <HiDatabase /> <span className={styles.label}>Blocks Kept:</span> {chain.pruneBlocksAfter || 'All'}
+                                                <div className='d-flex flex-wrap gap-1 align-items-center'><HiDatabase /> <span className={styles.label}>Blocks Kept:</span> {chain.pruneBlocksAfter?.toLocaleString() || 'All'}</div>
                                             </div>
                                         </div>
                                     </Card>

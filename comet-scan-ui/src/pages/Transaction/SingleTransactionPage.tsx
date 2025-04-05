@@ -20,9 +20,11 @@ import { GrStatusGood, GrStatusCritical } from "react-icons/gr";
 import { FaGasPump, FaRegClock } from "react-icons/fa6";
 import { RiCoinsLine } from "react-icons/ri";
 import EventRow from "../../components/EventRow/EventRow";
+import ResponseRow from "../../components/ResponseRow/ResponseRow";
 import { TxEvent } from "../../interfaces/lcdTxResponse";
-import decodeTxResponse from "../../utils/secret";
-import { fromAscii, fromUtf8, toBase64, TxResponse } from "secretjs";
+import decodeTxResponse, { DecryptedTxResponse } from "../../utils/secret";
+import { TxMsgData } from "secretjs/dist/protobuf/cosmos/base/abci/v1beta1/abci";
+import { fromHex } from "secretjs";
 
 const SingleTransactionPage: FC = () => {
     const { chain: chainLookupId, transactionHash } = useParams();
@@ -31,7 +33,7 @@ const SingleTransactionPage: FC = () => {
     const { data, error } = useAsync<SingleTransactionPageResponse>(getSingleTransactionPage(chain.chainId, transactionHash));
     const [parsedMessages, setParsedMessages] = useState<ParsedMessage[] | undefined>(undefined);
     const [eventsByMsgIndex, setEventsByMsgIndex] = useState<Map<number, TxEvent[]>>(new Map());
-    const [decryptedTx, setDecrypedTx] = useState<TxResponse | undefined>(undefined);
+    const [decryptedTx, setDecrypedTx] = useState<DecryptedTxResponse | undefined>(undefined);
     const { user } = useUser();
 
     useEffect(() => {
@@ -85,17 +87,36 @@ const SingleTransactionPage: FC = () => {
     }, [data, decryptedTx]);
 
     const decodedResponses: string[] | undefined = useMemo(()=>{
-        if (!decryptedTx) return undefined;
+        // Response data is pretty useless outside of secret network,
+        // so there's no point in processing it on other networks
+        if (!data || !chain.features.includes('secretwasm')) return undefined;
 
-        const data: string[] = []
-        for (const d of decryptedTx.data) {
-            const string = Buffer.from(d).toString('utf8');
-            // Strip unicode special characters (probably leftover from protobuf encoding)
-            data.push(string.replace(/[\u{FFF0}-\u{FFFF}]/gu,""))
+        const dr: string[] = []
+
+        if (decryptedTx) {
+            for (const d of decryptedTx.data) {
+                if (!decryptedTx.dataDecrypted) {
+                    if (!user) dr.push('Response data is encrypted. Connect the sending wallet to decrypt.')
+                    else dr.push(`Response data is encrypted. Either the connected wallet is not the sender, or a different encryption key was used for this transaction.`)
+                    continue;
+                }
+                const string = Buffer.from(d).toString('utf8');
+                // Strip unicode special characters (probably leftover from protobuf encoding)
+                dr.push(string.replace(/[\u{FFF0}-\u{FFFF}]/gu,"") || 'No response data.')
+            }
+        } else {
+            // TODO falls back to this when a user isn't logged in. Eventually should display the tab with the encrypted warnings above.
+            // const txMsgData = TxMsgData.decode(fromHex(data.transaction.transaction.tx_response.data));
+            
+            // for (const mr of txMsgData.msg_responses) {
+            //     const string = Buffer.from(mr.value).toString('utf8');
+            //     const clean = string.replace(/[\u{FFF0}-\u{FFFF}]/gu,"");
+            //     dr.push(clean || 'No response data.')
+            // }
         }
 
-        return data;
-    }, [decryptedTx])
+        return dr;
+    }, [chain.features, data, decryptedTx, user])
 
     if (!chain) {
         return (
@@ -110,6 +131,117 @@ const SingleTransactionPage: FC = () => {
     }
 
     const feeAmount = data.transaction.transaction.tx.auth_info.fee.amount.find(coin => coin.denom === chain.bondingDenom)?.amount || '0'; 
+
+    // Generate the tabs dynamically based on availability of decoded responses
+    const generateTabs = () => {
+        const tabs = [
+            {
+                title: "Messages",
+                content: (
+                    <>
+                        <h3>Messages</h3>
+                        {parsedMessages === undefined ? (
+                            <div className='d-flex justify-content-center'>
+                                <Spinner />
+                            </div>
+                        ) : (
+                            parsedMessages.map((msg, i) => (
+                                <MessageRow 
+                                    message={msg} 
+                                    messageIndex={i} 
+                                    key={`${msg.title}-${i}-${msg.content.length}`} 
+                                />
+                            ))
+                        )}
+                    </>
+                )
+            }
+        ];
+
+        // Add Responses tab only if we have decoded responses
+        if (decodedResponses && decodedResponses.length > 0) {
+            tabs.push({
+                title: "Responses",
+                content: (
+                    <>
+                        <h3>Responses</h3>
+                        {parsedMessages === undefined ? (
+                            <div className='d-flex justify-content-center'>
+                                <Spinner />
+                            </div>
+                        ) : (
+                            decodedResponses.map((responseData, i) => {
+                                // Find the message title for this response
+                                const msgTitle = i < parsedMessages.length 
+                                    ? parsedMessages[i].title 
+                                    : formatTxType(data.transaction.transaction.tx.body.messages[i]['@type']);
+                                
+                                return (
+                                    <ResponseRow 
+                                        key={`response-${i}`}
+                                        responseData={responseData}
+                                        messageIndex={i}
+                                        messageTitle={msgTitle}
+                                    />
+                                );
+                            })
+                        )}
+                    </>
+                )
+            });
+        }
+
+        // Add Events tab
+        tabs.push({
+            title: "Events",
+            content: (
+                <>
+                    <h3>Events</h3>
+                    {parsedMessages === undefined ? (
+                        <div className='d-flex justify-content-center'>
+                            <Spinner />
+                        </div>
+                    ) : (
+                        <>
+                            {Array.from(eventsByMsgIndex.entries()).map(([msgIndex, events]) => {
+                                // Find the message title for this msg_index
+                                const msgTitle = msgIndex < parsedMessages.length 
+                                    ? parsedMessages[msgIndex].title 
+                                    : formatTxType(data.transaction.transaction.tx.body.messages[msgIndex]['@type']);
+                                
+                                return (
+                                    <EventRow 
+                                        key={`events-msg-${msgIndex}`}
+                                        events={events}
+                                        messageIndex={msgIndex}
+                                        messageTitle={msgTitle}
+                                    />
+                                );
+                            })}
+                            {eventsByMsgIndex.size === 0 && (
+                                <div className="text-center p-4">
+                                    No events found
+                                </div>
+                            )}
+                        </>
+                    )}
+                </>
+            )
+        });
+
+        // Add JSON tab
+        tabs.push({
+            title: "JSON",
+            content: (
+                <>
+                    <h3>Transaction JSON</h3>
+                    <JsonView src={data.transaction.transaction} />
+                </>
+            )
+        });
+
+        return tabs;
+    };
 
     return (
         <div className='d-flex flex-column'>
@@ -172,74 +304,7 @@ const SingleTransactionPage: FC = () => {
             </Card>
             <TabbedCard 
                 conentClassName='d-flex flex-column gap-2'
-                tabs={[
-                    {
-                        title: "Messages",
-                        content: (
-                            <>
-                                <h3>Messages</h3>
-                                {parsedMessages === undefined ? (
-                                    <div className='d-flex justify-content-center'>
-                                        <Spinner />
-                                    </div>
-                                ) : (
-                                    parsedMessages.map((msg, i) => (
-                                        <MessageRow 
-                                            message={msg} 
-                                            messageIndex={i} 
-                                            key={`${msg.title}-${i}-${msg.content.length}`} 
-                                        />
-                                    ))
-                                )}
-                            </>
-                        )
-                    },
-                    {
-                        title: "Events",
-                        content: (
-                            <>
-                                <h3>Events</h3>
-                                {parsedMessages === undefined ? (
-                                    <div className='d-flex justify-content-center'>
-                                        <Spinner />
-                                    </div>
-                                ) : (
-                                    <>
-                                        {Array.from(eventsByMsgIndex.entries()).map(([msgIndex, events]) => {
-                                            // Find the message title for this msg_index
-                                            const msgTitle = msgIndex < parsedMessages.length 
-                                                ? parsedMessages[msgIndex].title 
-                                                : formatTxType(data.transaction.transaction.tx.body.messages[msgIndex]['@type']);
-                                            
-                                            return (
-                                                <EventRow 
-                                                    key={`events-msg-${msgIndex}`}
-                                                    events={events}
-                                                    messageIndex={msgIndex}
-                                                    messageTitle={msgTitle}
-                                                />
-                                            );
-                                        })}
-                                        {eventsByMsgIndex.size === 0 && (
-                                            <div className="text-center p-4">
-                                                No events found
-                                            </div>
-                                        )}
-                                    </>
-                                )}
-                            </>
-                        )
-                    },
-                    {
-                        title: "JSON",
-                        content: (
-                            <>
-                                <h3>Transaction JSON</h3>
-                                <JsonView src={data.transaction.transaction} />
-                            </>
-                        )
-                    }
-                ]}
+                tabs={generateTabs()}
             />
         </div>
     )

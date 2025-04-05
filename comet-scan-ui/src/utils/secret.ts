@@ -9,10 +9,19 @@ import { MsgMigrateContractResponse } from "secretjs/dist/protobuf/secret/comput
 
 type ComputeMsgToNonce = { [msgIndex: number]: Uint8Array };
 
+export type DecryptedTxResponse = TxResponse & {
+  // messagesDecryted: boolean;
+  // eventsDecrypted: boolean;
+  dataDecrypted: boolean;
+}
+
 async function decodeTxResponse(
     encryptionUtils: EncryptionUtils,
     txResp: TxResponsePb,
-  ): Promise<TxResponse> {
+  ): Promise<DecryptedTxResponse> {
+    // let messagesDecryted = false;
+    // let eventsDecrypted = false;
+    let dataDecrypted = false;
 
     const nonces: ComputeMsgToNonce = [];
 
@@ -248,6 +257,7 @@ async function decodeTxResponse(
               data: decrypted,
             }).finish();
           }
+          dataDecrypted = true;
         } catch (decryptionError) {
           // Not encrypted or can't decrypt because not original sender
         }
@@ -255,6 +265,7 @@ async function decodeTxResponse(
     }
 
     return {
+      dataDecrypted,
       height: Number(txResp.height),
       timestamp: txResp.timestamp!,
       transactionHash: txResp.txhash!,

@@ -1,0 +1,25 @@
+.responseRow {
+    padding: 12px;
+    border: 1px solid var(--light-grey);
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    > :last-child {
+        padding-left: 8px;
+    }
+
+    details[open] {
+        summary {
+            color: transparent;
+        }
+        summary::marker {
+            color: var(--text-color);
+        }
+    }
+} 

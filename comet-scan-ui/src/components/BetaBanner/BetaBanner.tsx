@@ -21,7 +21,7 @@ const BetaBanner: FC = () => {
   return (
     <div className={styles.banner}>
       <div className={styles.content}>
-        CometScan is currently in beta, explorer content may not accurately reflect the current state of the network.
+        Comet Scan is currently in beta, explorer content may not accurately reflect the current state of the network.
       </div>
       <button 
         className={styles.closeButton} 

@@ -1,5 +1,5 @@
-import { FC, useState } from "react";
-import useAsync from "../../hooks/useAsync";
+import { FC, useEffect, useState } from "react";
+import { useAsyncV2 } from "../../hooks/useAsync";
 import { getStatusPage } from "../../api/pagesApi";
 import Card from "../../components/Card";
 import Spinner from "../../components/Spinner";
@@ -8,9 +8,9 @@ import Toggle from "../../components/Toggle/Toggle";
 import Selector from "../../components/Selector/Selector";
 import { formatTime } from "../../utils/format";
 import { GrStatusGood, GrStatusWarning, GrStatusCritical } from "react-icons/gr";
-import { BiBlock } from "react-icons/bi";
 import { MdFirstPage, MdLastPage, MdOutlineAccessTime } from "react-icons/md";
 import { HiDatabase } from "react-icons/hi";
+import { StatusPageResponse } from "../../interfaces/responses/explorerApiResponses";
 
 type Props = {
     isLoading?: boolean;
@@ -23,9 +23,17 @@ const options: Option[] = ['Mainnet', 'Testnet'];
 const StatusPage: FC<Props> = ({isLoading: propsIsLoading, loadingError: propsLoadingError}) => {
     const [selected, setSelected] = useState<Option>('Mainnet');
     
-    const { data, error } = useAsync(getStatusPage());
+    const { data, error, refresh } = useAsyncV2<StatusPageResponse>(getStatusPage);
     const isLoading = propsIsLoading || (!data && !error);
     const loadingError = propsLoadingError || error?.toString();
+
+    useEffect(()=>{
+        // Refresh every 30 seconds
+        setInterval(() => {
+            console.log('Refreshing Status...')
+            refresh()
+        }, 30_000)
+    }, [])
 
     const filteredChains = data?.chainStatuses.filter(chain => {
         if (selected === 'Mainnet') return !chain.chainConfig.isTestnet;
@@ -60,8 +68,9 @@ const StatusPage: FC<Props> = ({isLoading: propsIsLoading, loadingError: propsLo
                 <svg height={'120px'} width={'142px'}>
                     <use xlinkHref="/logo.svg#cometscanLogo" height={'120px'} width={'142px'} />
                 </svg>
-                <h1 className={styles.title}>Chain Status</h1>
+                <h1 className={styles.title}>Comet Scan</h1>
             </div>
+            <h2 style={{color: 'var(--main)'}}>Chain Status</h2>
             { isLoading ?
                 <div className='d-flex justify-content-center align-items-center pt-4 mt-4'>
                     <Spinner />

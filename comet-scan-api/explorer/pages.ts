@@ -1,5 +1,5 @@
 import { api, APIError, ErrCode } from "encore.dev/api";
-import { dayMs, get24hBlocksCount, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getOldestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb } from "../common/dbQueries";
+import { dayMs, get24hBlocksCount, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getOldestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb, hourMs } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
 import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse, PaginatedTransactionsResponse, StatusPageResponse, ChainStatus } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
@@ -16,7 +16,7 @@ import { LightWasmContract, WasmContract } from "../interfaces/models/contracts.
 import Contracts from "../models/contracts.model";
 import Codes from "../models/codes.model";
 import { addContractStats } from "../common/contracts";
-import { ProposerInfo, Validator } from "../interfaces/models/validators.interface";
+import { ProposerInfo } from "../interfaces/models/validators.interface";
 import ContractVerifications from "../models/contractVerifications.model";
 
 export const getOverview = api(
@@ -468,7 +468,7 @@ export const getAccountTransactionsPage = api(
 );
 
 export const getStatusPage = api(
-  { expose: true, method: "GET", path: "/explorer/status" }, // 1-indexed page number
+  { expose: true, method: "GET", path: "/explorer/status" },
   async (): Promise<StatusPageResponse> => {
     const chainStatuses: ChainStatus[] = [];
 
@@ -491,5 +491,24 @@ export const getStatusPage = api(
     return {
       chainStatuses
     }
+  }
+);
+
+// Returns a non-200 code if the latest block for a given chain is more than an hour old.
+export const getChainStatus = api(
+  { expose: true, method: "GET", path: "/explorer/status/:chainId" },
+  async ({ chainId }: { chainId: string }): Promise<string> => {
+    const chain = getChainConfig(chainId);
+    if (!chain) throw new APIError(ErrCode.NotFound, 'Chain not found');
+
+    const latestBlock = await getLatestBlock(chain.chainId);
+    if (!latestBlock) throw new APIError(ErrCode.Internal, 'Latest block not found');
+
+    const nowMs = new Date().valueOf();
+    const latestMs = latestBlock.timestamp.valueOf();
+    const latestBlockAgeMs = nowMs - latestMs;
+
+    if (latestBlockAgeMs > hourMs) throw new APIError(ErrCode.Internal, `Latest block is ${Math.ceil(latestBlockAgeMs / 1000)} seconds old.`)
+    return latestBlock.timestamp.toISOString();
   }
 );

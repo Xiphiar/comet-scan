@@ -14,5 +14,5 @@ services:
     ports:
       - '27017:27017'
     volumes:
-      - /home/cometscan-db:/data/db
+      - /fio/cometscan-db:/data/db
 

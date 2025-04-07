@@ -58,7 +58,7 @@ const Osmosis: ChainConfig = {
         'https://rest.lavenderfive.com:443/osmosis',
     ],
     frontendLcd: 'https://lcd.osmosis.zone',
-    startHeight: 31_660_000,
+    startHeight: 33_131_445,
     features: ['cosmwasm'],
     isTestnet: false,
     pruneBlocksAfter: 500_000,

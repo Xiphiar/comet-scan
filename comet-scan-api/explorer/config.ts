@@ -7,7 +7,7 @@ export const getExplorerConfig = api(
     { expose: true, method: "GET", path: "/explorer/config" },
     async (): Promise<GetExplorerConfigResponse> => {
         const chains: FrontendChainConfig[] = Chains.map(
-            ({ rpc, lcds, startHeight, ...chain }) => ({...chain, lcd: lcds[0]})
+            ({ rpc, lcds, frontendLcd, startHeight, ...chain }) => ({...chain, lcd: frontendLcd})
         );
         return {
             chains,

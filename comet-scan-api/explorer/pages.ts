@@ -472,7 +472,7 @@ export const getStatusPage = api(
   async (): Promise<StatusPageResponse> => {
     const chainStatuses: ChainStatus[] = [];
 
-    for (const { lcds, rpc, startHeight, ...chain } of Chains) {
+    for (const { lcds, rpc, frontendLcd, startHeight, ...chain } of Chains) {
       const earliestBlock = await getOldestBlock(chain.chainId);
       const latestBlock = await getLatestBlock(chain.chainId);
 
@@ -480,7 +480,7 @@ export const getStatusPage = api(
       if (!latestBlock) throw new APIError(ErrCode.Internal, `Failed to get the latest block for chain ${chain.chainId}`);
 
       chainStatuses.push({
-        chainConfig: {...chain, lcd: lcds[0]},
+        chainConfig: {...chain, lcd: frontendLcd},
         earliestBlockHeight: earliestBlock.height,
         earliestBlockTime: earliestBlock.timestamp.toISOString(),
         latestBlockHeight: latestBlock.height,

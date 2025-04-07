@@ -497,7 +497,7 @@ export const getStatusPage = api(
 // Returns a non-200 code if the latest block for a given chain is more than an hour old.
 export const getChainStatus = api(
   { expose: true, method: "GET", path: "/explorer/status/:chainId" },
-  async ({ chainId }: { chainId: string }): Promise<string> => {
+  async ({ chainId }: { chainId: string }): Promise<{latestBlockTime: string}> => {
     const chain = getChainConfig(chainId);
     if (!chain) throw new APIError(ErrCode.NotFound, 'Chain not found');
 
@@ -509,6 +509,6 @@ export const getChainStatus = api(
     const latestBlockAgeMs = nowMs - latestMs;
 
     if (latestBlockAgeMs > hourMs) throw new APIError(ErrCode.Internal, `Latest block is ${Math.ceil(latestBlockAgeMs / 1000)} seconds old.`)
-    return latestBlock.timestamp.toISOString();
+    return {latestBlockTime: latestBlock.timestamp.toISOString()};
   }
 );

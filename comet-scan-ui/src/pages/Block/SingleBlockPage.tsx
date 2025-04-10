@@ -14,12 +14,17 @@ import { formatTimeSeconds } from "../../utils/format";
 import { GrTransaction } from "react-icons/gr";
 import { FaGasPump, FaRegClock } from "react-icons/fa6";
 import { RiCoinsLine } from "react-icons/ri";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 const SingleBlockPage: FC = () => {
     const { chain: chainLookupId, blockHeight } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data, error } = useAsync<SingleBlockPageResponse>(getSingleBlockPage(chain.chainId, blockHeight));
+    const { data, error } = useAsync<SingleBlockPageResponse>(getSingleBlockPage(chain.chainId, blockHeight), { updateOn: [blockHeight, chainLookupId]});
+
+    const currentBlockHeight = parseInt(blockHeight || '0');
+    const previousBlockHeight = currentBlockHeight > 1 ? currentBlockHeight - 1 : undefined;
+    const nextBlockHeight = currentBlockHeight + 1;
 
     if (!chain) {
         return (
@@ -36,7 +41,23 @@ const SingleBlockPage: FC = () => {
     const proposerDetails = data.proposer?.descriptions.length ? data.proposer.descriptions[0] : undefined;
     return (
         <div className='d-flex flex-column'>
-            <TitleAndSearch chain={chain} title={`Block ${blockHeight}`} />
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <TitleAndSearch chain={chain} title={`Block ${blockHeight}`} />
+                <div className="d-flex gap-2">
+                    {previousBlockHeight !== undefined ? (
+                        <Link to={`/${chainLookupId}/blocks/${previousBlockHeight}`} className="button d-flex align-items-center gap-1">
+                            <IoIosArrowBack /> Prev
+                        </Link>
+                    ) : (
+                        <button className="button d-flex align-items-center gap-1" disabled>
+                            <IoIosArrowBack /> Prev
+                        </button>
+                    )}
+                    <Link to={`/${chainLookupId}/blocks/${nextBlockHeight}`} className="button d-flex align-items-center gap-1">
+                        Next <IoIosArrowForward />
+                    </Link>
+                </div>
+            </div>
             <div className='d-flex flex-wrap w-full'>
                 <Card className='col col-6 col-md-3 flex-grow-1'>
                     <div className='statTitle'><FaRegClock /><h5>Time</h5></div>

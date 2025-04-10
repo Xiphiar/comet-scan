@@ -16,6 +16,7 @@ import { BiSolidBank } from "react-icons/bi";
 import { FaArrowUpRightDots } from "react-icons/fa6";
 import { RiCodeBlock } from "react-icons/ri";
 import styles from './OverviewPage.module.scss';
+import TriviumLoader from "../../components/TriviumLoader/TriviumLoader";
 
 const OverviewPage: FC = () => {
     const { chain: chainLookupId } = useParams();

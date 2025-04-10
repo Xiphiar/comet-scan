@@ -79,6 +79,17 @@ export const getRecentTransactionsPage = async (chainId: string): Promise<Transa
     return data;
 }
 
+export const getPaginatedTransactionsPage = async (chainId: string, pageNumber = 1): Promise<PaginatedTransactionsResponse> => {
+    const {data} = await http.get(`/explorer/${chainId}/transactions/page/${pageNumber}`,
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+    return data;
+}
+
 export const getSingleTransactionPage = async (chainId: string, transactionHash: string): Promise<SingleTransactionPageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/transactions/${transactionHash}`,
         {

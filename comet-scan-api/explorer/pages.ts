@@ -196,6 +196,29 @@ export const getTransactionsPage = api(
   }
 );
 
+export const getPaginatedTransactionsPage = api(
+  { expose: true, method: "GET", path: "/explorer/:chainId/transactions/page/:pageNumber" }, // 1-indexed page number
+  async ({ chainId, pageNumber = 1 }: { chainId: string, pageNumber?: number }): Promise<PaginatedTransactionsResponse> => {
+    const {docs, totalDocs, limit, page} = await Transactions.paginate(
+      { chainId },
+      {
+        sort: {blockHeight: -1},
+        page: pageNumber,
+        limit: 30,
+        projection: { _id: false, __v: false },
+        lean: true,
+      }
+    );
+    
+    return {
+      transactions: docs,
+      total: totalDocs,
+      page: page || pageNumber,
+      per_page: limit,
+    };
+  }
+);
+
 export const getSingleTransactionPage = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/transactions/:hash" },
   async ({ chainId, hash }: { chainId: string, hash: string }): Promise<SingleTransactionPageResponse> => {

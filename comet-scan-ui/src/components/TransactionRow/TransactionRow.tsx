@@ -10,6 +10,7 @@ import { combineCoins } from "../../utils/denoms";
 import { SmallSpinner } from "../SmallSpinner/smallSpinner";
 import { useUser } from "../../hooks/useUser";
 import useConfig from "../../hooks/useConfig";
+import Tooltip from "../Tooltip/Tooltip";
 const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig }> = ({ transaction, chain }) => {
     const { user } = useUser();
     const { chains: allChains } = useConfig();
@@ -50,7 +51,16 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
                 {/* {formatTxType(txType)} */}
                 {/* TODO maybe prefix execute transactions with 'Execute Contract' */}
                 { parsedMessages ?
-                    (transaction.transaction.tx.body.messages.length > 1 ? `${transaction.transaction.tx.body.messages.length} Messages` : parsedMessages[0].title)
+                    ( transaction.transaction.tx.body.messages.length > 1 ?
+                        <div className='d-flex align-items-center gap-2'>
+                            {parsedMessages[0].title}
+                            <Tooltip content={`This transaction contains ${transaction.transaction.tx.body.messages.length} messages.`}>
+                                <div className={styles.badge}>+{transaction.transaction.tx.body.messages.length - 1}</div>
+                            </Tooltip>
+                        </div>
+                    :
+                        parsedMessages[0].title
+                    )
                 :
                     formatTxType(txType)
                 }

@@ -9,3 +9,11 @@
         flex-direction: column;
     }
 }
+
+.badge {
+    background-color: var(--main);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 14px;
+    color: white;
+}

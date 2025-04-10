@@ -52,12 +52,26 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
                 {/* TODO maybe prefix execute transactions with 'Execute Contract' */}
                 { parsedMessages ?
                     ( transaction.transaction.tx.body.messages.length > 1 ?
-                        <div className='d-flex align-items-center gap-2'>
-                            {parsedMessages[0].title}
-                            <Tooltip content={`This transaction contains ${transaction.transaction.tx.body.messages.length} messages.`}>
-                                <div className={styles.badge}>+{transaction.transaction.tx.body.messages.length - 1}</div>
-                            </Tooltip>
-                        </div>
+                        (() => {
+                            const allTitlesSame = parsedMessages.every(msg => msg.title === parsedMessages[0].title);
+                            return (
+                                <div className='d-flex align-items-center gap-2'>
+                                    {parsedMessages[0].title}
+                                    <Tooltip
+                                        content={allTitlesSame ?
+                                            `This transaction contains ${transaction.transaction.tx.body.messages.length} messages of the same type.`
+                                            : `This transaction contains ${transaction.transaction.tx.body.messages.length} different messages.`
+                                        }
+                                    >
+                                        { allTitlesSame ?
+                                            <div className={styles.badge}>x{transaction.transaction.tx.body.messages.length}</div>
+                                        :
+                                            <div className={styles.badge}>+{transaction.transaction.tx.body.messages.length - 1}</div>
+                                        }
+                                    </Tooltip>
+                                </div>
+                            );
+                        })()
                     :
                         parsedMessages[0].title
                     )

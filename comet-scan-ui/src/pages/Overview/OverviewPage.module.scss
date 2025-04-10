@@ -25,6 +25,9 @@
         align-items: center;
     }
 }
+.valRow:hover {
+    color: var(--main);
+}
 
 .dataRow:hover {
     color: var(--main) !important;

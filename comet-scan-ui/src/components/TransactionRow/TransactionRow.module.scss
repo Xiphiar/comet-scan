@@ -9,6 +9,9 @@
         flex-direction: column;
     }
 }
+.dataRow:hover {
+    color: var(--main);
+}
 
 .badge {
     background-color: var(--main);

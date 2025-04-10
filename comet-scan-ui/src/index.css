@@ -163,6 +163,9 @@ h1 {
       flex-direction: column;
   }
 }
+.dataRow:hover {
+  color: var(--main);
+}
 
 .badge {
   padding: 4px 8px;

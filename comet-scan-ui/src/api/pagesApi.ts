@@ -1,5 +1,5 @@
 import { WasmContract } from "../interfaces/models/contracts.interface";
-import { AllContractsPageResponse, AllProposalsPageResponse, BlocksPageResponse, PaginatedTransactionsResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleCodePageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, StatusPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
+import { AllContractsPageResponse, AllProposalsPageResponse, AllTokensPageResponse, BlocksPageResponse, PaginatedTransactionsResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleCodePageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, StatusPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
 import http from "./apiClient"
 
 export const getOverviewPage = async (chainId: string) => {
@@ -158,6 +158,17 @@ export const getAllContractsPage = async (chainId: string): Promise<AllContracts
 
 export const getSingleContractPage = async (chainId: string, contractAddress: string): Promise<SingleContractPageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/contracts/${contractAddress}`,
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+    return data;
+}
+
+export const getAllTokensPage = async (chainId: string): Promise<AllTokensPageResponse> => {
+    const {data} = await http.get(`/explorer/${chainId}/tokens`,
         {
             headers: {
                 'Content-Type': 'application/json'

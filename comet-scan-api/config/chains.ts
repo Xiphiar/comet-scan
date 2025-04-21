@@ -85,7 +85,7 @@ const SecretNetwork: ChainConfig = {
     ],
     frontendLcd: 'https://secret-4.api.trivium.network:1317',
     startHeight: 17_550_000,
-    features: ['secretwasm'],
+    features: ['secretwasm', 'tokens'],
     isTestnet: false,
     enableWalletConnect: true,
 }
@@ -106,7 +106,7 @@ const SecretNetworkPulsar3: ChainConfig = {
     lcds: ['https://pulsar.lcd.secretnodes.com'],
     frontendLcd: 'https://pulsar.lcd.secretnodes.com',
     startHeight: 8_310_000,
-    features: ['secretwasm', 'no_contract_parsing'],
+    features: ['secretwasm', 'no_contract_parsing', 'tokens'],
     isTestnet: true,
     enableWalletConnect: true,
     pruneBlocksAfter: 500_000,

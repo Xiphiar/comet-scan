@@ -1,7 +1,7 @@
 import { api, APIError, ErrCode } from "encore.dev/api";
 import { dayMs, get24hBlocksCount, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getOldestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb, hourMs } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
-import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse, PaginatedTransactionsResponse, StatusPageResponse, ChainStatus } from "../interfaces/responses/explorerApiResponses";
+import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse, PaginatedTransactionsResponse, StatusPageResponse, ChainStatus, AllTokensPageResponse } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
 import Blocks from "../models/blocks";
 import Transactions from "../models/transactions";
@@ -420,6 +420,38 @@ export const getSingleContract = api(
       recentTransactions,
       dailyExecutions,
       verification: verification || undefined,
+    }
+  }
+);
+
+export const getTokensPage = api(
+  { expose: true, method: "GET", path: "/explorer/:chainId/tokens" },
+  async ({ chainId }: { chainId: string }): Promise<AllTokensPageResponse> => {
+    const config = getChainConfig(chainId);
+    if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
+
+    let contracts: WasmContract[] = [];
+    let totalTokens = 0;
+    if (config.features.includes('secretwasm') || config.features.includes('cosmwasm')) {
+      contracts = await Contracts.find({ chainId, tokenInfo: { $exists: true } }, { _id: false, __v: false }).sort({ executions: -1 }).limit(30).lean();
+      totalTokens = await Contracts.find({ chainId, tokenInfo: { $exists: true } }).countDocuments();
+    }
+
+    const contractsWithStats: ContractWithStats[] = []
+    for (const contract of contracts) {
+      const dailyExecutions = await get24hContractExecutionsCount(chainId, contract.contractAddress);
+      const verification = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
+
+      contractsWithStats.push({
+        contract,
+        dailyExecutions,
+        verified: !!verification,
+      })
+    }
+
+    return {
+      tokenContracts: contractsWithStats,
+      totalTokens,
     }
   }
 );

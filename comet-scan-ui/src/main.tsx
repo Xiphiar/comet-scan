@@ -31,6 +31,8 @@ import SingleCodePage from './pages/Codes/SingleCodePage.tsx';
 import VerifyCodePage from './pages/Codes/VerifyCodePage.tsx';
 import StatusPage from './pages/Status/StatusPage.tsx';
 import { UserProvider } from './contexts/UserContext.tsx';
+import AllTokensPage from './pages/Contracts/AllTokensPage.tsx';
+import SingleTokenPage from './pages/Contracts/SingleTokenPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -101,6 +103,14 @@ const router = createBrowserRouter([
       {
         path: 'contracts/:contractAddress',
         element: <SingleContractPage />,
+      },
+      {
+        path: 'tokens',
+        element: <AllTokensPage />,
+      },
+      {
+        path: 'tokens/:tokenAddress',
+        element: <SingleTokenPage />,
       },
       {
         path: 'codes/:codeId',

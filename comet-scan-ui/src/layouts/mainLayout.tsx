@@ -33,6 +33,9 @@ const MainLayout: FC = () => {
                     { (chainConfig.features.includes('secretwasm') || chainConfig.features.includes('cosmwasm')) &&
                         <Link to={`/${chain}/contracts`} className={pathname.startsWith(`/${chain}/contracts`) ? styles.activeLink : undefined}>Contracts</Link>
                     }
+                    { (chainConfig.features.includes('tokens')) &&
+                        <Link to={`/${chain}/tokens`} className={pathname.startsWith(`/${chain}/tokens`) ? styles.activeLink : undefined}>Tokens</Link>
+                    }
                     <div style={{marginLeft: 'auto', paddingRight: '16px'}} className='d-none d-lg-flex align-items-center gap-3'>
                         <ConnectWallet chainConfig={chainConfig} />
                         <Toggle />

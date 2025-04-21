@@ -110,6 +110,11 @@ export interface AllContractsPageResponse {
   dailyExecutions: number;
 }
 
+export interface AllTokensPageResponse {
+  tokenContracts: ContractWithStats[],
+  totalTokens: number;
+}
+
 export interface SingleContractPageResponse {
   contract: WasmContract,
   code: WasmCode,

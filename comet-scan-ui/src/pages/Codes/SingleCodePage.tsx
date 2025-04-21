@@ -81,7 +81,7 @@ const SingleCodePage: FC = () => {
                         <div className='col d-flex gap-4'>
                             {data.verification ? 'Yes' : 'No'}
                             { !data.verification &&
-                                <Link to={`/${chainLookupId}/codes/verify`}>Verify this Code</Link>
+                                <Link to={`/${chainLookupId}/codes/verify`}>Verify Code</Link>
                             }
                         </div>
       

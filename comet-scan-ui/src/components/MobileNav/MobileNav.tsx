@@ -15,7 +15,8 @@ const MobileNav: FC<{show: boolean, hide: ()=>any, chain: FrontendChainConfig}> 
     ['Proposals', `/${chain.id}/proposals`],
     ['Validators', `/${chain.id}/validators`],
   ]
-  if (chain.features.includes('secretwasm') || chain.features.includes('cosmwasm')) links.push(['Contracts', `/${chain.id}/contracts`],)
+  if (chain.features.includes('secretwasm') || chain.features.includes('cosmwasm')) links.push(['Contracts', `/${chain.id}/contracts`],);
+  if (chain.features.includes('tokens')) links.push(['Tokens', `/${chain.id}/tokens`],);
   
   const overlayStyle = show ? undefined : { background: 'transparent', zIndex: -999 }
   const wrapperStyle = show ? undefined : { transform: 'translateX(100%)' }

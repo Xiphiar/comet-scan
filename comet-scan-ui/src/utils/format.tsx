@@ -172,3 +172,13 @@ export function maybeParseJson(str: string) {
         return str;
     }
 }
+
+export const formatVoteOption = (option: string) => {
+    switch(option) {
+        case 'VOTE_OPTION_YES': return 'Yes';
+        case 'VOTE_OPTION_NO': return 'No';
+        case 'VOTE_OPTION_NO_WITH_VETO': return 'No with Veto';
+        case 'VOTE_OPTION_ABSTAIN': return 'Abstain';
+        default: return option;
+    }
+};

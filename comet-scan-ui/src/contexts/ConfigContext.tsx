@@ -1,5 +1,6 @@
 import { createContext } from "react";
 import { FrontendChainConfig } from "../interfaces/config.interface";
+import { Validator } from "../interfaces/models/validators.interface";
   
 export interface ConfigContextState {
     chains: FrontendChainConfig[];
@@ -11,6 +12,10 @@ export interface ConfigContextState {
 
     themeClass: string;
     setThemeClass: (value: string) => void;
+
+    validators: Record<string, Validator[]>;
+    getValidators: (chainId: string) => Validator[] | undefined;
+    fetchValidators: (chainId: string) => Promise<void>;
 }
   
 // created context with no default values
@@ -24,6 +29,10 @@ const ConfigContext = createContext<ConfigContextState>({
 
     themeClass: 'theme-light',
     setThemeClass: () => {},
+
+    validators: {},
+    getValidators: () => { throw 'Context not ready'},
+    fetchValidators: async () => { throw 'Context not ready'},
 });
 
 export default ConfigContext;

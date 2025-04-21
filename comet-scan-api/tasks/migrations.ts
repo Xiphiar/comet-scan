@@ -129,6 +129,6 @@ const parseVotesFromTransactions = async ({chainId}: ChainConfig) => {
 
 export const parseVotesFromTransactionsForAllChains = async () => {
     for (const chain of Chains) {
-        await parseVotesFromTransactions(chain);
+        parseVotesFromTransactions(chain);
     }
 }

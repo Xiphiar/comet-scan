@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import { Vote } from "../interfaces/models/votes.interface";
+import mongoosePaginate from 'mongoose-paginate-v2';
+import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
 const voteSchema = new mongoose.Schema<Vote>({
     chainId: {
@@ -37,6 +39,9 @@ voteSchema.index({ chainId: 1, proposalId: 1, voter: 1 });
 voteSchema.index({ chainId: 1, option: 1 });
 voteSchema.index({ chainId: 1, height: 1, timestamp: 1 });
 
-const Votes = mongoose.model<Vote>('Votes', voteSchema);
+voteSchema.plugin(mongoosePaginate);
+voteSchema.plugin(mongooseAggregatePaginate);
+
+const Votes = mongoose.model<Vote, mongoose.PaginateModel<Vote> & mongoose.AggregatePaginateModel<Vote>>('Votes', voteSchema);
 
 export default Votes;

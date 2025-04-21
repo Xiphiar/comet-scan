@@ -40,6 +40,7 @@
   --shadow-color: #00000014;
   --footer-bg: var(--main);
   --triviumLogoColor: white;
+  --loading-overlay-color: #22222222;
 }
 
 .theme-dark {
@@ -60,6 +61,7 @@
   --footer-bg: var(--bg);
   --triviumLogoColor: var(--main);
   --footer-border: 0.5px solid var(--nav-bottom-border);
+  --loading-overlay-color: #22b8dd11;
 }
 
 @font-face {
@@ -288,4 +290,12 @@ select:focus {
       font-size: 15px;
       font-weight: 600;
   }
+}
+
+.hideScrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.hideScrollbar::-webkit-scrollbar {
+  display: none;
 }

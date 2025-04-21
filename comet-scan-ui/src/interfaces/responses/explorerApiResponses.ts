@@ -6,6 +6,7 @@ import { LightWasmContract, WasmContract } from "../models/contracts.interface";
 import { Proposal, ProposalWithProposingValidator } from "../models/proposals.interface";
 import { Transaction } from "../models/transactions.interface";
 import { Validator } from "../models/validators.interface";
+import { Vote } from "../models/votes.interface";
 import { ContractVerification } from "../verification.interface";
 
 export interface Amount {
@@ -133,4 +134,9 @@ export interface ChainStatus {
   earliestBlockTime: string;
   latestBlockHeight: number;
   latestBlockTime: string;
+}
+
+export interface VotesResponse {
+  votes: Vote[];
+  total: number;
 }

@@ -30,5 +30,6 @@ export interface FrontendChainConfig {
 export interface ChainConfig extends Omit<FrontendChainConfig, 'lcd'> {
     rpc: string;
     lcds: string[];
+    frontendLcd: string;
     startHeight?: number;
 }

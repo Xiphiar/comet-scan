@@ -1,7 +1,8 @@
 import { PropsWithChildren, ReactElement, useEffect, useState } from "react";
-import { getConfig } from "../api/configApi";
+import { getConfig, getChainValidators } from "../api/configApi";
 import ConfigContext, { ConfigContextState } from "../contexts/ConfigContext";
 import { FrontendChainConfig } from "../interfaces/config.interface";
+import { Validator } from "../interfaces/models/validators.interface";
 import MainPage from "../pages/Main/MainPage";
 import { setTheme } from "../utils/theme";
 
@@ -10,6 +11,7 @@ const ConfigProvider = ({ children }: PropsWithChildren): ReactElement => {
     const [loadingError, setLoadingError] = useState<string>();
     const [chains, setChains] = useState<FrontendChainConfig[]>([]);
     const [devMode, setDevMode] = useState(false);
+    const [validators, setValidators] = useState<Record<string, Validator[]>>({});
 
     const defaultTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia(
@@ -26,6 +28,28 @@ const ConfigProvider = ({ children }: PropsWithChildren): ReactElement => {
     const getChain = (chainLookupId: string): FrontendChainConfig | undefined => {
         const chain = chains.find(c => c.id.toLowerCase() === chainLookupId.toLowerCase());
         return chain;
+    }
+
+    const fetchValidators = async (chainId: string): Promise<void> => {
+        // Don't fetch if we already have them
+        if (validators[chainId]) {
+            return;
+        }
+
+        console.log(`Fetching validators for ${chainId}`);
+        try {
+            const data = await getChainValidators(chainId);
+            setValidators(prev => ({
+                ...prev,
+                [chainId]: data.validators,
+            }));
+        } catch (err: unknown) {
+            console.error(`Failed to fetch validators for chain ${chainId}:`, err.toString?.() || err);
+        }
+    };
+
+    const getValidators = (chainId: string): Validator[] | undefined => {
+        return validators[chainId];
     }
 
     const refreshConfig = async () => {
@@ -48,6 +72,9 @@ const ConfigProvider = ({ children }: PropsWithChildren): ReactElement => {
         chains,
         getChain,
         refreshConfig,
+        validators,
+        getValidators,
+        fetchValidators,
 
         devMode,
         toggleDevMode,

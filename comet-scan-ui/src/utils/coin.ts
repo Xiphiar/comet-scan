@@ -111,7 +111,7 @@ export const dangerouslyWeiToCoinInFloat = (weiValue: string | bigint, decimals:
  * @param {string|number} value - The value to format
  * @param {number} [formattingThreshold=100000] - The threshold value to consider for formatting
  */
-export const formatNice = (value: string | number, formattingThreshold: number = 100_000): string => {
+export const formatNice = (value: string | number, formattingThreshold: number = 100_000, maxDecimals: number = 6): string => {
   const numStr = typeof value === 'string' ? value : value.toString()
   const roughNum = parseFloat(numStr)
   if (isNaN(roughNum)) throw new Error(`Coin.format: Invalid number: ${numStr}`)
@@ -128,7 +128,7 @@ export const formatNice = (value: string | number, formattingThreshold: number =
 
     const roughRemainder = parseFloat(`0.${fractionalPart}`)
     let digits = 0
-    if (roughRemainder < 0.1) digits = 6
+    if (roughRemainder < 0.1) digits = maxDecimals
     else if (integerNum < 1) digits = 4
     else if (integerNum < 10) digits = 3
     else if (integerNum < 10000) digits = 2

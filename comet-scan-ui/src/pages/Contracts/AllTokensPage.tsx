@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, Fragment } from "react";
 import { useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
@@ -50,10 +50,10 @@ const AllTokensPage: FC = () => {
                         </div>
                     </div>
                 }
-                {data.tokenContracts.map((contract) =><>
+                {data.tokenContracts.map((contract) =><Fragment key={contract.contract.contractAddress}>
                     <div style={{borderBottom: '1px solid var(--light-gray)'}} />
                     <TokenRow contract={contract} chain={chain} />
-                </>)}
+                </Fragment>)}
                 {!data.tokenContracts.length && <div className='py-4 w-full text-center'>
                     No tokens found.
                 </div>}

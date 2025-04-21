@@ -299,3 +299,12 @@ select:focus {
 .hideScrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.alertContainer {
+  color: #856404;
+  background-color: #fff3cd;
+  border: 1px solid #ffe492;
+  padding: 6px 8px;
+  border-radius: 6px;
+  width: fit-content;
+}

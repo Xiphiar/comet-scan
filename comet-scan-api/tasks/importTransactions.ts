@@ -8,9 +8,7 @@ import { Block } from "../interfaces/models/blocks.interface";
 import { processBlock } from "./importBlocks";
 import { ChainConfig } from "../interfaces/config.interface";
 import { getLcdClient } from "../config/clients";
-import { Vote } from "../interfaces/models/votes.interface";
-import Votes from "../models/votes.model";
-import { addVoteToDb, processTxMessages } from "./common";
+import { processTxMessages } from "./common";
 
 export const importTransactionsForBlock = async (chainId: string, blockHeight: number) => {
     // console.log(`Importing transactions for block ${blockHeight} on ${chainId}`)

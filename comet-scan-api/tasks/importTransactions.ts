@@ -143,6 +143,8 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
     }    
 }
 
+// TODO If there are multiple messages executing the same contract(s), that should count as multiple executions.
+// Need to figure out how to handle that case here and in updateContractExecCounts.ts
 export const getExecutedContractsForTx = (
     config: ChainConfig,
     txResponse: {
@@ -170,7 +172,18 @@ export const getExecutedContractsForTx = (
             }
         }
     } else if (config.features.includes('cosmwasm')) {
-        // TODO
+        // Non-Secret chains should have logs available. Logs are sorted by message index and not base64 encoded,
+        // so are easier to use. For now lets assume logs will be available. If we find a case where they are not,
+        // we can add a case to use events instead.
+        for (const msgLogs of txResponse.logs) {
+            const executeEvents = msgLogs.events.filter(mle => mle.type === 'execute');
+            for (const executeEvent of executeEvents) {
+                const contractAddressAttributes = executeEvent.attributes.filter(a => a.key === '_contract_address' || a.key === 'contract_address');
+                for (const {value} of contractAddressAttributes) {
+                    if (!executedContracts.includes(value)) executedContracts.push(value);
+                }
+            }
+        }
     }
 
     return executedContracts;

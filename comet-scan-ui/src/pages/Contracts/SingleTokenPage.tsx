@@ -108,6 +108,7 @@ const SingleTokenPage: FC = () => {
             setHighestHistoryPage(0);
             setHighestPageWasFull(false);
             setTotalHistoryItems(undefined); 
+            return;
         };
         (async()=>{
             try {

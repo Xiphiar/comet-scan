@@ -133,7 +133,7 @@ const VerifyCodePage: FC = () => {
             setLoading(true);
             if (!repo) throw 'Please enter a repository URL'
             if (!commit) throw 'Please enter a branch, tag, or commit hash'
-            // TODO verify repo URL
+            // TODO verify repo URL and commit in the UI
 
             if (chain.features.includes('secretwasm')) {
                 const data = await startSecretWasmVerification({

@@ -1,20 +1,33 @@
-import { FC, Fragment } from "react";
-import { useParams } from "react-router-dom";
+import { FC, Fragment, useEffect, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
-import useAsync from "../../hooks/useAsync";
+import { useAsyncV2 } from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import { getAllTokensPage } from "../../api/pagesApi";
 import { AllTokensPageResponse } from "../../interfaces/responses/explorerApiResponses";
 import TokenRow from "../../components/TokenRow/TokenRow";
+import ReactPaginate from "react-paginate";
 
 
 const AllTokensPage: FC = () => {
     const { chain: chainLookupId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data, error } = useAsync<AllTokensPageResponse>(getAllTokensPage(chain.chainId));
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [currentPage, setCurrentPage] = useState<number>(parseInt(searchParams.get('page') || '1'));
+    
+    const { data, error } = useAsyncV2<AllTokensPageResponse>(
+        () => getAllTokensPage(chain.chainId, currentPage),
+        [chain.chainId, currentPage]
+    );
+
+    const handlePageChange = (selectedItem: { selected: number }) => {
+        const newPage = selectedItem.selected + 1;
+        setCurrentPage(newPage);
+        setSearchParams({ page: newPage.toString() });
+    };
 
     if (!chain) {
         return (
@@ -28,6 +41,10 @@ const AllTokensPage: FC = () => {
     if (!data) {
         return <ContentLoading chain={chain} title={title} error={error} />
     }
+
+    // Calculate total pages based on totalTokens and items per page
+    const itemsPerPage = 30;
+    const totalPages = Math.ceil(data.totalTokens / itemsPerPage);
 
     return (
         <div className='d-flex flex-column'>
@@ -57,6 +74,22 @@ const AllTokensPage: FC = () => {
                 {!data.tokenContracts.length && <div className='py-4 w-full text-center'>
                     No tokens found.
                 </div>}
+                
+                {totalPages > 1 && (
+                    <div className="mt-4 d-flex justify-content-center">
+                        <ReactPaginate
+                            breakLabel="..."
+                            nextLabel=">"
+                            onPageChange={handlePageChange}
+                            pageRangeDisplayed={2}
+                            pageCount={totalPages}
+                            previousLabel="<"
+                            renderOnZeroPageCount={null}
+                            className="react-paginate"
+                            forcePage={currentPage - 1}
+                        />
+                    </div>
+                )}
             </Card>
         </div>
     )

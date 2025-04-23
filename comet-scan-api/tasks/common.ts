@@ -6,8 +6,9 @@ import Votes from "../models/votes.model";
 // Optionally specify the list of messages to loop through to allow recursion with authz messages.
 export const processTxMessages = async (tx: Transaction, msgs = tx.transaction.tx.body.messages) => {
     if (!tx.succeeded) return;
-    
+
     for (const msg of msgs) {
+        // TODO add a case for store code and instantiate messages to trigger an import of that code/contract
         switch (msg['@type']) {
             case '/cosmos.gov.v1.MsgVote':
             case '/cosmos.gov.v1beta1.MsgVote': {

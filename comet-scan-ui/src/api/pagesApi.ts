@@ -167,11 +167,14 @@ export const getSingleContractPage = async (chainId: string, contractAddress: st
     return data;
 }
 
-export const getAllTokensPage = async (chainId: string): Promise<AllTokensPageResponse> => {
+export const getAllTokensPage = async (chainId: string, page = 1): Promise<AllTokensPageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/tokens`,
         {
             headers: {
                 'Content-Type': 'application/json'
+            },
+            params: {
+                page
             }
         }
     );

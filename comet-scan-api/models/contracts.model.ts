@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { WasmContract } from "../interfaces/models/contracts.interface";
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 const contractsSchema = new mongoose.Schema<WasmContract>({
     chainId: {
@@ -59,6 +60,8 @@ const contractsSchema = new mongoose.Schema<WasmContract>({
 
 contractsSchema.index({ chainId: 1, executions: -1 });
 
-const Contracts = mongoose.model<WasmContract>('Contracts', contractsSchema);
+contractsSchema.plugin(mongoosePaginate);
+
+const Contracts = mongoose.model<WasmContract, mongoose.PaginateModel<WasmContract>>('Contracts', contractsSchema);
 
 export default Contracts;

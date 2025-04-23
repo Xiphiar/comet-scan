@@ -101,9 +101,9 @@ const parseVotesFromTransactions = async ({chainId}: ChainConfig) => {
         const total = latest.height - oldest.height;
         console.log(`Found ${total} blocks to process: ${oldest.height} - ${latest.height}`)
 
-        // Loop through all blocks, newest to oldest
-        for (let i = latest.height; i >= oldest.height; i--) {
-            const percent = ((latest.height - i) / total) * 100
+        // Loop through all blocks, oldest to newest since newer votes will overwrite previous votes
+        for (let i = oldest.height; i <= latest.height; i++) {
+            const percent = ((i - oldest.height) / total) * 100
             console.log('Parsing', chainId, i, `${percent.toFixed(2)}%`);
 
             const txs = await Transactions.find({ chainId, blockHeight: i }).lean();

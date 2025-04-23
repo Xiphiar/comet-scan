@@ -1,4 +1,4 @@
-import { api, APIError, ErrCode } from "encore.dev/api";
+import { api, APIError, ErrCode, Query } from "encore.dev/api";
 import { dayMs, get24hBlocksCount, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getOldestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb, hourMs } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
 import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse, PaginatedTransactionsResponse, StatusPageResponse, ChainStatus, AllTokensPageResponse } from "../interfaces/responses/explorerApiResponses";
@@ -424,17 +424,30 @@ export const getSingleContract = api(
   }
 );
 
-export const getTokensPage = api(
+export const getTokensPage = api<{
+  chainId: string;
+  page?: Query<number>;
+}>(
   { expose: true, method: "GET", path: "/explorer/:chainId/tokens" },
-  async ({ chainId }: { chainId: string }): Promise<AllTokensPageResponse> => {
+  async ({ chainId, page }): Promise<AllTokensPageResponse> => {
     const config = getChainConfig(chainId);
     if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
 
     let contracts: WasmContract[] = [];
     let totalTokens = 0;
     if (config.features.includes('secretwasm') || config.features.includes('cosmwasm')) {
-      contracts = await Contracts.find({ chainId, tokenInfo: { $exists: true } }, { _id: false, __v: false }).sort({ executions: -1 }).limit(30).lean();
-      totalTokens = await Contracts.find({ chainId, tokenInfo: { $exists: true } }).countDocuments();
+      const {docs, totalDocs, limit} = await Contracts.paginate(
+        { chainId, tokenInfo: { $exists: true } },
+        {
+          sort: { executions: -1 },
+          page,
+          limit: 30,
+          projection: { _id: false, __v: false },
+          lean: true,
+        }
+      );
+      contracts = docs;
+      totalTokens = totalDocs;
     }
 
     const contractsWithStats: ContractWithStats[] = []

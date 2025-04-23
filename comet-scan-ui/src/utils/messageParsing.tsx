@@ -31,6 +31,7 @@ export const formatTxType = (txType: string) => {
         case '/ibc.core.channel.v1.MsgTimeout': return 'IBC Timeout'
         case '/ibc.applications.transfer.v1.MsgTransfer': return 'IBC Transfer'
         case '/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission': return 'Withdraw Validator Commission'
+        case '/cosmos.authz.v1.MsgExec': return 'Authz Execute'
         case '/cosmos.authz.v1beta1.MsgExec': return 'Authz Execute'
         case '/ibc.core.channel.v1.MsgRecvPacket': return 'IBC Received'
         case '/canine_chain.storage.MsgPostProof': return 'Post Storage Proof'
@@ -241,6 +242,7 @@ export const parseMessages = async (config: FrontendChainConfig, allConfigs: Fro
                 }
             }
 
+            case '/cosmos.authz.v1.MsgExec':
             case '/cosmos.authz.v1beta1.MsgExec': {
                 if (skipExec) return {
                     title: formatTxType(msg['@type']),

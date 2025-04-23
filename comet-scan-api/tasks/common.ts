@@ -15,7 +15,7 @@ export const processTxMessages = async (tx: Transaction, msgs = tx.transaction.t
                 await addVoteToDb(tx.chainId, tx.blockHeight, tx.timestamp, msg)
                 break;
             }
-            // TODO check if there is a v1 version of the authz message
+            case '/cosmos.authz.v1.MsgExec':
             case '/cosmos.authz.v1beta1.MsgExec': {
                 // An authz message contains an array of sub-messages that should be passed back through processTxMessages.
                 // This way if an authz message contains nested authz messages, all messages are properly processed.

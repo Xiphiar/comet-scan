@@ -391,6 +391,14 @@ export const isJson = (str: string): boolean => {
     }
 }
 
+export const maybeParseJson = (str: string): any | undefined => {
+    try {
+        return JSON.parse(str);
+    } catch {
+        return undefined;
+    }
+}
+
 export const defaultKeyContent = (value: any): string | ReactElement => {
     if (!value) {
         console.log('NO VALUE', value);

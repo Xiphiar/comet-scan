@@ -1,5 +1,5 @@
 import { EncryptionUtils, fromBase64, fromUtf8 } from "secretjs";
-import { defaultKeyContent, formatTxType, ParsedMessage, ParsedMessageContent } from "./messageParsing";
+import { defaultKeyContent, formatTxType, isJson, ParsedMessage, ParsedMessageContent } from "./messageParsing";
 import { Link } from "react-router-dom";
 import { FrontendChainConfig } from "../interfaces/config.interface";
 import { formatAmounts, maybeParseJson, truncateStringEnd } from "./format";
@@ -8,6 +8,8 @@ import { match, P } from "ts-pattern";
 import JsonView from "react18-json-view";
 import { LightWasmContract } from "../interfaces/models/contracts.interface";
 import { Coin } from "@keplr-wallet/types";
+import HiddenText from "../components/HiddenText/HiddenText";
+import decodeTxResponse, { DecryptedTxResponse } from "./secret";
 
 // Get executed contract addresses from events for a specific message index
 const getAllExecutedContracts = (tx: LcdTxResponse, messageIndex: string, exclude?: string): string[] => {
@@ -64,15 +66,16 @@ const defaultSecretWasmResponse = async (msg: any, messageIndex: string, tx: Lcd
 
 export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx: LcdTxResponse, executedContracts: LightWasmContract[], encryptionUtils: EncryptionUtils, config: FrontendChainConfig): Promise<ParsedMessage> => {
     try {
-        const contractInputMsgBytes = fromBase64(msg.msg);
-        const nonce = contractInputMsgBytes.slice(0, 32);
-        const ciphertext = contractInputMsgBytes.slice(64);
+        const decryptedTx = await decodeTxResponse(encryptionUtils, tx.tx_response);
+        const _decryptedMsg = decryptedTx.tx.body.messages[messageIndex].msg;
 
-        const plaintext = await encryptionUtils.decrypt(ciphertext, nonce);
-        const _decryptedMsg = JSON.parse(fromUtf8(plaintext).slice(64)); // first 64 chars is the codeHash
+        // Convert response Uint8Array to a string, and strip unicode characters leftover from protobuf decoding
+        const decryptedResponse = Buffer.from(decryptedTx.data[messageIndex]).toString('utf8');
+        // eslint-disable-next-line no-control-regex
+        const cleanResponse = decryptedResponse.replace(/[\u{FFF0}-\u{FFFF}]/gu,"").replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
+        const responseJson = maybeParseJson(cleanResponse);
 
-        // TODO determine the type of contract from the address. For now we'll just parse some basic SNIP20 messages
-
+        // TODO maybe determine the type of contract from the address. For now we'll just parse some basic SNIP20/SNIP721 messages
         const executeFunction = Object.keys(_decryptedMsg)[0];
         const calledContracts = getAllExecutedContracts(tx, messageIndex, msg.contract);
 
@@ -164,9 +167,11 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                     content: [
                         ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                        // TODO decrypt tx.tx_response.data to get the set key
+                        ...(responseJson?.create_viewing_key?.key ? [
+                            ['Key', <HiddenText text={responseJson.create_viewing_key.key} />] as [string, any]
+                        ] : [])
                     ],
-                    amounts: undefined, // TODO
+                    amounts: undefined,
                 }
             })
             .with({ set_viewing_key: { key: P.string, padding: P.optional(P.string) }}, (decryptedMsg) => {
@@ -175,9 +180,9 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                     content: [
                         ['Executed Contract', <Link to={`/${config.id}/contracts/${msg.contract}`}>{getContractLinkString(msg.contract, executedContracts)}</Link>],
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
-                        ['Key', decryptedMsg.set_viewing_key.key], // TODO hide
+                        ['Key', <HiddenText text={decryptedMsg.set_viewing_key.key} />],
                     ],
-                    amounts: undefined, // TODO
+                    amounts: undefined,
                 }
             })
             .with({ transfer_nft: { recipient: P.string, token_id: P.string, memo: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
@@ -189,7 +194,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                         ['Recipient', <Link to={`/${config.id}/accounts/${decryptedMsg.transfer_nft.recipient}`}>{decryptedMsg.transfer_nft.recipient}</Link>],
                         ['Token ID', decryptedMsg.transfer_nft.token_id],
                     ],
-                    amounts: undefined, // TODO
+                    amounts: undefined,
                 }
                 if (decryptedMsg.transfer_nft.memo) parsedData.content.push(['Memo', defaultKeyContent(decryptedMsg.transfer_nft.memo)])
             })
@@ -205,7 +210,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                         ['Recipient Contract', <Link to={`/${config.id}/contracts/${decryptedMsg.send_nft.contract}`}>{getContractLinkString(decryptedMsg.send_nft.contract, executedContracts)}</Link>],
                         ['Token ID', decryptedMsg.send_nft.token_id],
                     ],
-                    amounts: undefined, // TODO
+                    amounts: undefined,
                 }
 
                 if (decodedSubMsg) parsedData.content.push(['Message', defaultKeyContent(decodedSubMsg)]);
@@ -219,7 +224,7 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                         ['Sender', <Link to={`/${config.id}/accounts/${msg.sender}`}>{msg.sender}</Link>],
                         ['Permit Name', decryptedMsg.revoke_permit.permit_name],
                     ],
-                    amounts: undefined, // TODO
+                    amounts: undefined,
                 }
             })
             .otherwise(() => { /* This is required for async handlers to work properly */ })

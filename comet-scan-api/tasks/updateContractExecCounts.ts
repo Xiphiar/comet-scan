@@ -19,6 +19,11 @@ const updateExecutedCountsForChain = async (config: ChainConfig) => {
         if (config.features.includes('secretwasm') || config.features.includes('cosmwasm')) {
             const contracts = await Contracts.find({ chainId: config.chainId }).lean();
             for (const {_id, contractAddress} of contracts) {
+                // TODO if pruning is enabled for a chain, this number will be the amount of executions within the pruning period.
+                // If we add a `executionsBlockHeight` field to the contract object, we can count the number of executions since
+                // that height and add it to the executions count instead of replacing, so we can keep a running total.
+                // TODO also we need a way to count executions when there are multiple execute messages that execute the same contract,
+                // in that case it should count as multiple executions but currently it would only increase the count by one.
                 const executions = await Transactions.find({ chainId: config.chainId, executedContracts: contractAddress }).countDocuments();
                 await Contracts.findByIdAndUpdate(_id, { executions })
             }

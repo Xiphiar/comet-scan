@@ -19,7 +19,7 @@ const addExecutedContractsToTransactions = async (config: ChainConfig) => {
 
         let current = oldest.height;
         while (current < latest.height) {
-            if (current % 1000 === 0) console.log(((current - oldest.height) / totalBlocks * 100).toFixed(2), '%')
+            if (current % 100 === 0) console.log(((current - oldest.height) / totalBlocks * 100).toFixed(2), '%', config.chainId)
             const txs = await Transactions.find({ chainId: config.chainId, blockHeight: current }).lean();
             for (const tx of txs) {
                 if (tx.executedContracts?.length) continue;
@@ -38,7 +38,7 @@ const addExecutedContractsToTransactions = async (config: ChainConfig) => {
 
 export const addExecutedContractsToTransactionsForAllChains = async () => {
     for (const chain of Chains) {
-        await addExecutedContractsToTransactions(chain);
+        addExecutedContractsToTransactions(chain);
     }
 }
 

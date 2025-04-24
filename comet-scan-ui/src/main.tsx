@@ -88,10 +88,10 @@ const router = createBrowserRouter([
         path: 'proposals/:proposalId',
         element: <SingleProposalPage />,
       },
-      {
-        path: 'accounts',
-        element: <div>TODO</div>,
-      },
+      // {
+      //   path: 'accounts',
+      //   element: <div>TODO</div>,
+      // },
       {
         path: 'accounts/:accountAddress',
         element: <SingleAccountPage />,

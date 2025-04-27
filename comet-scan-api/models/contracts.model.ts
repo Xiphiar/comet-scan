@@ -55,6 +55,10 @@ const contractsSchema = new mongoose.Schema<WasmContract>({
         type: Number,
         required: true,
         // index: true,
+    },
+    executionsBlockHeight: {
+        type: Number,
+        required: false,
     }
 });
 

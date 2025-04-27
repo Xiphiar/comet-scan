@@ -21,7 +21,10 @@ export interface WasmContract extends LightWasmContract {
     },
     ibc_port_id?: string;
     admin?: string;
+    // The total number of executions for this contract
     executions: number;
+    // The block height of the latest counted execution
+    executionsBlockHeight?: number;
 }
 
 export interface TokenInfo {

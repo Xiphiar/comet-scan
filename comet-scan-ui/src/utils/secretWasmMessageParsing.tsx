@@ -71,6 +71,8 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
         if (!encryptionUtils) throw 'Wallet not connected';
 
         const decryptedTx = await decodeTxResponse(encryptionUtils, tx.tx_response);
+        // decodeTxResponse won't throw an error on failure, so throw an error if decryption failed.
+        if (!decryptedTx.dataDecrypted) throw 'TX not decrypted'; // Catch block will return the default "Encrypted" response.
         const _decryptedMsg = decryptedTx.tx.body.messages[messageIndex].msg;
 
         // Convert response Uint8Array to a string, and strip unicode characters leftover from protobuf decoding

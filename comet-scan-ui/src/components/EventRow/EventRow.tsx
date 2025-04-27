@@ -101,9 +101,9 @@ const EventRow: FC<EventRowProps> = ({ events, messageIndex, messageTitle }) => 
                             <h5>Event: {event.type}</h5>
                             <div className='d-flex flex-column gap-2 w-full mt-2'>
                                 {event.filteredAttributes.map((attr, attrIndex) => (
-                                    <div className='d-flex w-full' key={attrIndex}>
-                                        <div className='col col-3 font-weight-bold'>{attr.key}</div>
-                                        <div className='col'>{defaultKeyContent(attr.value)}</div>
+                                    <div className='d-flex flex-wrap w-full' key={attrIndex}>
+                                        <div className='col col-12 col-sm-3 font-weight-bold'>{attr.key}</div>
+                                        <div className='col ms-3 ms-sm-0 text-break'>{defaultKeyContent(attr.value)}</div>
                                     </div>
                                 ))}
                             </div>

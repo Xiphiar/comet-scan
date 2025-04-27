@@ -1,6 +1,7 @@
 .messageRow {
     padding: 12px;
     border: 1px solid var(--light-grey);
+    border-radius: 6px;
 
     details[open] {
         summary {

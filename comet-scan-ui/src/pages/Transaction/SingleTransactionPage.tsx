@@ -25,6 +25,7 @@ import { TxEvent } from "../../interfaces/lcdTxResponse";
 import decodeTxResponse, { DecryptedTxResponse } from "../../utils/secret";
 import { TxMsgData } from "secretjs/dist/protobuf/cosmos/base/abci/v1beta1/abci";
 import { fromHex } from "secretjs";
+import ErrorAlert from "../../components/ErrorAlert/ErrorAlert";
 
 const SingleTransactionPage: FC = () => {
     const { chain: chainLookupId, transactionHash } = useParams();
@@ -265,41 +266,48 @@ const SingleTransactionPage: FC = () => {
                 </Card>
             </div>
             <Card>
-                <div className='d-flex flex-column gap-3 mt-3'>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Transaction Time</div>
-                        <div className='col'>{new Date(data.transaction.timestamp).toLocaleString()}</div>
+                <div className='d-flex flex-column gap-3'>
+                    {!data.transaction.succeeded &&
+                        <ErrorAlert title='Transaction Failed'>
+                            {data.transaction.transaction.tx_response.raw_log}
+                        </ErrorAlert>
+                    }
+                    <div className='d-flex flex-wrap'>
+                        <div className='col col-12 col-sm-3 font-weight-bold'>Transaction Time</div>
+                        <div className='col ms-3 ms-sm-0'>{new Date(data.transaction.timestamp).toLocaleString()}</div>
                     </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Transaction Height</div>
-                        <div className='col'>
+                    <div className='d-flex flex-wrap'>
+                        <div className='col col-12 col-sm-3 font-weight-bold'>Transaction Height</div>
+                        <div className='col ms-3 ms-sm-0'>
                             <Link to={`/${chain.id}/blocks/${data.transaction.blockHeight}`}>{data.transaction.blockHeight.toLocaleString()}</Link>
                         </div>
                     </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Transaction Hash</div>
-                        <div className='col'>
+                    <div className='d-flex flex-wrap'>
+                        <div className='col col-12 col-sm-3 font-weight-bold'>Transaction Hash</div>
+                        <div className='col ms-3 ms-sm-0 text-break'>
                             {data.transaction.hash}
                         </div>
                     </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Gas Used</div>
-                        <div className='col'>
+                    <div className='d-flex flex-wrap'>
+                        <div className='col col-12 col-sm-3 font-weight-bold'>Gas Used</div>
+                        <div className='col ms-3 ms-sm-0'>
                             {data.transaction.gasUsed.toLocaleString()}  
                         </div>
                     </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Gas Limit</div>
-                        <div className='col'>
+                    <div className='d-flex flex-wrap'>
+                        <div className='col col-12 col-sm-3 font-weight-bold'>Gas Limit</div>
+                        <div className='col ms-3 ms-sm-0'>
                             {data.transaction.gasLimit.toLocaleString()}  
                         </div>
                     </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Memo</div>
-                        <div className='col'>
-                            {data.transaction.transaction.tx.body.memo}  
+                    { !!data.transaction.transaction.tx.body.memo?.trim().length &&
+                        <div className='d-flex flex-wrap'>
+                            <div className='col col-12 col-sm-3 font-weight-bold'>Memo</div>
+                            <div className='col ms-3 ms-sm-0'>
+                                {data.transaction.transaction.tx.body.memo}  
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </Card>
             <TabbedCard 

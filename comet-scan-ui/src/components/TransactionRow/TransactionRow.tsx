@@ -46,17 +46,15 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
             className={styles.dataRow}
             key={transaction.hash}
         >
-            <div className='d-none d-sm-flex col col-3'>{truncateString(transaction.hash, 4)}</div>
-            <div className='col col-8 col-sm-6 col-md-4 col-lg-3'>
-                {/* {formatTxType(txType)} */}
-                {/* TODO maybe prefix execute transactions with 'Execute Contract' */}
+            <div className='d-none d-sm-flex col col-2'>{truncateString(transaction.hash, 4)}</div>
+            <div className='col col-7 col-sm-6 col-md-4 col-lg-3'>
                 { parsedMessages ?
                     ( transaction.transaction.tx.body.messages.length > 1 ?
                         (() => {
                             const allTitlesSame = parsedMessages.every(msg => msg.title === parsedMessages[0].title);
                             return (
                                 <div className='d-flex align-items-center gap-2'>
-                                    {parsedMessages[0].title}
+                                    <div>{parsedMessages[0].title}</div>
                                     <Tooltip
                                         content={allTitlesSame ?
                                             `This transaction contains ${transaction.transaction.tx.body.messages.length} messages of the same type.`
@@ -79,6 +77,9 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
                     formatTxType(txType)
                 }
             </div>
+            <div className='col col-1' style={!transaction.succeeded ? {color: 'red'} : undefined}>
+                {transaction.succeeded ? 'Success' : 'Failed'}
+            </div>
             <div className='d-none d-md-flex col col-2 col-lg-2'>
                 {allAmounts === undefined ? (
                     <div style={{marginLeft: '24px'}}>
@@ -98,13 +99,16 @@ export default TransactionRow;
 
 export const TransactionLabels = () => (
     <div className='d-flex mt-4 mb-1'>
-        <div className='d-none d-sm-flex col col-3'>
+        <div className='d-none d-sm-flex col col-2'>
             Hash
         </div>
-        <div className='col col-8 col-sm-6 col-md-4 col-lg-3'>
+        <div className='col col-7 col-sm-6 col-md-4 col-lg-3'>
             Type
         </div>
-        <div className='d-none d-md-flex col col-2 col-lg-2'>
+        <div className='col col-1'>
+            Result
+        </div>
+        <div className='d-none d-md-flex col col-2'>
             Amount
         </div>
         <div className='d-none d-lg-flex col col-1'>

@@ -51,7 +51,7 @@ export interface ParsedMessage {
     amounts: Coin[];
 }
 
-export const parseMessages = async (config: FrontendChainConfig, allConfigs: FrontendChainConfig[], tx: LcdTxResponse, executedContracts: LightWasmContract[], encryptionUtils: EncryptionUtils | undefined, skipExec = false): Promise<ParsedMessage[]> => {
+export const parseMessages = async (config: FrontendChainConfig, allConfigs: FrontendChainConfig[], tx: LcdTxResponse, executedContracts: LightWasmContract[], encryptionUtils?: EncryptionUtils, skipExec = false): Promise<ParsedMessage[]> => {
     const msgs = tx.tx.body.messages;
     const parsed = await Promise.all(msgs.map(async (msg, i):Promise<ParsedMessage> => {
         switch(msg['@type']) {

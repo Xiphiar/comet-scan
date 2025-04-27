@@ -66,6 +66,10 @@ const defaultSecretWasmResponse = async (msg: any, messageIndex: string, tx: Lcd
 
 export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx: LcdTxResponse, executedContracts: LightWasmContract[], encryptionUtils: EncryptionUtils, config: FrontendChainConfig): Promise<ParsedMessage> => {
     try {
+        // encryptionUtils is a required param, but typescript doesn't seem to always care...
+        // So if encryptionUtils is undefined, throw an error, the catch block will return the default "Encrypted" response.
+        if (!encryptionUtils) throw 'Wallet not connected';
+
         const decryptedTx = await decodeTxResponse(encryptionUtils, tx.tx_response);
         const _decryptedMsg = decryptedTx.tx.body.messages[messageIndex].msg;
 

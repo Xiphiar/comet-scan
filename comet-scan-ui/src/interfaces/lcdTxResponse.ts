@@ -12,13 +12,15 @@ export type MsgLog = {
   events: LogEvent[]
 }
 
+export type TxEventAttribute = {
+  key: string
+  value: string
+  index: boolean
+}
+
 export type TxEvent = {
   type: string
-  attributes: {
-    key: string
-    value: string
-    index: boolean
-  }[]
+  attributes: TxEventAttribute[]
 }
 
 export type LcdTxResponse = {

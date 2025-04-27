@@ -1,6 +1,8 @@
+import { TxEventAttribute } from "../interfaces/lcdTxResponse";
 import { Transaction } from "../interfaces/models/transactions.interface";
 import { Vote } from "../interfaces/models/votes.interface";
 import Votes from "../models/votes.model";
+import { importSecretWasmCode, importSecretWasmContract } from "./secretwasm.tasks";
 
 // Loop through all msgs in a tx and perform certain actions based on message type.
 // Optionally specify the list of messages to loop through to allow recursion with authz messages.
@@ -8,7 +10,6 @@ export const processTxMessages = async (tx: Transaction, msgs = tx.transaction.t
     if (!tx.succeeded) return;
 
     for (const msg of msgs) {
-        // TODO add a case for store code and instantiate messages to trigger an import of that code/contract
         switch (msg['@type']) {
             case '/cosmos.gov.v1.MsgVote':
             case '/cosmos.gov.v1beta1.MsgVote': {
@@ -21,6 +22,33 @@ export const processTxMessages = async (tx: Transaction, msgs = tx.transaction.t
                 // This way if an authz message contains nested authz messages, all messages are properly processed.
                 const authzMsgs = msg.msgs;
                 await processTxMessages(tx, authzMsgs)
+            }
+            case '/secret.compute.v1beta1.MsgStoreCode': {
+                // Get the code ID(s) from events.
+                const allEventAttributes = tx.transaction.tx_response.events.reduce(
+                    (allAttributes, event) => {
+                        allAttributes.push(...event.attributes);
+                        return allAttributes;
+                    },
+                    [] as TxEventAttribute[],
+                );
+                const codeIdAttributes = allEventAttributes.filter(a => a.key === 'code_id');
+                const codeIds = codeIdAttributes.map(a => a.value);
+
+                // Import all the new code IDs
+                for (const codeId of codeIds) {
+                    await importSecretWasmCode(tx.chainId, codeId);
+                }
+            }
+            case '/secret.compute.v1beta1.MsgInstantiateContract': {
+                // Get the contract address(es) from events.
+                const instantiateEvents = tx.transaction.tx_response.events.filter(e => e.type === 'instantiate');
+                for (const initEvent of instantiateEvents) {
+                    const contractAddress = initEvent.attributes.find(a => a.key === 'contract_address')?.value;
+                    if (!contractAddress) continue;
+                    // This function will also import the code if it hasn't been already
+                    await importSecretWasmContract(tx.chainId, contractAddress)
+                }
             }
         }
     }

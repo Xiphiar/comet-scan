@@ -2,7 +2,7 @@ import { FrontendChainConfig } from "../config.interface";
 import { Account } from "../models/accounts.interface";
 import { Block, BlockWithProposer } from "../models/blocks.interface";
 import { WasmCode } from "../models/codes.interface";
-import { LightWasmContract, WasmContract } from "../models/contracts.interface";
+import { LightWasmContract, TokenInfo, WasmContract } from "../models/contracts.interface";
 import { Proposal, ProposalWithProposingValidator } from "../models/proposals.interface";
 import { Transaction } from "../models/transactions.interface";
 import { Validator } from "../models/validators.interface";
@@ -144,4 +144,8 @@ export interface ChainStatus {
 export interface VotesResponse {
   votes: Vote[];
   total: number;
+}
+
+export interface TokenInfoResponse {
+  tokenInfo: TokenInfo,
 }

@@ -3,13 +3,7 @@ export interface LightWasmContract {
     chainId: string;
     contractAddress: string;
     label: string;
-    tokenInfo?: {
-        name: string;
-        symbol: string;
-        decimals: number;
-        totalSupply?: string;
-        permitSupport: boolean;
-    },
+    tokenInfo?: TokenInfo;
     nftInfo?: {
         name: string;
         symbol: string;
@@ -28,4 +22,12 @@ export interface WasmContract extends LightWasmContract {
     ibc_port_id?: string;
     admin?: string;
     executions: number;
+}
+
+export interface TokenInfo {
+    name: string;
+    symbol: string;
+    decimals: number;
+    totalSupply?: string;
+    permitSupport: boolean;
 }

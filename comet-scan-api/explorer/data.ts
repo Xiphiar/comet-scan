@@ -1,7 +1,8 @@
-import { api, Query } from "encore.dev/api";
+import { api, APIError, ErrCode, Query } from "encore.dev/api";
 import Votes from "../models/votes.model";
-import { VotesResponse } from "../interfaces/responses/explorerApiResponses";
+import { TokenInfoResponse, VotesResponse } from "../interfaces/responses/explorerApiResponses";
 import { getValidatorsFromDb } from "../common/dbQueries";
+import Contracts from "../models/contracts.model";
 
 type GetVotesByProposalParams = {
   chainId: string,
@@ -59,6 +60,19 @@ export const getVotesByProposal = api(
     return {
       votes: result.docs,
       total: result.totalDocs,
+    };
+  }
+);
+
+export const getTokenInfo = api(
+  { expose: true, method: "GET", path: "/explorer/:chainId/tokens/:contractAddress/token_info" },
+  async ({ chainId, contractAddress }: { chainId: string, contractAddress: string }): Promise<TokenInfoResponse> => {
+
+    const contract = await Contracts.findOne({ chainId, contractAddress }).lean();
+    if (!contract?.tokenInfo) throw new APIError(ErrCode.NotFound, 'Token Not Found');
+
+    return {
+      tokenInfo: contract.tokenInfo,
     };
   }
 );

@@ -82,7 +82,7 @@ export const parseMessages = async (config: FrontendChainConfig, allConfigs: Fro
             }
 
             case '/secret.compute.v1beta1.MsgExecuteContract': {
-                return parseSecretWasmMessage(msg, i.toString(), tx, executedContracts, encryptionUtils, config);
+                return parseSecretWasmMessage(msg, i.toString(), tx, executedContracts, config, encryptionUtils);
             }
 
             case '/secret.compute.v1beta1.MsgInstantiateContract': {

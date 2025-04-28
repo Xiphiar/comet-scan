@@ -42,7 +42,7 @@ export const importSecretWasmCode = async (chainId: string, codeId: string, code
     const existingCode = await Codes.findOne({ chainId: chainId, codeId }).lean();
     if (existingCode) return existingCode;
 
-    console.log(`Importing code ${codeId} on ${chainId}`)
+    console.log(`Importing SecretWasm code ${codeId} on ${chainId}`)
     if (!codeInfo) {
         const client = await getSecretWasmClient(chainId);
         const _codeInfo = await client.query.compute.code({ code_id: codeId });

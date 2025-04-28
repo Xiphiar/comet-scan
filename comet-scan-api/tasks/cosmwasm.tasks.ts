@@ -16,7 +16,7 @@ export const updateCosmWasmContracts = async (config: ChainConfig) => {
 
     // Import codes
     for (const code of data.code_infos) {
-        console.log(`Importing code ${code.code_id} on ${config.chainId}`)
+        console.log(`Importing CosmWasm code ${code.code_id} on ${config.chainId}`)
         const existingCode = await Codes.findOne({ chainId: config.chainId, codeId: code.code_id }).lean();
         if (existingCode) continue;
 

@@ -53,7 +53,7 @@ const syncChain = async (config: ChainConfig) => {
 
         console.log(`Sync task finished for ${chainId}!`)
     } catch (err: any) {
-        console.error(`Sync error on ${chainId}: ${err.toString()}`)
+        console.error(`Sync error on ${chainId}: ${err.toString()}`, err)
     } finally {
         isSyncing.set(chainId, false);
     }

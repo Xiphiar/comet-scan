@@ -21,7 +21,8 @@ export const processTxMessages = async (tx: Transaction, msgs = tx.transaction.t
                 // An authz message contains an array of sub-messages that should be passed back through processTxMessages.
                 // This way if an authz message contains nested authz messages, all messages are properly processed.
                 const authzMsgs = msg.msgs;
-                await processTxMessages(tx, authzMsgs)
+                await processTxMessages(tx, authzMsgs);
+                break;
             }
             case '/secret.compute.v1beta1.MsgStoreCode': {
                 // Get the code ID(s) from events.
@@ -39,6 +40,7 @@ export const processTxMessages = async (tx: Transaction, msgs = tx.transaction.t
                 for (const codeId of codeIds) {
                     await importSecretWasmCode(tx.chainId, codeId);
                 }
+                break;
             }
             case '/secret.compute.v1beta1.MsgInstantiateContract': {
                 // Get the contract address(es) from events.
@@ -49,6 +51,7 @@ export const processTxMessages = async (tx: Transaction, msgs = tx.transaction.t
                     // This function will also import the code if it hasn't been already
                     await importSecretWasmContract(tx.chainId, contractAddress)
                 }
+                break;
             }
         }
     }

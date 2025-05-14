@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, Fragment } from "react";
 import { useParams } from "react-router-dom";
 import useAsync from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
@@ -52,10 +52,10 @@ const RecentBlocksPage: FC = () => {
                         </div>
                     </div>
                 }
-                {data.blocks.map((tx) =><>
+                {data.blocks.map((block) =><Fragment key={block.hash}>
                     <div style={{borderBottom: '1px solid var(--light-gray)'}} />
-                    <BlockRow block={tx} chain={chain} />
-                </>)}
+                    <BlockRow block={block} chain={chain} />
+                </Fragment>)}
                 {!data.blocks.length && <div className='py-4 w-full text-center'>
                     No blocks found.
                 </div>}

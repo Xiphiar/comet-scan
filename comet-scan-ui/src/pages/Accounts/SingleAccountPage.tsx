@@ -17,6 +17,8 @@ import ReactPaginate from "react-paginate";
 import Spinner from "../../components/Spinner";
 import styles from './SingleAccountPage.module.scss';
 import sleep from "../../utils/sleep";
+import DelegationRow from "../../components/DelegationRow/DelegationRow";
+import UnbondingRow from "../../components/UnbondingRow/UnbondingRow";
 
 const SingleAccountPage: FC = () => {
     const { chain: chainLookupId, accountAddress } = useParams();
@@ -118,6 +120,95 @@ const SingleAccountPage: FC = () => {
                     }
                 </Card>
             </div>
+            <TabbedCard
+                title="Delegations"
+                tabs={[
+                    {
+                        title: 'Active',
+                        content: (<>
+                            {!!data.account.delegations.length &&
+                                <div className='d-flex mt-1 mb-1'>
+                                    <div className='col col-6'>
+                                        Validator
+                                    </div>
+                                    <div className='col col-6 text-end'>
+                                        Amount
+                                    </div>
+                                </div>
+                            }
+                            {data.account.delegations
+                                .filter(delegation => delegation.amount !== '0')
+                                .sort((a, b)=>{
+                                    const amountA = BigInt(a.amount);
+                                    const amountB = BigInt(b.amount);
+                                    if(amountA < amountB) {
+                                        return 1;
+                                    } else if (amountA > amountB){
+                                        return -1;
+                                    } else {
+                                        return 0;
+                                    }
+                                })
+                                .map(delegation =>
+                                    <Fragment key={`${delegation.amount}${delegation.validatorAddress}`}>
+                                        <div style={{borderBottom: '1px solid var(--light-gray)'}} />
+                                        <DelegationRow delegation={delegation} />
+                                    </Fragment>
+                                )
+                            }
+                            {(!data.account.delegations.length) && <div className='py-4 w-full text-center'>
+                                No active delegations found.
+                            </div>}
+                        </>)
+                    },
+                    {
+                        title: 'Unbonding',
+                        content: <div style={{overflowY: 'auto'}}>
+                            <div style={{minWidth: '400px'}}>
+                                {!!data.account.unbondings.length &&
+                                    <div className='d-flex mt-1 mb-1'>
+                                        <div className='col col-6'>
+                                            Validator
+                                        </div>
+                                        <div className='col col-3 col-md-2'>
+                                            Amount
+                                        </div>
+                                        <div className='col col-2 d-none d-md-block'>
+                                            Unbond Height
+                                        </div>
+                                        <div className='col col-3 col-md-2 text-end'>
+                                            End Time
+                                        </div>
+                                    </div>
+                                }
+                                {data.account.unbondings
+                                    .filter(unbonding => unbonding.amount !== '0')
+                                    .sort((a, b)=>{
+                                        const amountA = BigInt(a.amount);
+                                        const amountB = BigInt(b.amount);
+                                        if(amountA < amountB) {
+                                            return 1;
+                                        } else if (amountA > amountB){
+                                            return -1;
+                                        } else {
+                                            return 0;
+                                        }
+                                    })
+                                    .map(unbonding =>
+                                        <Fragment key={`${unbonding.amount}${unbonding.validatorAddress}`}>
+                                            <div style={{borderBottom: '1px solid var(--light-gray)'}} />
+                                            <UnbondingRow unbonding={unbonding} />
+                                        </Fragment>
+                                    )
+                                }
+                                {(!data.account.unbondings.length) && <div className='py-4 w-full text-center'>
+                                    No unbonding delegations found.
+                                </div>}
+                            </div>
+                        </div>
+                    }
+                ]}
+            />
             <Card conentClassName='position-relative'>
                 <h3>Transactions</h3>
                 {!!data.recentTransactions.length &&

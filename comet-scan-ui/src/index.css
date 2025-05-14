@@ -169,6 +169,10 @@ h1 {
   color: var(--main);
 }
 
+.noHover:hover {
+  color: unset;
+}
+
 .badge {
   padding: 4px 8px;
   width: fit-content;

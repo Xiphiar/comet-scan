@@ -292,8 +292,8 @@ export const getSingleAccount = api(
     const config = getChainConfig(chainId);
     if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
 
-    let account: Account | null = await Accounts.findOne({ chainId, address }, { _id: false, __v: false }).lean();
-    if (!account) account = await importAccount(chainId, address)
+    // Run the import function every time an account is looked up. This ensures we have the account in the DB and show the current balances/delegations
+    const account = await importAccount(chainId, address)
     if (!account) throw new APIError(ErrCode.NotFound, 'Account not found');
 
     const recentTransactions = await Transactions.find({
@@ -321,13 +321,13 @@ export const getSingleAccount = api(
       ]
     });
 
-      let administratedContracts: WasmContract[] = [];
-      let instantiatedContracts: WasmContract[] = [];
+    let administratedContracts: WasmContract[] = [];
+    let instantiatedContracts: WasmContract[] = [];
 
-      if (config.features.includes('secretwasm') || config.features.includes('cosmwasm')) {
-        administratedContracts = await Contracts.find({ chainId, admin: address }, { _id: false, __v: false }).lean();
-        instantiatedContracts = await Contracts.find({ chainId, creator: address }, { _id: false, __v: false }).lean();
-      }
+    if (config.features.includes('secretwasm') || config.features.includes('cosmwasm')) {
+      administratedContracts = await Contracts.find({ chainId, admin: address }, { _id: false, __v: false }).lean();
+      instantiatedContracts = await Contracts.find({ chainId, creator: address }, { _id: false, __v: false }).lean();
+    }
     
     return {
       account,

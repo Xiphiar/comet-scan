@@ -59,9 +59,7 @@ const FeaturedTokensPage: FC = () => {
                     <Selector
                         options={['Featured', 'All']}
                         selected={'Featured'}
-                        onSelect={(value) => {
-                            navigate(`/${chain.id}/tokens`);
-                        }}
+                        onSelect={() => navigate(`/${chain.id}/tokens`)}
                         style={{fontWeight: 500}}
                         height={32}
                         borderThickness={1}

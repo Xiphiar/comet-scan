@@ -19,6 +19,9 @@ import styles from './SingleAccountPage.module.scss';
 import sleep from "../../utils/sleep";
 import DelegationRow from "../../components/DelegationRow/DelegationRow";
 import UnbondingRow from "../../components/UnbondingRow/UnbondingRow";
+import VoteRow from "../../components/VoteRow/VoteRow";
+import { MdAccountBalance } from "react-icons/md";
+import AccountVoteRow from "../../components/VoteRow/AccountVoteRow";
 
 const SingleAccountPage: FC = () => {
     const { chain: chainLookupId, accountAddress } = useParams();
@@ -209,6 +212,35 @@ const SingleAccountPage: FC = () => {
                     }
                 ]}
             />
+            <Card>
+                <h3>Votes</h3>
+                <div className='d-flex mt-4 mb-1'>
+                    <div className='col col-1'>
+                        ID
+                    </div>
+                    <div className='col col-7'>
+                        Title
+                    </div>
+                    <div className='col col-2'>
+                        Vote
+                    </div>
+                    <div className='col col-2 text-end'>
+                        Time
+                    </div>
+                </div>
+                <div style={{borderBottom: '1px solid var(--light-gray)'}} />
+                { !data.votes?.length && 
+                    <div className='py-4 w-full text-center'>
+                        No votes found.
+                    </div>
+                }
+                {data.votes?.map(vwt => (
+                    <Fragment key={vwt.vote.voter}>
+                        <AccountVoteRow data={vwt} />
+                        <div style={{borderBottom: '1px solid var(--light-gray)'}} />
+                    </Fragment>
+                ))}
+            </Card>
             <Card conentClassName='position-relative'>
                 <h3>Transactions</h3>
                 {!!data.recentTransactions.length &&

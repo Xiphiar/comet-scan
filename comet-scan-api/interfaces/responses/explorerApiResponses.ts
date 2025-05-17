@@ -89,10 +89,16 @@ export interface SingleProposalPageResponse {
   bonded: Amount;
 }
 
+export interface VoteWithTitle {
+  title: string;
+  vote: Vote;
+}
+
 export interface SingleAccountPageResponse {
   account: Account;
   recentTransactions: Transaction[];
   totalTransactions: number;
+  votes: VoteWithTitle[];
   instantiatedContracts: ContractWithStats[];
   administratedContracts: ContractWithStats[];
 }

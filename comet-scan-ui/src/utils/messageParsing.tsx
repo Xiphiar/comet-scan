@@ -2,7 +2,7 @@ import { ReactElement } from "react";
 import { FrontendChainConfig } from "../interfaces/config.interface";
 import { combineCoins, stringToCoin } from "./denoms";
 import { Link } from "react-router-dom";
-import { formatAmounts, formatCoin, truncateString } from "./format";
+import { formatAmounts, formatCoin, formatVoteOption, truncateString } from "./format";
 import { Coin } from "../interfaces/models/blocks.interface";
 import { LcdTxResponse } from "../interfaces/lcdTxResponse";
 import MessageRow from "../components/MessageRow/messageRow";
@@ -35,6 +35,8 @@ export const formatTxType = (txType: string) => {
         case '/cosmos.authz.v1beta1.MsgExec': return 'Authz Execute'
         case '/ibc.core.channel.v1.MsgRecvPacket': return 'IBC Received'
         case '/canine_chain.storage.MsgPostProof': return 'Post Storage Proof'
+        case '/cosmos.gov.v1beta1.MsgVote':
+        case '/cosmos.gov.v1.MsgVote': return 'Vote';
         default: return txType;
     }
 }
@@ -359,6 +361,18 @@ export const parseMessages = async (config: FrontendChainConfig, allConfigs: Fro
                         ['Merkle', defaultKeyContent(msg.merkle)],
                         ['Start', defaultKeyContent(msg.start)],
                         ['To Prove', defaultKeyContent(msg.to_prove)],
+                    ],
+                    amounts: [],
+                }
+            }
+
+            case '/cosmos.gov.v1beta1.MsgVote': {
+                return {
+                    title: 'Vote on Proposal',
+                    content: [
+                        ['Voter', <Link to={`/${config.id}/accounts/${msg.voter}`}>{msg.voter}</Link>],
+                        ['Proposal', <Link to={`/${config.id}/proposals/${msg.proposal_id}`}>{msg.proposal_id}</Link>],
+                        ['Vote', formatVoteOption(msg.option)],
                     ],
                     amounts: [],
                 }

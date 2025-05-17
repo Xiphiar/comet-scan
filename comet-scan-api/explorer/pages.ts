@@ -1,7 +1,7 @@
 import { api, APIError, ErrCode, Query } from "encore.dev/api";
 import { dayMs, get24hBlocksCount, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getOldestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb, hourMs } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
-import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse, PaginatedTransactionsResponse, StatusPageResponse, ChainStatus, AllTokensPageResponse } from "../interfaces/responses/explorerApiResponses";
+import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse, PaginatedTransactionsResponse, StatusPageResponse, ChainStatus, AllTokensPageResponse, VoteWithTitle } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
 import Blocks from "../models/blocks";
 import Transactions from "../models/transactions";
@@ -18,6 +18,7 @@ import Codes from "../models/codes.model";
 import { addContractStats } from "../common/contracts";
 import { ProposerInfo } from "../interfaces/models/validators.interface";
 import ContractVerifications from "../models/contractVerifications.model";
+import Votes from "../models/votes.model";
 
 export const getOverview = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/overview" },
@@ -321,6 +322,19 @@ export const getSingleAccount = api(
       ]
     });
 
+    const votes = await Votes.find({ chainId, voter: address }, { _id: false, __v: false }).lean();
+
+    // Get the proposal title for each vote
+    const propTitles = await Proposals.find({ chainId, id: { $in: votes.map(v => v.proposalId) } }, { _id: false, id: true, title: true }).lean();
+
+    // Build VoteWithTitle objects to return
+    const votesWithTitles: VoteWithTitle[] = votes.map(vote => {
+      return {
+        vote,
+        title: propTitles.find(p => p.id === vote.proposalId)?.title || 'Unknown Proposal',
+      }
+    })
+
     let administratedContracts: WasmContract[] = [];
     let instantiatedContracts: WasmContract[] = [];
 
@@ -333,6 +347,7 @@ export const getSingleAccount = api(
       account,
       recentTransactions,
       totalTransactions,
+      votes: votesWithTitles,
       administratedContracts: await addContractStats(chainId, administratedContracts),
       instantiatedContracts: await addContractStats(chainId, instantiatedContracts),
     };

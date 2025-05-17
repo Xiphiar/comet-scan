@@ -85,7 +85,7 @@ const SecretNetwork: ChainConfig = {
     ],
     frontendLcd: 'https://secret-4.api.trivium.network:1317',
     startHeight: 17_550_000,
-    features: ['secretwasm', 'tokens'],
+    features: ['secretwasm', 'tokens', 'featured_tokens'],
     isTestnet: false,
     enableWalletConnect: true,
 }

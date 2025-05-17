@@ -1,5 +1,5 @@
 import { WasmContract } from "../interfaces/models/contracts.interface";
-import { AllContractsPageResponse, AllProposalsPageResponse, AllTokensPageResponse, BlocksPageResponse, PaginatedTransactionsResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleCodePageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, StatusPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
+import { AllContractsPageResponse, AllProposalsPageResponse, AllTokensPageResponse, BlocksPageResponse, FeaturedTokensPageResponse, PaginatedTransactionsResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleCodePageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, StatusPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
 import http from "./apiClient"
 
 export const getOverviewPage = async (chainId: string) => {
@@ -169,6 +169,20 @@ export const getSingleContractPage = async (chainId: string, contractAddress: st
 
 export const getAllTokensPage = async (chainId: string, page = 1): Promise<AllTokensPageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/tokens`,
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            params: {
+                page
+            }
+        }
+    );
+    return data;
+}
+
+export const getFeaturedTokensPage = async (chainId: string, page = 1): Promise<FeaturedTokensPageResponse> => {
+    const {data} = await http.get(`/explorer/${chainId}/tokens/featured`,
         {
             headers: {
                 'Content-Type': 'application/json'

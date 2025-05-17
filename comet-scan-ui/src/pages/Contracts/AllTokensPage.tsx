@@ -1,5 +1,5 @@
 import { FC, Fragment, useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import { useAsyncV2 } from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
@@ -9,12 +9,14 @@ import { getAllTokensPage } from "../../api/pagesApi";
 import { AllTokensPageResponse } from "../../interfaces/responses/explorerApiResponses";
 import TokenRow from "../../components/TokenRow/TokenRow";
 import ReactPaginate from "react-paginate";
+import Selector from "../../components/Selector/Selector";
 
 
 const AllTokensPage: FC = () => {
     const { chain: chainLookupId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
+    const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [currentPage, setCurrentPage] = useState<number>(parseInt(searchParams.get('page') || '1'));
     
@@ -50,7 +52,19 @@ const AllTokensPage: FC = () => {
         <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={title} />
             <Card className='col'>
-                <h3>Top Tokens</h3>
+                <div className='d-flex justify-content-between align-items-center'>
+                    <h3>All Tokens</h3>
+                    { chain.features.includes('featured_tokens') &&
+                        <Selector
+                            options={['Featured', 'All']}
+                            selected={'All'}
+                            onSelect={() => navigate(`/${chain.id}/tokens/featured`)}
+                            style={{fontWeight: 500}}
+                            height={32}
+                            borderThickness={1}
+                        />
+                    }
+                </div>
                 {!!data.tokenContracts.length &&
                     <div className='d-flex mt-4 mb-1'>
                         <div className='col col-4'>

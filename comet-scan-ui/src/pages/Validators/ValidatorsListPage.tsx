@@ -23,7 +23,6 @@ const ValidatorsListPage: FC<{inactive?: boolean}> = ({inactive}) => {
         }
     );
 
-    console.log('inactive', inactive)
     if (!chain) {
         return (
             <div>
@@ -35,8 +34,6 @@ const ValidatorsListPage: FC<{inactive?: boolean}> = ({inactive}) => {
     if (!data) {
         return <ContentLoading chain={chain} title='Validators' error={error} />
     }
-
-    console.log('data.stakingMetrics', data.stakingMetrics)
  
     return (
         <div className='d-flex flex-column'>

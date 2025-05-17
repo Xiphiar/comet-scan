@@ -1,7 +1,7 @@
 import { api, APIError, ErrCode, Query } from "encore.dev/api";
 import { dayMs, get24hBlocksCount, get24hContractExecutionsCount, get24hTotalExecutionsCount, get24hTransactionsCount, getActiveValidatorsCount, getLatestBlock, getOldestBlock, getProposalsFromDb, getTopValidatorsFromDb, getTotalExecutionsCount, getValidatorsFromDb, hourMs } from "../common/dbQueries";
 import { getInflation, getStakingMetrics, getTotalBonded, getTotalSupply } from "../common/chainQueries";
-import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse, PaginatedTransactionsResponse, StatusPageResponse, ChainStatus, AllTokensPageResponse, VoteWithTitle } from "../interfaces/responses/explorerApiResponses";
+import { OverviewPageResponse, SingleValidatorPageResponse, ValidatorsPageResponse, SingleBlockPageResponse, SingleTransactionPageResponse, TransactionsPageResponse, BlocksPageResponse, AllProposalsPageResponse, SingleProposalPageResponse, SingleAccountPageResponse, SingleContractPageResponse, AllContractsPageResponse, ContractWithStats, SingleCodePageResponse, PaginatedTransactionsResponse, StatusPageResponse, ChainStatus, AllTokensPageResponse, VoteWithTitle, FeaturedTokensPageResponse, FeaturedToken } from "../interfaces/responses/explorerApiResponses";
 import Validators from "../models/validators";
 import Blocks from "../models/blocks";
 import Transactions from "../models/transactions";
@@ -19,6 +19,7 @@ import { addContractStats } from "../common/contracts";
 import { ProposerInfo } from "../interfaces/models/validators.interface";
 import ContractVerifications from "../models/contractVerifications.model";
 import Votes from "../models/votes.model";
+import { FeaturedSecretTokens } from "../config/tokens_secret";
 
 export const getOverview = api(
   { expose: true, method: "GET", path: "/explorer/:chainId/overview" },
@@ -435,6 +436,59 @@ export const getSingleContract = api(
       recentTransactions,
       dailyExecutions,
       verification: verification || undefined,
+    }
+  }
+);
+
+export const getFeaturedTokensPage = api<{
+  chainId: string;
+  page?: Query<number>;
+}>(
+  { expose: true, method: "GET", path: "/explorer/:chainId/tokens/featured" },
+  async ({ chainId, page }): Promise<FeaturedTokensPageResponse> => {
+    const config = getChainConfig(chainId);
+    if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
+
+    // We only have featured tokens on secret-4 right now.
+    if (chainId !== 'secret-4') return {
+      tokens: [],
+      totalTokens: 0,
+    }
+
+    // TODO paginate 30 per page
+    const pageTokens = FeaturedSecretTokens;
+    const tokenAddresses = pageTokens.map(t => t.address);
+
+    // Get all the contracts from the DB
+    // TODO this is a bit slow, figure out how to optimize the query or indexes
+    const contracts = await Contracts.find({ chainId, contractAddress: { $in: tokenAddresses }, tokenInfo: { $exists: true }}, { _id: false, __v: false }).sort({ executions: -1 }).lean();
+
+    const contractsWithStats: ContractWithStats[] = []
+    for (const contract of contracts) {
+      const dailyExecutions = await get24hContractExecutionsCount(chainId, contract.contractAddress);
+      const verification = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
+
+      contractsWithStats.push({
+        contract,
+        dailyExecutions,
+        verified: !!verification,
+      })
+    }
+
+    const featuredTokens: FeaturedToken[] = contractsWithStats.map(c => {
+      const featuredInfo = pageTokens.find(fti => fti.address === c.contract.contractAddress);
+      return {
+        contract: c,
+        name: featuredInfo?.name || 'Unknown',
+        description: featuredInfo?.description || 'Not Found',
+        image: featuredInfo?.image || 'default.jpg',
+        coingecko_id: featuredInfo?.coingecko_id,
+      }
+    })
+
+    return {
+      tokens: featuredTokens,
+      totalTokens: FeaturedSecretTokens.length,
     }
   }
 );

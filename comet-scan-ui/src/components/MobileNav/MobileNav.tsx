@@ -16,7 +16,11 @@ const MobileNav: FC<{show: boolean, hide: ()=>any, chain: FrontendChainConfig}> 
     ['Validators', `/${chain.id}/validators`],
   ]
   if (chain.features.includes('secretwasm') || chain.features.includes('cosmwasm')) links.push(['Contracts', `/${chain.id}/contracts`],);
-  if (chain.features.includes('tokens')) links.push(['Tokens', `/${chain.id}/tokens`],);
+  if (chain.features.includes('tokens')) links.push([
+    'Tokens',
+    // If featured tokens are enabled for the chain, link to the featured tokens page, otherwise link to the all tokens page
+    chain.features.includes('featured_tokens') ? `/${chain.id}/tokens/featured` : `/${chain.id}/tokens`,
+  ]);
   
   const overlayStyle = show ? undefined : { background: 'transparent', zIndex: -999 }
   const wrapperStyle = show ? undefined : { transform: 'translateX(100%)' }

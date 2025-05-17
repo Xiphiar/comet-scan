@@ -116,6 +116,19 @@ export interface AllContractsPageResponse {
   dailyExecutions: number;
 }
 
+export interface FeaturedToken {
+  contract: ContractWithStats;
+  name: string;
+  description: string;
+  image: string;
+  coingecko_id?: string;
+}
+
+export interface FeaturedTokensPageResponse {
+  tokens: FeaturedToken[],
+  totalTokens: number;
+}
+
 export interface AllTokensPageResponse {
   tokenContracts: ContractWithStats[],
   totalTokens: number;

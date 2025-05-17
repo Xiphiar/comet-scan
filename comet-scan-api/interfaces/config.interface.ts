@@ -2,6 +2,7 @@ export type ChainFeature =
     'secretwasm'
     | 'cosmwasm'
     | 'tokens' // Display the tokens link in the navbar
+    | 'featured_tokens' // Display an option to view featured tokens
     | 'no_contract_import' // Don't import contracts, only import codes
     | 'no_contract_parsing' // Import contracts, but don't check if they are a token or NFT collection
     | 'no_denom_trace'; //Disable denom tracing for this chain. Used on chains where denom tracing is broken or the endpoint is unknown (e.g. cosmoshub)

@@ -202,7 +202,11 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
 
             if (!Object.keys(update).length) return existingAccount;
 
-            const updatedAccount = await Accounts.findOneAndUpdate({ chainId, address }, { $set: update }, { new: true, lean: true });
+            const updatedAccount = await Accounts.findOneAndUpdate(
+                { chainId, address }, // Filter
+                { $set: update }, // Update
+                { new: true, lean: true, projection: {_id: false, __v: false} }
+            );
             return updatedAccount!;
         } else {
             // otherwise add non-existant accounts
@@ -250,9 +254,12 @@ export const importAccount = async (chainId: string, address: string, tx?: Trans
                 nativeAssets,
                 tokenAssets: [],
             };
-            const createdAccount = await Accounts.findOneAndReplace({ chainId, address }, newAccount, { upsert: true, new: true, lean: true });
-            const { _id, ...clean } = createdAccount as any;
-            return clean;
+            const createdAccount = await Accounts.findOneAndReplace(
+                { chainId, address },
+                newAccount,
+                { upsert: true, new: true, lean: true, projection: {_id: false, __v: false} }
+            );
+            return createdAccount;
         }
     } catch (err: any) {
         console.error(`Failed to import account ${address} on ${chainId}:`, err.toString())

@@ -24,6 +24,7 @@ export interface Proposal {
     validatorVotes: ValidatorVote[];
     proposal: v1beta1LcdProposal | v1LcdProposal;
     expedited: boolean;
+    totalBondedAtEnd: string | undefined;
     tally: {
         yes: string;
         no: string;

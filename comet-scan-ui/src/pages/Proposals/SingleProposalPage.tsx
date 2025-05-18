@@ -27,6 +27,7 @@ import styles from './SingleProposalPage.module.scss';
 import Selector from "../../components/Selector/Selector";
 import { VoteOption } from "../../interfaces/models/proposals.interface";
 import VoteRow from "../../components/VoteRow/VoteRow";
+import { weiFormatNice } from "../../utils/coin";
 
 const SingleProposalPage: FC = () => {
     const { chain: chainLookupId, proposalId } = useParams();
@@ -210,7 +211,14 @@ const SingleProposalPage: FC = () => {
     const totalYesNo = totalNo + Number(data.proposal.tally.yes);
     const totalWithAbstain = totalYesNo + Number(data.proposal.tally.abstain)
     const percentYes = Number(data.proposal.tally.yes) / totalYesNo;
-    const turnoutPercent = totalWithAbstain / Number(data.bonded.amount)
+    const turnoutDisplay = (()=>{
+        if (data.proposal.totalBondedAtEnd) {
+            const turnoutPercent = totalWithAbstain / Number(data.proposal.totalBondedAtEnd);
+            return `${(turnoutPercent * 100).toFixed(2)}%`
+        }
+        const totalTally = BigInt(data.proposal.tally.yes) + BigInt(data.proposal.tally.abstain) + BigInt(data.proposal.tally.no) + BigInt(data.proposal.tally.no_with_veto);
+        return `${weiFormatNice(totalTally, chain.bondingDecimals)} ${chain.bondingDisplayDenom}`
+    })()
 
     let proposalType = data.proposal.proposalType;
     if (proposalType.includes('MsgExecLegacyContent')) proposalType = (data.proposal.proposal as v1LcdProposal).messages?.[0]?.content?.['@type'] || proposalType;
@@ -261,7 +269,7 @@ const SingleProposalPage: FC = () => {
                 </Card>
                 <Card className='col col-12 col-sm-4'>
                     <div className='statTitle'><BsFillPeopleFill /><h5>Turout</h5></div>
-                    {(turnoutPercent * 100).toFixed(2)}%
+                    {turnoutDisplay}
                 </Card>
             </div>
             <Card>

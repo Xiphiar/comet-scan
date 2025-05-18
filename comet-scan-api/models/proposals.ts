@@ -63,6 +63,10 @@ const proposalSchema = new mongoose.Schema<Proposal>({
         type: Boolean,
         required: true,
     },
+    totalBondedAtEnd: {
+        type: String,
+        required: false,
+    },
     tally: {
         type: {},
         required: true,

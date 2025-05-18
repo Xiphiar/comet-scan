@@ -84,6 +84,7 @@ const SecretNetwork: ChainConfig = {
         'https://secret-4.api.trivium.network:1317'
     ],
     frontendLcd: 'https://secret-4.api.trivium.network:1317',
+    archiveLcd: 'https://lcd.archive.scrt.marionode.com:443',
     startHeight: 17_550_000,
     features: ['secretwasm', 'tokens', 'featured_tokens'],
     isTestnet: false,

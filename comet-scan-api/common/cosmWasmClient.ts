@@ -14,15 +14,17 @@ export const getCosmwasmClient = async (rpc: string): Promise<CosmWasmClient> =>
     return client;
 }
 
-export const getSecretWasmClient = async (chainId: string): Promise<SecretNetworkClient> => {
+export const getSecretWasmClient = async (chainId: string, archive = false): Promise<SecretNetworkClient> => {
     const chainConfig = Chains.find(c => c.chainId === chainId);
     if (!chainConfig) throw `Chain ${chainId} not found in config.`
 
-    const cached = secretWasmClientCache.get(chainConfig.lcds[0]);
+    const lcd = (archive && chainConfig.archiveLcd) ? chainConfig.archiveLcd : chainConfig.lcds[0];
+
+    const cached = secretWasmClientCache.get(lcd);
     if (cached) return cached;
 
     const client = new SecretNetworkClient({
-        url: chainConfig.lcds[0],
+        url: lcd,
         chainId
     })
     secretWasmClientCache.set(chainConfig.lcds[0], client);

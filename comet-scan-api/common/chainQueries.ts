@@ -34,16 +34,16 @@ export const getTotalSupply = async (chainId: string): Promise<Amount> => {
     return data;
 }
 
-export const getTotalBonded = async (chainId: string): Promise<Amount> => {
+export const getTotalBonded = async (chainId: string, height?: string): Promise<Amount> => {
     const chainConfig = Chains.find(c => c.chainId === chainId);
     if (!chainConfig) throw `Chain ${chainId} not found in config.`
 
     const cached = Cache.get<Amount>(`${chainId}-total-bonded`);
-    if (cached) return cached;
+    if (cached && !height) return cached;
 
-    const client = await getSecretWasmClient(chainConfig.chainId);
+    const client = await getSecretWasmClient(chainConfig.chainId, height ? true : false);
 
-    const response = await client.query.staking.pool({});
+    const response = await client.query.staking.pool({}, height ? [["x-cosmos-block-height", height]] : undefined);
 
     const data = {
         amount: response.pool?.bonded_tokens || '0',
@@ -51,7 +51,7 @@ export const getTotalBonded = async (chainId: string): Promise<Amount> => {
         denomDecimals: chainConfig.bondingDecimals,
     }
     
-    Cache.set(`${chainId}-total-bonded`, data, 300);
+    if (!height) Cache.set(`${chainId}-total-bonded`, data, 300);
     return data;
 }
 

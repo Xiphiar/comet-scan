@@ -19,7 +19,7 @@ const runUpdateTasksForChain = async (chain: ChainConfig) => {
         await updateProposalsForChain(chain);
         await updateAccountsV2(chain);
     } catch (err: any) {
-        console.error(`Update tasks error on ${chain.chainId}: ${err.toString()}`)
+        console.error(`Update tasks error on ${chain.chainId}:`, err)
     } finally {
         updateRunning.set(chain.chainId, false);
     }

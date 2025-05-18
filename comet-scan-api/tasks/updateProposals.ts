@@ -1,10 +1,13 @@
-import { getTopValidatorsFromDb } from "../common/dbQueries";
+import { getOldestBlock, getTopValidatorsFromDb } from "../common/dbQueries";
 import Proposals from "../models/proposals";
 import { Proposal, ProposalStatus, ValidatorVote } from "../interfaces/models/proposals.interface";
 import Transactions from "../models/transactions";
 import { v1beta1LcdProposal, v1LcdProposal } from "../interfaces/lcdProposalResponse";
 import { ChainConfig } from "../interfaces/config.interface";
 import { getLcdClient } from "../config/clients";
+import Blocks from "../models/blocks";
+import { getTotalBonded } from "../common/chainQueries";
+import { getSecretWasmClient } from "../common/cosmWasmClient";
 
 export const updateProposalsForChain = async (chain: ChainConfig) => {
     if (chain.govVersion === 'v1') return await updateProposalsForChain_v1(chain);
@@ -48,6 +51,11 @@ export const updateProposalsForChain_v1beta1 = async (chain: ChainConfig) => {
 
         const tallyData = await lcdClient.get<any>(`/cosmos/gov/v1beta1/proposals/${prop.proposal_id}/tally`);
 
+        const totalBondedAtEnd = existingProposal?.totalBondedAtEnd ?
+            existingProposal.totalBondedAtEnd
+        :
+            await getTotalBondedAtDate(chain, new Date(prop.voting_end_time));
+
         // Upsert Proposal
         const newProp: Proposal = {
             chainId: chain.chainId,
@@ -64,6 +72,7 @@ export const updateProposalsForChain_v1beta1 = async (chain: ChainConfig) => {
             validatorVotes,
             proposal: prop,
             expedited: prop.is_expedited || false,
+            totalBondedAtEnd,
             tally: {
                 yes: tallyData.tally.yes,
                 no: tallyData.tally.no,
@@ -102,6 +111,11 @@ export const updateProposalsForChain_v1 = async (chain: ChainConfig) => {
 
         const tallyData = await lcdClient.get<any>(`/cosmos/gov/v1/proposals/${prop.id}/tally`);
 
+        const totalBondedAtEnd = existingProposal?.totalBondedAtEnd ?
+            existingProposal.totalBondedAtEnd
+        :
+            await getTotalBondedAtDate(chain, new Date(prop.voting_end_time));
+
         // Upsert Proposal
         const newProp: Proposal = {
             chainId: chain.chainId,
@@ -118,6 +132,7 @@ export const updateProposalsForChain_v1 = async (chain: ChainConfig) => {
             validatorVotes,
             proposal: prop,
             expedited: prop.expedited || false,
+            totalBondedAtEnd,
             tally: {
                 yes: tallyData.tally.yes || tallyData.tally.yes_count,
                 no: tallyData.tally.no || tallyData.tally.no_count,
@@ -147,4 +162,63 @@ const getValidatorVotes = async (chain: ChainConfig, proposalId: string): Promis
     }
 
     return valVotes;
+}
+
+const getTotalBondedAtDate = async ({chainId, bondingDecimals}: ChainConfig, date: Date): Promise<string | undefined> => {
+    // Get the block just after the date
+    const block = await Blocks.findOne({ chainId, timestamp: { $gte: date } }).sort({ timestamp: 1 }).lean();
+    const oldestBlock = await getOldestBlock(chainId);
+    if (!block || !oldestBlock) return undefined;
+
+    // If the clostest height is the same as the oldest height in the DB, then the prop likely ended
+    // before the first block in the DB, so we don't know the proper height and should return undefined.
+    if (block.height === oldestBlock.height) return undefined;
+
+    // Try to get bonded amount at that height
+    try {
+        const totalBondedResponse = await getTotalBonded(chainId, block.height.toString());
+        return totalBondedResponse.amount;
+    } catch (err: any) {
+        // Do nothing and try to get it using VP below
+    }
+
+    // Cosmos SDK 0.50 update broke querying pre-upgrade bond pools, so we can try to query the validator set to get a rough number.
+    // Not entirely accurate but seems to be within 1000 tokens of the bond pool response amount.
+    try {
+        const client = await getSecretWasmClient(chainId, true);
+
+        const valSet = await client.query.tendermint.getValidatorSetByHeight(
+            {
+                height: block.height.toString(),
+                pagination: {
+                    limit: '1000',
+                }
+            },
+        );
+        if (!valSet.pagination?.total) {
+            console.error('Error getting total bonded at date using val set: valSet.pagination.total is undefined.')
+            return undefined;
+        }
+        if (!valSet.validators) {
+            console.error('Error getting total bonded at date using val set: valSet.validators is undefined.')
+            return undefined;
+        }
+        if (parseInt(valSet.pagination.total) !== valSet.validators.length) {
+            console.error('Error getting total bonded at date using val set: Pagination total does not match array length.')
+        }
+
+        // Get the total voting power of the validator set
+        const totalVp = valSet.validators.reduce(
+            (sum, val) => sum + BigInt(val.voting_power || '0'),
+            0n,
+        )
+        const totalVpString = totalVp.toString();
+
+        // VP is whole coins, so pad the end with 0's to return the base denom (e.g. uDENOM, aDENOM, or wei)
+        return totalVpString.padEnd(totalVpString.length + bondingDecimals, '0')
+    } catch {
+        // Do nothing and return undefined below
+    }
+
+    return undefined;
 }

@@ -374,18 +374,7 @@ export const getContractsPage = api(
     }
 
     console.time('Contracts With Stats')
-    const now = new Date();
-    const contractsWithStats: ContractWithStats[] = []
-    for (const contract of contracts) {
-      const dailyExecutions = await get24hContractExecutionsCount(chainId, contract.contractAddress);
-      const verification = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
-
-      contractsWithStats.push({
-        contract,
-        dailyExecutions,
-        verified: !!verification,
-      })
-    }
+    const contractsWithStats = await addContractStats(chainId, contracts);
     console.timeEnd('Contracts With Stats')
 
     console.time('Daily Executions')
@@ -418,7 +407,7 @@ export const getSingleContract = api(
     const code = await Codes.findOne({ chainId, codeId: contract.codeId }, { _id: false, __v: false }).lean();
     if (!code) throw new APIError(ErrCode.NotFound, 'Contract code not found');
 
-    let verification: any = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
+    let verification: any = await ContractVerifications.findOne({ result_hash: code.codeHash }, { _id: false, __v: false }).lean();
     if (verification) verification = {
       ...verification,
       code_zip: verification.code_zip.buffer.toString('base64'),
@@ -463,17 +452,7 @@ export const getFeaturedTokensPage = api<{
     // TODO this is a bit slow, figure out how to optimize the query or indexes
     const contracts = await Contracts.find({ chainId, contractAddress: { $in: tokenAddresses }, tokenInfo: { $exists: true }}, { _id: false, __v: false }).sort({ executions: -1 }).lean();
 
-    const contractsWithStats: ContractWithStats[] = []
-    for (const contract of contracts) {
-      const dailyExecutions = await get24hContractExecutionsCount(chainId, contract.contractAddress);
-      const verification = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
-
-      contractsWithStats.push({
-        contract,
-        dailyExecutions,
-        verified: !!verification,
-      })
-    }
+    const contractsWithStats = await addContractStats(chainId, contracts);
 
     const featuredTokens: FeaturedToken[] = contractsWithStats.map(c => {
       const featuredInfo = pageTokens.find(fti => fti.address === c.contract.contractAddress);
@@ -519,17 +498,7 @@ export const getTokensPage = api<{
       totalTokens = totalDocs;
     }
 
-    const contractsWithStats: ContractWithStats[] = []
-    for (const contract of contracts) {
-      const dailyExecutions = await get24hContractExecutionsCount(chainId, contract.contractAddress);
-      const verification = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
-
-      contractsWithStats.push({
-        contract,
-        dailyExecutions,
-        verified: !!verification,
-      })
-    }
+    const contractsWithStats = await addContractStats(chainId, contracts);
 
     return {
       tokenContracts: contractsWithStats,
@@ -548,7 +517,7 @@ export const getSingleCode = api(
     const code = await Codes.findOne({ chainId, codeId: codeId }, { _id: false, __v: false }).lean();
     if (!code) throw new APIError(ErrCode.NotFound, 'Contract code not found');
 
-    let verification: any = await ContractVerifications.findOne({ chain_id: chainId, code_id: codeId, verified: true }, { _id: false, __v: false }).lean();
+    let verification: any = await ContractVerifications.findOne({ result_hash: code.codeHash }, { _id: false, __v: false }).lean();
     if (verification) verification = {
       ...verification,
       code_zip: verification.code_zip.buffer.toString('base64'),

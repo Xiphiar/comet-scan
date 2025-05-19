@@ -11,8 +11,8 @@ export const addContractStats = async (chainId: string, contracts: WasmContract[
     const contractsWithStats: ContractWithStats[] = []
     for (const contract of contracts) {
       const dailyExecutions = await Transactions.find({ chainId, executedContracts: contract.contractAddress, timestamp: { $gte: oneDayAgo } }).countDocuments();
-      // const code = await Codes.findOne({ chainId, codeId: contract.codeId }).lean();
-      const verification = await ContractVerifications.findOne({ chain_id: chainId, code_id: contract.codeId, verified: true }, { _id: false, __v: false }).lean();
+      const code = await Codes.findOne({ chainId, codeId: contract.codeId }).lean();
+      const verification = code ? await ContractVerifications.findOne({ result_hash: code.codeHash }, { _id: false, __v: false }).lean() : undefined;
 
       contractsWithStats.push({
         contract,

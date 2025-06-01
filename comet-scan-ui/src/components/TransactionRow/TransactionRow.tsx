@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState, useEffect } from "react";
+import { FC, ReactElement, useState, useEffect, Fragment } from "react";
 import { FrontendChainConfig } from "../../interfaces/config.interface";
 import { Transaction } from "../../interfaces/models/transactions.interface";
 import { Link } from "react-router-dom";
@@ -39,66 +39,92 @@ const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig 
             console.error('Error processing amounts:', error);
         }
     }
+
+    const allTitlesSame = parsedMessages ? parsedMessages.every(msg => msg.title === parsedMessages[0].title) : false;
+    const txTypeDisplay = parsedMessages ?
+        ( transaction.transaction.tx.body.messages.length > 1 ?
+            <div className='d-flex align-items-center gap-2'>
+                <div>{parsedMessages[0].title}</div>
+                <Tooltip
+                    content={allTitlesSame ?
+                        `This transaction contains ${transaction.transaction.tx.body.messages.length} messages of the same type.`
+                        : `This transaction contains ${transaction.transaction.tx.body.messages.length} different messages.`
+                    }
+                >
+                    { allTitlesSame ?
+                        <div className={styles.badge}>x{transaction.transaction.tx.body.messages.length}</div>
+                    :
+                        <div className={styles.badge}>+{transaction.transaction.tx.body.messages.length - 1}</div>
+                    }
+                </Tooltip>
+            </div>
+        :
+            parsedMessages[0].title
+        )
+    :
+        formatTxType(txType)
+    ;
+
+    const amountDisplay = allAmounts === undefined ? (
+        <div style={{marginLeft: '24px'}}>
+            <SmallSpinner />
+        </div>
+    ) : (
+        allAmounts
+    )
     
-    return (
+    return (<Fragment key={transaction.hash}>
         <Link
             to={`/${chain.id}/transactions/${transaction.hash}`}
             className={styles.dataRow}
             key={transaction.hash}
         >
             <div className='d-none d-sm-flex col col-2'>{truncateString(transaction.hash, 4)}</div>
-            <div className='col col-7 col-sm-6 col-md-4 col-lg-3'>
-                { parsedMessages ?
-                    ( transaction.transaction.tx.body.messages.length > 1 ?
-                        (() => {
-                            const allTitlesSame = parsedMessages.every(msg => msg.title === parsedMessages[0].title);
-                            return (
-                                <div className='d-flex align-items-center gap-2'>
-                                    <div>{parsedMessages[0].title}</div>
-                                    <Tooltip
-                                        content={allTitlesSame ?
-                                            `This transaction contains ${transaction.transaction.tx.body.messages.length} messages of the same type.`
-                                            : `This transaction contains ${transaction.transaction.tx.body.messages.length} different messages.`
-                                        }
-                                    >
-                                        { allTitlesSame ?
-                                            <div className={styles.badge}>x{transaction.transaction.tx.body.messages.length}</div>
-                                        :
-                                            <div className={styles.badge}>+{transaction.transaction.tx.body.messages.length - 1}</div>
-                                        }
-                                    </Tooltip>
-                                </div>
-                            );
-                        })()
-                    :
-                        parsedMessages[0].title
-                    )
-                :
-                    formatTxType(txType)
-                }
-            </div>
+            <div className='col col-7 col-sm-6 col-md-4 col-lg-3'>{txTypeDisplay}</div>
             <div className='col col-1' style={!transaction.succeeded ? {color: 'red'} : undefined}>
                 {transaction.succeeded ? 'Success' : 'Failed'}
             </div>
             <div className='d-none d-md-flex col col-2 col-lg-2'>
-                {allAmounts === undefined ? (
-                    <div style={{marginLeft: '24px'}}>
-                        <SmallSpinner />
-                    </div>
-                ) : (
-                    allAmounts
-                )}
+                {amountDisplay}
             </div>
             <div className='d-none d-lg-flex col col-1'>{weiFormatNice(fee, chain.bondingDecimals)} {chain.bondingDisplayDenom}</div>
             <div className='col col-4 col-sm-3 align-items-end'>{timeDisplay}</div>
         </Link>
-    )
+        <Link
+            to={`/${chain.id}/transactions/${transaction.hash}`}
+            className={styles.mobileTxRow}
+            key={transaction.hash}
+        >
+            <div>
+                <div style={{color: 'var(--text-color)', fontSize: '110%'}}>{truncateString(transaction.hash, 6)}</div>
+                <div style={!transaction.succeeded ? {color: 'red'} : undefined}>
+                    {transaction.succeeded ? 'Success' : 'Failed'}
+                </div>
+            </div>
+            <div>
+                <div>Type</div>
+                <div>{txTypeDisplay}</div>
+            </div>
+            <div>
+                <div>Amount</div>
+                <div>{amountDisplay}</div>
+            </div>
+            <div>
+                <div>Fee</div>
+                <div>{weiFormatNice(fee, chain.bondingDecimals)} {chain.bondingDisplayDenom}</div>
+            </div>
+            <div>
+                <div>Time</div>
+                <div>{timeDisplay}</div>
+            </div>
+        </Link>
+    </Fragment>)
 }
 
 export default TransactionRow;
 
 export const TransactionLabels = () => (
-    <div className='d-flex mt-4 mb-1'>
+    <div className='d-none d-md-flex mt-4 mb-1'>
         <div className='d-none d-sm-flex col col-2'>
             Hash
         </div>

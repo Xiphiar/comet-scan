@@ -8,6 +8,10 @@
         display: flex;
         flex-direction: column;
     }
+
+    @media (max-width: 767.99px) {
+        display: none;
+    }
 }
 .dataRow:hover {
     color: var(--main);
@@ -19,4 +23,35 @@
     padding: 2px 8px;
     font-size: 14px;
     color: white;
+}
+
+.mobileTxRow {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    color: var(--text-color);
+
+    > div {
+        display: flex;
+        justify-content: space-between;
+
+        > :first-child {
+            color: var(--secondary-text-color);
+        }
+    }
+
+    @media (min-width: 768px) {
+        display: none;
+    }
+}
+// 🙄
+.mobileTxRow:hover {
+    color: var(--main);
+    > div {
+        color: var(--main);
+        > div {
+            color: var(--main) !important;
+        }
+    }
 }

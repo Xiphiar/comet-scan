@@ -28,13 +28,15 @@ import Selector from "../../components/Selector/Selector";
 import { VoteOption } from "../../interfaces/models/proposals.interface";
 import VoteRow from "../../components/VoteRow/VoteRow";
 import { weiFormatNice } from "../../utils/coin";
+import KvCard from "../../components/KvCard/KvCard";
+import JsonView from "react18-json-view";
+import ProposalMessageCard from "./ProposalMessageCard";
 
 const SingleProposalPage: FC = () => {
     const { chain: chainLookupId, proposalId } = useParams();
     const { getChain, getValidators, fetchValidators } = useConfig();
     const chain = getChain(chainLookupId);
     const { data, error } = useAsync<SingleProposalPageResponse>(getSingleProposalPage(chain.chainId, proposalId));
-    const [parsedContent, setParsedContent] = useState<([string, string | ReactNode][]) | undefined>(undefined);
     
     // Vote states for validators tab
     const [validatorVotes, setValidatorVotes] = useState<Vote[]>([]);
@@ -53,15 +55,6 @@ const SingleProposalPage: FC = () => {
 
     // Validators list from config
     const validators = getValidators(chain?.chainId);
-
-    useEffect(() => {
-        const fetchParsedContent = async () => {
-            if (!data) return;
-            const content = await parseProposal(chain, data.proposal.proposal);
-            setParsedContent(content);
-        };
-        fetchParsedContent();
-    }, [data, chain]);
 
     // Fetch validators if they're not already loaded
     useEffect(() => {
@@ -255,6 +248,15 @@ const SingleProposalPage: FC = () => {
         validatorMap[vote.voter] && validatorMap[vote.voter].status !== 'BOND_STATUS_BONDED'
     );
 
+    const proposer = data.proposingValidator ?
+        <Link to={`/${chainLookupId}/validators/${data.proposingValidator.operatorAddress}`} className='d-flex gap-2 align-items-center'>
+            <ValidatorAvatar avatarUrl={proposerDetails?.keybaseAvatarUrl} moniker={proposerDetails?.moniker} operatorAddress={data.proposingValidator?.operatorAddress} />
+            {proposerDetails?.moniker || data.proposingValidator?.operatorAddress}
+        </Link>
+    : data.proposal.proposer ?
+        <Link to={`/${chainLookupId}/accounts/${data.proposal.proposer}`}>{data.proposal.proposer}</Link>
+    : 'Unknown'
+
     return (
         <div className='d-flex flex-column'>
             <TitleAndSearch chain={chain} title={`Proposal ${proposalId}`} />
@@ -272,71 +274,18 @@ const SingleProposalPage: FC = () => {
                     {turnoutDisplay}
                 </Card>
             </div>
-            <Card>
-                <div className='d-flex flex-column gap-3 mt-3'>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Type</div>
-                        <div className='col'>{formatProposalType(proposalType)}</div>
-                    </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Title</div>
-                        <div className='col'>{data.proposal.title}</div>
-                    </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Summary</div>
-                        <p className='col' style={{whiteSpace: 'pre-wrap'}}>{data.proposal.summary}</p>
-                    </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Submit Time</div>
-                        <div className='col'>{new Date(data.proposal.submitTime).toLocaleString()}</div>
-                    </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Deposit End Time</div>
-                        <div className='col'>
-                            {new Date(data.proposal.depositEndTime).toLocaleString()}
-                        </div>
-                    </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Voting Start Time</div>
-                        <div className='col'>
-                            {new Date(data.proposal.votingStartTime).toLocaleString()}
-                        </div>
-                    </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Voting End Time</div>
-                        <div className='col'>
-                            {new Date(data.proposal.votingEndTime).toLocaleString()}
-                        </div>
-                    </div>
-                    <div className='d-flex'>
-                        <div className='col-3 font-weight-bold'>Proposer</div>
-                        <div className='col d-flex gap-2 align-items-center'>
-                            { data.proposingValidator ?
-                                <Link to={`/${chainLookupId}/validators/${data.proposingValidator.operatorAddress}`} className='d-flex gap-2 align-items-center'>
-                                    <ValidatorAvatar avatarUrl={proposerDetails?.keybaseAvatarUrl} moniker={proposerDetails?.moniker} operatorAddress={data.proposingValidator?.operatorAddress} />
-                                    {proposerDetails?.moniker || data.proposingValidator?.operatorAddress}
-                                </Link>
-                            : data.proposal.proposer ?
-                                <Link to={`/${chainLookupId}/accounts/${data.proposal.proposer}`}>{data.proposal.proposer}</Link>
-                            : 'Unknown' }
-                        </div>
-                    </div>
-                    { parsedContent === undefined ? (
-                        <div className="d-flex justify-content-center">
-                            <Spinner />
-                        </div>
-                    ) : parsedContent.map(([name, value]) => {
-                        return (
-                            <div className='d-flex'>
-                                <div className='col-3 font-weight-bold'>{name}</div>
-                                <div className='col'>
-                                    {value}
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
-            </Card>
+            <KvCard
+                kvPairs={[
+                    ['Type', formatProposalType(proposalType)],
+                    ['Title', data.proposal.title],
+                    ['Summary', <p className='col' style={{whiteSpace: 'pre-wrap', margin: '0 0 16px 0'}}>{data.proposal.summary}</p>],
+                    ['Submit Time', new Date(data.proposal.submitTime).toLocaleString()],
+                    ['Deposit End Time', new Date(data.proposal.depositEndTime).toLocaleString()],
+                    ['Voting Start Time', new Date(data.proposal.votingStartTime).toLocaleString()],
+                    ['Voting End Time', new Date(data.proposal.votingEndTime).toLocaleString()],
+                    ['Proposer', proposer],
+                ]}
+            />
             <div className='d-flex flex-wrap w-full'>
                 <Card className='col col-6 col-md-3'>
                     <h5>Yes</h5>
@@ -355,7 +304,25 @@ const SingleProposalPage: FC = () => {
                     {((parseInt(data.proposal.tally.abstain) / totalWithAbstain) * 100).toFixed(2)}%
                 </Card>
             </div>
-            
+            <TabbedCard
+                title='Details'
+                tabs={[
+                    {
+                        title: 'Messages',
+                        content: <div>
+                            { chain.govVersion === 'v1beta1' ?
+                                <ProposalMessageCard proposal={data.proposal} messageIndex={0} />
+                            :
+                                (data.proposal.proposal as v1LcdProposal).messages.map((_, i) => <ProposalMessageCard proposal={data.proposal} messageIndex={i} />)
+                            }
+                        </div>
+                    },
+                    {
+                        title: 'JSON',
+                        content: <JsonView src={data.proposal.proposal} />
+                    }
+                ]}
+            />
             <TabbedCard
                 title="Votes"
                 tabs={[
@@ -543,149 +510,3 @@ const SingleProposalPage: FC = () => {
 }
 
 export default SingleProposalPage;
-
-const parseProposal = async (config: FrontendChainConfig, proposal: v1beta1LcdProposal | v1LcdProposal): Promise<[string, string | ReactNode][]> => {
-    let content: any = undefined;
-    if (config.govVersion === 'v1beta1') {
-        content = (proposal as v1beta1LcdProposal).content;
-    } else if (config.govVersion === 'v1') {
-        // TODO Proposals can have multiple messages as of Cosmos SDK v0.50
-        const messages = (proposal as v1LcdProposal).messages;
-        if (!messages.length) return [];
-        if (messages[0].content) content = messages[0].content;
-        else content = messages[0];
-        
-    } else return [];
-
-    if (!content) return [];
-
-    switch (content['@type']) {
-
-        case '/cosmos.upgrade.v1beta1.SoftwareUpgradeProposal':
-        case '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade': {
-            const data: [string, string | ReactNode][] = [
-                ['Upgrade Name', content.plan.name]
-            ]
-            if (content.plan.time !== '0001-01-01T00:00:00Z') data.push(['Upgrade Time', new Date(content.plan.time).toLocaleString()])
-            if (content.plan.height && content.plan.height !== '0') data.push([
-                'Upgrade Height',
-                <Link to={`/${config.id}/blocks/${content.plan.height}`}>{parseInt(content.plan.height).toLocaleString()}</Link>
-            ])
-            if (content.plan.info) data.push(['Upgrade Info', defaultKeyContent(content.plan.info)])
-            return data;
-        }
-
-        case '/cosmos.distribution.v1beta1.MsgCommunityPoolSpend':
-        case '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal': {
-            return [
-                ['Recipient', <Link to={`/${config.id}/accounts/${content.recipient}`}>{content.recipient}</Link>],
-                ['Amount', await formatCoins(content.amount, config)]
-            ]
-        }
-
-        case '/cosmos.params.v1beta1.ParameterChangeProposal': {
-            return [
-                ['Changes',
-                    <div>
-                        <div className='d-flex'>
-                            <div className='col col-6 fw-bold'>Subspace and Key</div>
-                            <div className='col col-6 fw-bold'>New Value</div>
-                        </div>
-                        {content.changes.map(change => {
-                            return(
-                                <div key={`${change.subspace}${change.key}${change.value}`} className='d-flex'>
-                                    <div className='col col-6'>{change.subspace}/{change.key}</div>
-                                    <div className='col col-6'>{defaultKeyContent(change.value)}</div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                ],
-            ]
-        }
-
-        // TODO Compare with existing params, and only display params that are changing
-        case '/cosmos.distribution.v1beta1.MsgUpdateParams':
-        case '/secret.compute.v1beta1.MsgUpdateParams':
-        case '/cosmos.gov.v1.MsgUpdateParams': {
-            const changes: [string, string][] = [];
-            const paramNames = Object.keys(content.params);
-            paramNames.forEach(param => {
-                let value = content.params[param];
-                if (typeof value === 'object' || typeof value === 'boolean') value = JSON.stringify(value);
-                changes.push([param, value])
-            })
-            return [
-                ['Authority', <Link to={`/${config.id}/accounts/${content.authority}`}>{content.authority}</Link>],
-                [
-                    'Changes',
-                    // TODO display the changes table on a new row
-                    <div>
-                        <div className='d-flex mb-1'>
-                            <div className='col col-6 text-decoration-underline'>Param</div>
-                            <div className='col col-6 text-decoration-underline'>New Value</div>
-                        </div>
-                        {changes.map(change => {
-                            return(
-                                <div key={`${change[0]}${change[1]}`} className='d-flex'>
-                                    <div className='col col-6'>{change[0]}</div>
-                                    <div className='col col-6 overflow-auto'>{defaultKeyContent(change[1])}</div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                ],
-            ]
-        }
-
-        case '/cosmos.consensus.v1.MsgUpdateParams': {
-            const changes: [string, string][] = [];
-            const {authority, abci, ...spaces} = content;
-            const subspaceNames = Object.keys(spaces);
-
-            subspaceNames.forEach(subspace => {
-                if (subspace === '@type') return;
-
-                const keys = Object.keys(spaces[subspace]);
-                keys.forEach(key => {
-                    const value = spaces[subspace][key];
-                    changes.push([`${subspace}/${key}`, value])
-                })
-            })
-            return [
-                ['Authority', <Link to={`/${config.id}/accounts/${authority}`}>{authority}</Link>],
-                [
-                    'Changes',
-                    <div>
-                        <div className='d-flex mb-1'>
-                            <div className='col col-6 text-decoration-underline'>Subspace and Key</div>
-                            <div className='col col-6 text-decoration-underline'>New Value</div>
-                        </div>
-                        {changes.map(change => {
-                            return(
-                                <div key={`${change[0]}${change[1]}`} className='d-flex'>
-                                    <div className='col col-6'>{change[0]}</div>
-                                    <div className='col col-6'>{defaultKeyContent(change[1])}</div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                ],
-            ]
-        }
-
-        case '/ibc.core.client.v1.MsgRecoverClient':
-        case '/ibc.core.client.v1.ClientUpdateProposal': {
-            return [
-                ['Expired Client', content.subject_client_id],
-                ['New Client', content.substitute_client_id],
-            ]
-        }
-
-        default: {
-            console.log(`Unknown Proposal Type ${content['@type']}:`, content);
-            return []
-        }
-    }
-
-}

@@ -549,6 +549,7 @@ const parseProposal = async (config: FrontendChainConfig, proposal: v1beta1LcdPr
     if (config.govVersion === 'v1beta1') {
         content = (proposal as v1beta1LcdProposal).content;
     } else if (config.govVersion === 'v1') {
+        // TODO Proposals can have multiple messages as of Cosmos SDK v0.50
         const messages = (proposal as v1LcdProposal).messages;
         if (!messages.length) return [];
         if (messages[0].content) content = messages[0].content;
@@ -574,6 +575,7 @@ const parseProposal = async (config: FrontendChainConfig, proposal: v1beta1LcdPr
             return data;
         }
 
+        case '/cosmos.distribution.v1beta1.MsgCommunityPoolSpend':
         case '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal': {
             return [
                 ['Recipient', <Link to={`/${config.id}/accounts/${content.recipient}`}>{content.recipient}</Link>],
@@ -602,6 +604,8 @@ const parseProposal = async (config: FrontendChainConfig, proposal: v1beta1LcdPr
             ]
         }
 
+        // TODO Compare with existing params, and only display params that are changing
+        case '/cosmos.distribution.v1beta1.MsgUpdateParams':
         case '/secret.compute.v1beta1.MsgUpdateParams':
         case '/cosmos.gov.v1.MsgUpdateParams': {
             const changes: [string, string][] = [];
@@ -615,6 +619,7 @@ const parseProposal = async (config: FrontendChainConfig, proposal: v1beta1LcdPr
                 ['Authority', <Link to={`/${config.id}/accounts/${content.authority}`}>{content.authority}</Link>],
                 [
                     'Changes',
+                    // TODO display the changes table on a new row
                     <div>
                         <div className='d-flex mb-1'>
                             <div className='col col-6 text-decoration-underline'>Param</div>
@@ -624,7 +629,7 @@ const parseProposal = async (config: FrontendChainConfig, proposal: v1beta1LcdPr
                             return(
                                 <div key={`${change[0]}${change[1]}`} className='d-flex'>
                                     <div className='col col-6'>{change[0]}</div>
-                                    <div className='col col-6'>{defaultKeyContent(change[1])}</div>
+                                    <div className='col col-6 overflow-auto'>{defaultKeyContent(change[1])}</div>
                                 </div>
                             )
                         })}

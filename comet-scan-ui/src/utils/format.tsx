@@ -33,10 +33,12 @@ export const formatProposalType = (type: string) => {
     switch(type) {
         case '/cosmos.upgrade.v1beta1.SoftwareUpgradeProposal': return 'Software Upgrade';
         case '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade': return 'Software Upgrade';
+        case '/cosmos.distribution.v1beta1.MsgCommunityPoolSpend':
         case '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal': return 'Community Pool Spend';
         case '/cosmos.gov.v1beta1.TextProposal': return 'Text';
         case '/ibc.core.client.v1.ClientUpdateProposal': return 'IBC Client Update';
         case '/ibc.core.client.v1.MsgRecoverClient': return 'IBC Client Update';
+        case '/cosmos.distribution.v1beta1.MsgUpdateParams':
         case '/secret.compute.v1beta1.MsgUpdateParams':
         case '/cosmos.params.v1beta1.ParameterChangeProposal':
         case '/cosmos.consensus.v1.MsgUpdateParams':

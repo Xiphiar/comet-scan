@@ -7,15 +7,19 @@
 .tooltipText {
   position: fixed;
   z-index: 9999;
-  background-color: #333;
+  background: rgba(30, 30, 30, 0.9);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   color: #fff;
   text-align: center;
-  border-radius: 4px;
-  padding: 5px 10px;
+  border-radius: 8px;
+  padding: 8px 12px;
   min-width: 140px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
   pointer-events: none;
+  border: var(--glass-border-width) solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   
   &::after {
     content: "";
@@ -30,7 +34,7 @@
   top: 100%;
   left: 50%;
   margin-left: -5px;
-  border-color: #333 transparent transparent transparent;
+  border-color: rgba(30, 30, 30, 0.9) transparent transparent transparent;
 }
 
 // Bottom position
@@ -38,7 +42,7 @@
   bottom: 100%;
   left: 50%;
   margin-left: -5px;
-  border-color: transparent transparent #333 transparent;
+  border-color: transparent transparent rgba(30, 30, 30, 0.9) transparent;
 }
 
 // Left position
@@ -46,7 +50,7 @@
   top: 50%;
   left: 100%;
   margin-top: -5px;
-  border-color: transparent transparent transparent #333;
+  border-color: transparent transparent transparent rgba(30, 30, 30, 0.9);
 }
 
 // Right position
@@ -54,5 +58,5 @@
   top: 50%;
   right: 100%;
   margin-top: -5px;
-  border-color: transparent #333 transparent transparent;
+  border-color: transparent rgba(30, 30, 30, 0.9) transparent transparent;
 }

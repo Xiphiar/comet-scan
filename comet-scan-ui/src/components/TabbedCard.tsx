@@ -35,7 +35,7 @@ const TabbedCard: FC<Props> = ({
             }}>
                 {!!overlay && overlay }
                 {!!title && <h3 className='mb-3'>{title}</h3>}
-                <div className="d-flex mb-3">
+                <div className="d-flex mb-3 gap-1">
                     {tabs.map((tab, index) => (
                         <div 
                             key={`tab-${index}`}

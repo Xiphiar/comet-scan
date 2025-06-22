@@ -4,24 +4,58 @@
 }
 
 .card {
-    padding: 16px;
-    box-shadow: 3px 3px 7px 1px var(--shadow-color);
-    border-radius: 6px;
-    border-style: solid;
-    border-width: 0.5px;
-    border-color: var(--card-border);
-    background-color: var(--card-bg);
+    padding: 20px;
+    background: var(--card-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    box-shadow: 0 8px 32px 0 var(--shadow-color);
+    border-radius: 16px;
+    border: var(--glass-border-width) solid var(--card-border);
     display: flex;
     flex-direction: column;
     justify-content: center;
     flex-grow: 1;
+    transition: all var(--transition-speed) ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.5) 50%, 
+        transparent 100%);
+    opacity: 0.5;
+}
+
+.card:hover {
+    box-shadow: 0 12px 40px 0 var(--shadow-color);
+    border-color: var(--main);
 }
 
 .tab {
     cursor: pointer;
+    transition: all var(--transition-speed) ease;
+    border-radius: 8px;
+    border: var(--glass-border-width) solid transparent;
+    background: transparent;
+}
+
+.tab:hover {
+    background: var(--glass-bg-hover);
+    border-color: var(--glass-border);
 }
 
 .activeTab {
     border-color: var(--main) !important;
     cursor: default;
+    background: var(--glass-bg-hover);
+    box-shadow: 0 0 20px 0 var(--glow-color);
+    border-radius: 8px !important;
 }

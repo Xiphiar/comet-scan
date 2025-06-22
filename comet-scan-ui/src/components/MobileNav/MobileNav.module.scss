@@ -1,60 +1,97 @@
 .overlayWrapper {
-    background: rgb(0, 0, 0, 0.2);
-    width: 100vw;
-    height: 100vh;
-
     position: fixed;
-    right: 0px;
-    top: 0px;
-
-    // transition: all 0.4s ease;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     z-index: 998;
+    display: block;
+    transition: all var(--transition-speed) ease;
 }
 
 .mobileNavWrapper {
     position: fixed;
-    right: 0px;
-    top: 0px;
-    height: 100vh;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+    width: 300px;
+    max-width: 90vw;
+    z-index: 999;
     background: var(--nav-bg);
-
-    padding: 32px;
-
-    @media (max-width: 315px) {
-        width: calc(100vw - 64px);
-    }
-    width: 250px;
-
+    backdrop-filter: blur(var(--glass-blur-strong));
+    -webkit-backdrop-filter: blur(var(--glass-blur-strong));
+    padding: 24px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 20px;
+    transition: transform var(--transition-speed) ease;
+    border-left: var(--glass-border-width) solid var(--glass-border);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
 
-    transition: transform 0.4s ease;
-    text-align: right;
-
-    z-index: 999;
-
-    > a {
-        transition: all 0.1s ease;
+    a {
         color: var(--text-color);
+        font-size: 18px;
+        font-weight: 500;
+        padding: 12px 16px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(var(--glass-blur));
+        -webkit-backdrop-filter: blur(var(--glass-blur));
+        border-radius: 12px;
+        border: var(--glass-border-width) solid var(--glass-border);
+        transition: all var(--transition-speed) ease;
+        text-decoration: none;
+        display: block;
+        position: relative;
+        overflow: hidden;
     }
-    > a:hover {
-        color: var(--main);
+
+    a::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent 0%, var(--glow-color) 50%, transparent 100%);
+        transition: left var(--transition-speed) ease;
+    }
+
+    a:hover {
+        background: var(--glass-bg-hover);
+        border-color: var(--main);
+        transform: translateX(-5px);
+        box-shadow: 0 4px 20px var(--shadow-color);
+    }
+
+    a:hover::before {
+        left: 100%;
     }
 }
 
 button.closeButton {
-    font-family: 'Gotham bold';
-    height: fit-content;
-    padding: 8px 12px;
-    border-radius: 0px;
-    transition: all .4s ease;
-    line-height: 1em;
-    border: none;
-    background-color: transparent;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: var(--glass-border-width) solid var(--glass-border);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-speed) ease;
+    color: var(--text-color);
 }
+
 button.closeButton:hover {
-    background-color: var(--main);
-    color: #000;
-    text-decoration: none;
+    background: var(--glass-bg-hover);
+    border-color: var(--main);
+    transform: rotate(90deg);
+    box-shadow: 0 0 20px var(--glow-color);
 }

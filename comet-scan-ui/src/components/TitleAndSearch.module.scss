@@ -21,19 +21,35 @@
     left: 4px;
     bottom: 0px;
     transform: translateY(calc(100% - 12px));
-    margin: 0px
+    margin: 0px;
+    z-index: 10;
 }
 
 .searchResultsContent {
     padding: 0px;
-    // box-shadow: 3px 3px 7px 1px #fff;
-    border: 1px solid var(--light-gray)
+    background: var(--nav-bg);
+    backdrop-filter: blur(var(--glass-blur-strong));
+    -webkit-backdrop-filter: blur(var(--glass-blur-strong));
+    border: var(--glass-border-width) solid var(--glass-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px 0 var(--shadow-color);
+    overflow: hidden;
 }
 
 .searchLink {
     color: var(--text-color);
     padding: 12px;
+    display: block;
+    transition: all var(--transition-speed) ease;
+    border-bottom: var(--glass-border-width) solid var(--glass-border);
 }
+
+.searchLink:last-child {
+    border-bottom: none;
+}
+
 .searchLink:hover {
-    background-color: var(--main);
+    background: var(--glass-bg-hover);
+    color: var(--text-color);
+    padding-left: 16px;
 }

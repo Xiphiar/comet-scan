@@ -129,6 +129,12 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                 ])
             })
             .with({ transfer: { recipient: P.string, amount: P.string, memo: P.optional(P.string), decoys: P.optional(P.array(P.string)), entropy: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
+                // const tokenInfo = executedContracts.find(ec => ec.contractAddress === msg.contract)?.tokenInfo;
+
+                // const amounts: Coin[] | undefined = tokenInfo ?
+                //     [{ denom: tokenInfo.symbol, amount: (parseInt(decryptedMsg.redeem.amount) / Math.pow(10, tokenInfo.decimals)).toLocaleString() }]
+                //     : undefined;
+                
                 parsedData = {
                     title: 'Execute Contract: Transfer Token',
                     content: [
@@ -143,6 +149,10 @@ export const parseSecretWasmMessage = async (msg: any, messageIndex: string, tx:
                 if (decryptedMsg.transfer.decoys?.length) parsedData.title = 'Execute Contract: Transfer Token With Decoys'
             })
             .with({ send: { recipient: P.string, recipient_code_hash: P.optional(P.string), amount: P.string, msg: P.optional(P.string), memo: P.optional(P.string), decoys: P.optional(P.array(P.string)), entropy: P.optional(P.string), padding: P.optional(P.string) }}, (decryptedMsg) => {
+                // const amounts: Coin[] | undefined = tokenInfo ?
+                //     [{ denom: tokenInfo.symbol, amount: (parseInt(decryptedMsg.redeem.amount) / Math.pow(10, tokenInfo.decimals)).toLocaleString() }]
+                //     : undefined;
+                
                 // msg is base64, decode it
                 const decodedSubMsg = decryptedMsg.send.msg ? fromUtf8(fromBase64(decryptedMsg.send.msg)) : undefined;
 

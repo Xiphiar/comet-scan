@@ -1,8 +1,43 @@
 .navbar {
-    background-color: var(--nav-bg);
+    background: var(--nav-bg);
+    backdrop-filter: blur(var(--glass-blur-strong)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(180%);
     display: flex;
     gap: 8px;
-    border-bottom: 0.5px solid var(--nav-bottom-border);
+    border-bottom: var(--glass-border-width) solid var(--nav-bottom-border);
+    box-shadow: 
+        0 4px 30px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 100;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0.05) 100%
+        );
+        pointer-events: none;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0.03;
+        background-image: 
+            repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.1) 35px, rgba(255,255,255,.1) 70px);
+        pointer-events: none;
+    }
 
     > a:not(:first-child) {
         display: flex;
@@ -11,73 +46,122 @@
         padding: 12px 24px;
         font-weight: 500;
         color: var(--text-color);
+        transition: all var(--transition-speed) ease;
+        position: relative;
 
         @media(max-width: 950px) {
             display: none !important;
         }
     }
     > a:not(:first-child):hover {
-        background-color: var(--main);
+        background: var(--glass-bg-hover);
         color: var(--text-color);
+        text-shadow: var(--text-shadow);
     }
 }
 
 .activeLink {
     cursor: default;
+    background: var(--glass-bg);
     border-bottom: 2px solid var(--main);
     padding-bottom: 10px !important; // Reduce the bottom padding by 2px to ensure the border doesn't expand the navbar
 
-    // color: var(--main) !important;
-
-    // text-decoration: underline;
-    // text-decoration-color: var(--main);
-    // text-underline-offset: 8px;
-    
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--main);
+        box-shadow: 0 0 10px var(--glow-color);
+    }
 
     &:hover {
-        background-color: transparent !important;
+        background: var(--glass-bg) !important;
     }
 }
 
 .hamburgerButton {
     padding: 16px 8px;
     width: 47px;
-    border-radius: 0px;
-    transition: all .4s ease;
-    background-color: transparent;
+    border-radius: 8px;
+    transition: all var(--transition-speed) ease;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
   
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 5px;
-    border: none;
+    border: var(--glass-border-width) solid var(--glass-border);
   
     > span {
         background-color: var(--main);
-        height: 1px;
+        height: 2px;
         width: 100%;
         display: block;
+        border-radius: 1px;
+        transition: all var(--transition-speed) ease;
     }
   }
 .hamburgerButton:hover {
-    background-color: var(--main);
+    background: var(--glass-bg-hover);
+    box-shadow: 0 0 20px var(--glow-color);
     > span {
-        background-color: #000;
+        background-color: var(--main);
+        box-shadow: 0 0 10px var(--glow-color);
     }
 }
 
 .footer {
-    background-color: var(--footer-bg);
-    color: var(--footer-text);
-    padding: 30px 0;
-    margin-top: 40px;
-    border-top: var(--footer-border);
-    
-    // .theme-dark & {
-    //     background-color: var(--bg);
-    //     border-top: 1px solid var(--grey);
-    // }
+    background: var(--footer-bg);
+    backdrop-filter: blur(var(--glass-blur-strong)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(180%);
+    color: white;
+    padding: 40px 0;
+    margin-top: 60px;
+    border-top: var(--glass-border-width) solid var(--glass-border);
+    box-shadow: 
+        0 -4px 30px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.5) 50%, 
+            transparent 100%);
+        opacity: 0.5;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0.05) 100%
+        );
+        pointer-events: none;
+        opacity: 0.8;
+    }
+}
+
+.footer::before {
+    z-index: 2;
 }
 
 .footerContent {
@@ -89,6 +173,8 @@
     justify-content: center;
     gap: 24px;
     padding: 0 16px;
+    position: relative;
+    z-index: 1;
 }
 
 .footerSection {
@@ -105,6 +191,7 @@
 .developedBy {
     font-size: 16px;
     color: white;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .socialLinks {
@@ -116,9 +203,12 @@
 .socialIcon {
     width: 28px;
     height: 28px;
-    transition: opacity 0.2s ease;
+    transition: all var(--transition-speed) ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     
     &:hover {
-        opacity: 0.8;
+        opacity: 1;
+        transform: translateY(-2px);
+        filter: drop-shadow(0 6px 12px var(--glow-color));
     }
 }

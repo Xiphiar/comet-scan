@@ -3,15 +3,36 @@
     align-items: center;
     justify-content: center;
     padding: 0px 2px;
+    gap: 4px;
 
     > button {
-        background-color: transparent;
         text-decoration: none;
         padding: 0px 20px;
         font-weight: inherit;
+        border-radius: 8px;
+        transition: all var(--transition-speed) ease;
+
+        border: none;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    > button:hover {
+        background: var(--glass-bg-hover);
+        transform: translateY(0px);
+        box-shadow: 0 6px 20px 0 var(--shadow-color);
     }
 }
 
 .selectedButton {
-    background-color: var(--main) !important;
+    background: linear-gradient(135deg, var(--main) 0%, var(--main) 100%) !important;
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    color: white !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 20px 0 var(--glow-color) !important;
+}
+
+.selectedButton:hover {
+    // transform: translateY(0) !important;
 }

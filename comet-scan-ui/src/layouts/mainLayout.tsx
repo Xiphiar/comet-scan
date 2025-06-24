@@ -67,19 +67,29 @@ const MainLayout: FC = () => {
                     </div>
                     <div className={styles.socialLinks}>
                         <a href="https://trivium.network" target="_blank" rel="noopener noreferrer" title="Website">
-                            <img src='/world-globe-white-icon.svg' alt="Website" className={styles.socialIcon} />
+                            <svg height={'24px'} width={'24px'} className={styles.socialIcon}>
+                                <use xlinkHref="/world-globe-white-icon.svg#logo" />
+                            </svg>
                         </a>
                         <a href="https://discord.gg/tZj7ZhhdP5" target="_blank" rel="noopener noreferrer" title="Discord">
-                            <img src='/discord-white-icon.svg' alt="Discord" className={styles.socialIcon} />
+                            <svg height={'24px'} width={'24px'} className={styles.socialIcon}>
+                                <use xlinkHref="/discord-white-icon.svg#logo" />
+                            </svg>
                         </a>
                         <a href="https://x.com/TriviumNode" target="_blank" rel="noopener noreferrer" title="X">
-                            <img src='/x-social-media-white-icon.svg' alt="X" className={styles.socialIcon} />
+                            <svg height={'24px'} width={'24px'} className={styles.socialIcon}>
+                                <use xlinkHref="/x-social-media-white-icon.svg#logo" />
+                            </svg>
                         </a>
                         <a href="https://t.me/TriviumNode" target="_blank" rel="noopener noreferrer" title="Telegram">
-                            <img src='/telegram-white-icon.svg' alt="Telegram" className={styles.socialIcon} />
+                            <svg height={'24px'} width={'24px'} className={styles.socialIcon}>
+                                <use xlinkHref="/telegram-white-icon.svg#logo" />
+                            </svg>
                         </a>
                         <a href="https://github.com/TriviumNode" target="_blank" rel="noopener noreferrer" title="Github">
-                            <img src='/github-mark-white.svg' alt="Github" className={styles.socialIcon} />
+                            <svg height={'24px'} width={'24px'} viewBox="0 0 98 96" className={styles.socialIcon}>
+                                <use xlinkHref="/github-mark-white.svg#logo" />
+                            </svg>
                         </a>
                     </div>
                 </div>

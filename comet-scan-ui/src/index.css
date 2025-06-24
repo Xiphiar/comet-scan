@@ -1,6 +1,8 @@
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 
+  --dark-main: #22b8dd;
+
   --xlight-gray: #dadada;
   --xlight-grey: #dadada;
 
@@ -45,8 +47,9 @@
   --card-border: rgba(255, 255, 255, 0.4);
   --input-border: rgba(255, 255, 255, 0.5);
   --shadow-color: rgba(31, 38, 135, 0.15);
-  --footer-bg: rgba(25, 133, 161, 0.4);
-  --triviumLogoColor: white;
+  --footer-bg: rgba(255, 255, 255, 0.4);
+  --triviumLogoColor: var(--dark-main);
+  --iconColor: white;
   --loading-overlay-color: rgba(255, 255, 255, 0.4);
   
   /* Glass-specific */
@@ -58,7 +61,7 @@
 }
 
 .theme-dark {
-  --main: #22b8dd;
+  --main: var(--dark-main);
   
   color: #FFF;
   --text-color: #FFF;
@@ -75,6 +78,7 @@
   --shadow-color: rgba(34, 184, 221, 0.2);
   --footer-bg: rgba(255, 255, 255, 0.08);
   --triviumLogoColor: var(--main);
+  --iconColor: var(--main);
   --footer-border: 0.5px solid rgba(255, 255, 255, 0.1);
   --loading-overlay-color: rgba(34, 184, 221, 0.1);
   

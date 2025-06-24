@@ -83,6 +83,7 @@ const tenMinuteMs = oneMinuteMs * 10;
 
     syncAllChains();
     setInterval(syncAllChains, 30 * 1000)
+    runMigrations();
 
     await runUpdateTasks();
     updateContractExecutedCountsForAllChains();

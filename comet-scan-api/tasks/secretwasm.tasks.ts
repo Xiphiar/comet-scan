@@ -107,14 +107,22 @@ export const importSecretWasmContract =
             executions,
         }
 
-        // Update token total supply
+        // Update token total supply and permitSupport (if code ID changed)
         if (existingContract.tokenInfo) {
             const tokenInfo = await getSecretTokenInfo(chainId, contract_address, code.codeHash);
+            let permitSupport = existingContract.tokenInfo.permitSupport;
+            
+            // Re-check permitSupport if code ID has changed
+            if (contract_info.code_id !== existingContract.codeId) {
+                permitSupport = await getSecretTokenPermitSupport(chainId, contract_address, code.codeHash);
+            }
+            
             update = {
                 ...update,
                 tokenInfo: {
                     ...existingContract.tokenInfo,
                     totalSupply: tokenInfo.token_info.total_supply,
+                    permitSupport,
                 }
             }
         }

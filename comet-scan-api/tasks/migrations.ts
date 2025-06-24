@@ -1,7 +1,11 @@
 import { getLatestBlock, getOldestBlock } from "../common/dbQueries";
+import { getSecretTokenPermitSupport } from "../common/chainQueries";
 import Chains from "../config/chains";
 import { ChainConfig } from "../interfaces/config.interface";
 import Blocks from "../models/blocks";
+import Codes from "../models/codes.model";
+import Contracts from "../models/contracts.model";
+import KvStore from "../models/kv";
 import Transactions from "../models/transactions";
 import { addVoteToDb, processTxMessages } from "./common";
 import { getExecutedContractsForTx } from "./importTransactions";
@@ -123,4 +127,100 @@ export const parseVotesFromTransactionsForAllChains = async () => {
     for (const chain of Chains) {
         parseVotesFromTransactions(chain);
     }
+}
+
+const recheckTokenPermitSupport = async (config: ChainConfig) => {
+    const migrationKey = `migration_recheck_permit_support_${config.chainId}`;
+    
+    // Check if migration has already been run
+    const existingMigration = await KvStore.findOne({ 
+        chainId: config.chainId, 
+        key: migrationKey 
+    });
+    
+    if (existingMigration) {
+        console.log(`Migration "Recheck Token Permit Support" already completed for ${config.chainId}`);
+        return;
+    }
+
+    console.log(`Starting migration "Recheck Token Permit Support" on ${config.chainId}`);
+    
+    try {
+        // Find all unique code IDs that have token contracts
+        const tokenCodeIds = await Contracts.distinct('codeId', {
+            chainId: config.chainId,
+            tokenInfo: { $exists: true }
+        });
+
+        console.log(`Found ${tokenCodeIds.length} unique code IDs with token contracts on ${config.chainId}`);
+
+        for (const codeId of tokenCodeIds) {
+            try {
+                // Get code hash for this code ID
+                const code = await Codes.findOne({ chainId: config.chainId, codeId }).lean();
+                if (!code) {
+                    console.warn(`Code ${codeId} not found in database, skipping`);
+                    continue;
+                }
+
+                // Find one contract with this code ID to test permit support
+                const sampleContract = await Contracts.findOne({
+                    chainId: config.chainId,
+                    codeId,
+                    tokenInfo: { $exists: true }
+                }).lean();
+
+                if (!sampleContract) continue;
+
+                // Check permit support for this contract
+                const permitSupport = await getSecretTokenPermitSupport(
+                    config.chainId, 
+                    sampleContract.contractAddress, 
+                    code.codeHash
+                );
+
+                // Update all contracts with this code ID
+                const updateResult = await Contracts.updateMany(
+                    {
+                        chainId: config.chainId,
+                        codeId,
+                        tokenInfo: { $exists: true }
+                    },
+                    {
+                        $set: { 'tokenInfo.permitSupport': permitSupport }
+                    }
+                );
+
+                console.log(`Updated ${updateResult.modifiedCount} contracts with code ID ${codeId} (permitSupport: ${permitSupport})`);
+
+            } catch (err: any) {
+                console.error(`Error checking permit support for code ID ${codeId}:`, err.message);
+            }
+        }
+
+        // Mark migration as complete
+        await KvStore.create({
+            chainId: config.chainId,
+            key: migrationKey,
+            value: new Date().toISOString()
+        });
+
+        console.log(`Completed migration "Recheck Token Permit Support" on ${config.chainId}`);
+
+    } catch (err: any) {
+        console.error(`Migration "Recheck Token Permit Support" failed on ${config.chainId}:`, err.message);
+    }
+}
+
+export const runMigrations = async () => {
+    console.log('Starting migrations...');
+    
+    for (const chain of Chains) {
+        // Only run migrations that use KV store for tracking
+        if (chain.features.includes('secretwasm')) {
+            await recheckTokenPermitSupport(chain);
+        }
+    }
+    
+    console.log('All migrations completed.');
 }

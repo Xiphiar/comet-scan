@@ -90,7 +90,7 @@ const EventRow: FC<EventRowProps> = ({ events, messageIndex, messageTitle }) => 
                 <FaChevronDown className={`${styles.arrow} ${isOpen ? styles.arrowOpen : ''}`} />
             </div>
             {isOpen && (
-                <div className={`d-flex flex-column gap-2 w-full mt-2 ${styles.eventContent}`}>
+                <div className={`d-flex flex-column gap-2 w-full pt-2 ${styles.eventContent}`}>
                     {(!user && chain.features?.includes('secretwasm') && encryptedAttributesCount > 0) && (
                         <div className="alertContainer mb-3">
                             Connect your wallet to decrypt encrypted events

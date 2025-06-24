@@ -12,7 +12,7 @@ import dotenv from 'dotenv';
 import { getChainConfig } from "../config/chains";
 import { pruneBlocksForAllChains } from "./pruneTask";
 import { updateContractExecutedCountsForAllChains } from "./updateContractExecCounts";
-import { addExecutedContractsToTransactionsForAllChains } from "./migrations";
+import { runMigrations } from "./migrations";
 import { syncAllChains } from "./sync";
 dotenv.config();
 

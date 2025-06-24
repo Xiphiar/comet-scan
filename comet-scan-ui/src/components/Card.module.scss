@@ -34,11 +34,6 @@
     opacity: 0.5;
 }
 
-.card:hover {
-    box-shadow: 0 12px 40px 0 var(--shadow-color);
-    border-color: var(--main);
-}
-
 .tab {
     cursor: pointer;
     transition: all var(--transition-speed) ease;

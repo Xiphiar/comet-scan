@@ -33,6 +33,11 @@ export async function onRequestPost(context: {
                 color: body.type === 'bug' ? 0xFF0000 : body.type === 'feature' ? 0x00FF00 : 0x0099FF,
                 fields: [
                     {
+                        name: 'Page',
+                        value: body.path || '/',
+                        inline: true,
+                    },
+                    {
                         name: 'Chain',
                         value: body.chain || 'Unknown',
                         inline: true,

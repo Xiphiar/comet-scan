@@ -6,6 +6,7 @@ interface FeedbackData {
     chainId: string;
     timestamp: string;
     url: string;
+    path: string;
 }
 
 export const submitFeedback = async (data: FeedbackData): Promise<void> => {

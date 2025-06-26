@@ -62,7 +62,8 @@ const FeedbackModal: FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
                 chain: chainConfig?.name || 'Unknown',
                 chainId: chain || 'unknown',
                 timestamp: new Date().toISOString(),
-                url: window.location.href
+                url: window.location.href,
+                path: window.location.pathname
             });
             
             toast.success('Thank you for your feedback!');

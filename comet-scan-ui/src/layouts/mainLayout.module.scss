@@ -212,3 +212,21 @@
         filter: drop-shadow(0 6px 12px var(--glow-color));
     }
 }
+
+.feedbackButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all var(--transition-speed) ease;
+    
+    &:hover .socialIcon {
+        opacity: 1;
+        transform: translateY(-2px);
+        filter: drop-shadow(0 6px 12px var(--glow-color));
+    }
+}

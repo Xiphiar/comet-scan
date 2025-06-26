@@ -214,19 +214,35 @@
 }
 
 .feedbackButton {
-    background: none;
-    border: none;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: var(--glass-border-width) solid var(--main);
+    color: var(--main);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
     cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
     transition: all var(--transition-speed) ease;
+    box-shadow: 0 4px 16px 0 var(--shadow-color);
+    z-index: 2;
     
-    &:hover .socialIcon {
-        opacity: 1;
+    &:hover {
+        background: var(--glass-bg-hover);
+        color: white;
         transform: translateY(-2px);
-        filter: drop-shadow(0 6px 12px var(--glow-color));
+        box-shadow: 0 6px 20px 0 var(--glow-color);
+    }
+    
+    @media(max-width: 650px) {
+        position: static;
+        margin: 20px auto 0;
+        display: block;
+        width: fit-content;
+        padding: 8px 16px;
+        font-size: 14px;
     }
 }

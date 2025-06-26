@@ -88,19 +88,6 @@ const MainLayout: FC = () => {
                                 <use xlinkHref="/telegram-white-icon.svg#logo" />
                             </svg>
                         </a>
-                        <button 
-                            onClick={() => setShowFeedbackModal(true)} 
-                            className={styles.feedbackButton}
-                            type="button"
-                            title="Send Feedback"
-                        >
-                            <svg height={'24px'} width={'24px'} viewBox="0 0 24 24" className={styles.socialIcon}>
-                                <path 
-                                    fill="currentColor" 
-                                    d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"
-                                />
-                            </svg>
-                        </button>
                         <a href="https://github.com/TriviumNode" target="_blank" rel="noopener noreferrer" title="Github">
                             <svg height={'24px'} width={'24px'} viewBox="0 0 98 96" className={styles.socialIcon}>
                                 <use xlinkHref="/github-mark-white.svg#logo" />
@@ -108,6 +95,13 @@ const MainLayout: FC = () => {
                         </a>
                     </div>
                 </div>
+                <button 
+                    onClick={() => setShowFeedbackModal(true)} 
+                    className={styles.feedbackButton}
+                    type="button"
+                >
+                    Send Feedback
+                </button>
             </footer>
             <FeedbackModal 
                 isOpen={showFeedbackModal} 

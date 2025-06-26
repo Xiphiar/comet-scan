@@ -166,6 +166,19 @@
             cursor: not-allowed;
         }
     }
+    
+    select {
+        width: 100%;
+        
+        
+        option {
+            padding: 8px;
+            
+            &:hover {
+                background-color: var(--glass-bg-hover);
+            }
+        }
+    }
 }
 
 .required {

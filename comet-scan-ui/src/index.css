@@ -380,6 +380,11 @@ select:focus {
   box-shadow: 0 0 0 3px var(--glow-color), 0 4px 16px 0 var(--shadow-color);
 }
 
+/* Fix for select option styling in dark mode */
+select option {
+  color: black;
+}
+
 /* Class for the div containing stat titles (e.g. Block Height card on the overview page)  */
 .statTitle {
   display: flex;

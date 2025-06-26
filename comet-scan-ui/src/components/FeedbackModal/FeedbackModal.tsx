@@ -151,12 +151,6 @@ const FeedbackModal: FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
                             </small>
                         </div>
                         
-                        {chainConfig && (
-                            <div className={styles.contextInfo}>
-                                <small>Feedback for: {chainConfig.name}</small>
-                            </div>
-                        )}
-                        
                         <div className={styles.modalFooter}>
                             <button
                                 type="button"

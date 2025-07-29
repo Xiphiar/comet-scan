@@ -95,11 +95,11 @@ const ValidatorRow: FC<{ position: number, validator: Validator, chain: Frontend
     const commissionPercent = parseFloat(validator.commission.rates[0].rate) * 100
 
     const status = validator.jailed && validator.selfBondedAmount !== '0' ?
-        <div className='badge bg-danger'>Jailed</div>
+        <div className='glassBadge glassBadgeDanger'>Jailed</div>
     : validator.status === 'BOND_STATUS_UNBONDING' ?
-        <div className='badge bg-info'>Unbonding</div>
+        <div className='glassBadge glassBadgeInfo'>Unbonding</div>
     : 
-        <div className='badge bg-info'>Unbonded</div>
+        <div className='glassBadge glassBadgeInfo'>Unbonded</div>
 
     return (
         <Link

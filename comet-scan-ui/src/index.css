@@ -261,6 +261,39 @@ h1 {
   box-shadow: 0 4px 16px 0 var(--shadow-color);
 }
 
+
+.glassBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.glassBadge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.glassBadgeDanger {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.glassBadgeInfo {
+  background: rgba(23, 162, 184, 0.2);
+  color: #17a2b8;
+  border-color: rgba(23, 162, 184, 0.3);
+}
+
 .blackLink {
   color: var(--text-color);
   transition: all 0.2s ease-in-out;

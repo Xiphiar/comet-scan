@@ -31,9 +31,9 @@ const SingleValidatorPage: FC = () => {
     }
 
     const statusBadge = data.validator.jailed && data.validator.selfBondedAmount !== '0' ?
-        <div className='badge bg-danger'>Jailed</div>
+        <div className='glassBadge glassBadgeDanger'>Jailed</div>
     : data.validator.status === 'BOND_STATUS_UNBONDING' || data.validator.status === 'BOND_STATUS_UNBONDED' ?
-        <div className='badge bg-info'>Inactive</div>
+        <div className='glassBadge glassBadgeInfo'>Inactive</div>
     : <></>
     const active = data.validator.status === 'BOND_STATUS_BONDED' && !data.validator.jailed;
  

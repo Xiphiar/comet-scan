@@ -79,8 +79,9 @@ const SingleContractPage: FC = () => {
                     { !!data.verification?.code_zip &&
                         <div className='d-flex'>
                             <div className='col-3 font-weight-bold'>Source Code</div>
-                            <div className='col'>
+                            <div className='col d-flex gap-3'>
                                 <button type='button' className='buttonLink' onClick={handleDownloadCode}>Download</button>
+                                <Link to={`/${chainLookupId}/contracts/${data.contract.contractAddress}/source`} className='buttonLink'>View in Browser</Link>
                             </div>
                         </div>
                     }

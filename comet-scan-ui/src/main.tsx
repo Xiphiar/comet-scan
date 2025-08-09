@@ -29,6 +29,7 @@ import AllContractsPage from './pages/Contracts/AllContractsPage.tsx';
 import SingleContractPage from './pages/Contracts/SingleContractPage.tsx';
 import SingleCodePage from './pages/Codes/SingleCodePage.tsx';
 import VerifyCodePage from './pages/Codes/VerifyCodePage.tsx';
+import CodeBrowserPage from './pages/Codes/CodeBrowserPage.tsx';
 import StatusPage from './pages/Status/StatusPage.tsx';
 import { UserProvider } from './contexts/UserContext.tsx';
 import AllTokensPage from './pages/Contracts/AllTokensPage.tsx';
@@ -122,12 +123,20 @@ const router = createBrowserRouter([
         element: <SingleCodePage />,
       },
       {
+        path: 'codes/:codeId/source',
+        element: <CodeBrowserPage />,
+      },
+      {
         path: 'codes/verify',
         element: <VerifyCodePage />,
       },
       {
         path: 'codes/verify/:taskId',
         element: <VerifyCodePage />,
+      },
+      {
+        path: 'contracts/:contractAddress/source',
+        element: <CodeBrowserPage />,
       }
     ]
   },

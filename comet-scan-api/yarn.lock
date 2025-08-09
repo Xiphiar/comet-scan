@@ -7,8 +7,8 @@ __metadata:
 
 "@comet-scan/types@file:../comet-scan-types::locator=comet-scan-api%40workspace%3A.":
   version: 0.1.0
-  resolution: "@comet-scan/types@file:../comet-scan-types#../comet-scan-types::hash=4ad2fc&locator=comet-scan-api%40workspace%3A."
-  checksum: 10c0/66fcdd21fe3b33a237b1c70cad11ec5bc2fce0102bc3200efde3db020f2f18bade29b334e38fe50a3bee7c4fa650d47e04543fbd68291e3fbef0714a9a4b13da
+  resolution: "@comet-scan/types@file:../comet-scan-types#../comet-scan-types::hash=76d4a6&locator=comet-scan-api%40workspace%3A."
+  checksum: 10c0/9a149196e092548ad82ca58093ef712827217598430c2278efb1ae80e36f188a2da3d69f770664f4ae3a33967bb52551ab6c044021ab49a12d2bee0ef37b77fb
   languageName: node
   linkType: hard
 
@@ -1187,7 +1187,7 @@ __metadata:
     "@types/ripemd160": "npm:^2.0.3"
     axios: "npm:^1.7.7"
     dotenv: "npm:^16.4.7"
-    encore.dev: "npm:^1.44.4"
+    encore.dev: "npm:^1.48.12"
     mongoose: "npm:^8.10.1"
     mongoose-aggregate-paginate-v2: "npm:^1.1.4"
     mongoose-paginate-v2: "npm:^1.9.0"
@@ -1423,10 +1423,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"encore.dev@npm:^1.44.4":
-  version: 1.44.4
-  resolution: "encore.dev@npm:1.44.4"
-  checksum: 10c0/29b2f08dc8e93c2dd3ff44689046e43bac05698948a7573eb85f610582d9490835b250caa37aa4d124b4bd627a964fb0b7fd72b1ee2d0dfa649be3f4958df4aa
+"encore.dev@npm:^1.48.12":
+  version: 1.48.12
+  resolution: "encore.dev@npm:1.48.12"
+  checksum: 10c0/871dcd4899fc3ea213b710e5b5248d094d3041c0929195136bc65fdc942640f1d7bf4a19265ce198080d5f09aa23a31d5ae7a81e61f0fcf576f53cc4176a4579
   languageName: node
   linkType: hard
 

@@ -7,8 +7,8 @@ __metadata:
 
 "@comet-scan/types@file:../comet-scan-types::locator=comet-scan-api%40workspace%3A.":
   version: 0.1.0
-  resolution: "@comet-scan/types@file:../comet-scan-types#../comet-scan-types::hash=b000b1&locator=comet-scan-api%40workspace%3A."
-  checksum: 10c0/5244bc9442f94370f648e1859bf88900aadabdb6f6a1dd039416bf90b71672e9ef25c84379eab1d2d4f9bb31b074294cca8242e078e68938da9012ccf2598c2f
+  resolution: "@comet-scan/types@file:../comet-scan-types#../comet-scan-types::hash=fdc693&locator=comet-scan-api%40workspace%3A."
+  checksum: 10c0/9caf6514773b80197aa848a3b5b796aa245e6c7b4dcb555521090d31aaefe7ddba25224b50245fd288c7a9849c99b8dc8311da70f8677b4ae9471395acdff98f
   languageName: node
   linkType: hard
 

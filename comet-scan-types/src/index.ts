@@ -9,7 +9,7 @@ export * from "./lcdTxResponse";
 export * from "./rpcBlockResponse";
 export * from "./rpcBlockResultsResponse";
 export * from "./rpcStatusResponse";
-export { Snip20TokenInfoResponse, Snip721ContractInfoResponse } from "./secretQueryResponses";
+export type { Snip20TokenInfoResponse, Snip721ContractInfoResponse } from "./secretQueryResponses";
 
 export * from "./models/accounts.interface";
 export * from "./models/blocks.interface";

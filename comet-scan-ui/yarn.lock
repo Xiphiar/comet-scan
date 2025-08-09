@@ -214,8 +214,8 @@ __metadata:
 
 "@comet-scan/types@file:../comet-scan-types::locator=comet-scan-ui%40workspace%3A.":
   version: 0.1.0
-  resolution: "@comet-scan/types@file:../comet-scan-types#../comet-scan-types::hash=037bb2&locator=comet-scan-ui%40workspace%3A."
-  checksum: 10c0/a91546b46ba641820323f6c7c51f4667a5f144b940fa74a853d8f9252c5936346af54c92b5d1b24b9fd1e866d429f4414248e73bcbbb9007f4ca187ae5c33162
+  resolution: "@comet-scan/types@file:../comet-scan-types#../comet-scan-types::hash=fdc693&locator=comet-scan-ui%40workspace%3A."
+  checksum: 10c0/9caf6514773b80197aa848a3b5b796aa245e6c7b4dcb555521090d31aaefe7ddba25224b50245fd288c7a9849c99b8dc8311da70f8677b4ae9471395acdff98f
   languageName: node
   linkType: hard
 

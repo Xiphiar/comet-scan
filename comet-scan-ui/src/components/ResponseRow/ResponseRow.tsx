@@ -20,7 +20,7 @@ const ResponseRow: FC<ResponseRowProps> = ({ responseData, messageIndex, message
             <h4>#{messageIndex + 1} {messageTitle}</h4>
             <div>
                 { json ?
-                    <JsonView src={JSON.parse(cleaned)} />
+                    <JsonView src={JSON.parse(cleaned)} theme="atom" />
                 :
                     <div>{responseData}</div>
                 }

@@ -416,8 +416,8 @@ export const defaultKeyContent = (value: any): string | ReactElement => {
         return value || '';
     }
     // if (typeof value === 'object') value = JSON.stringify(value, undefined, 2);
-    if (typeof value === 'object') return <JsonView src={value} />
-    if (isJson(value)) return <JsonView src={JSON.parse(value)} />
+    if (typeof value === 'object') return <JsonView src={value} theme="atom" />
+    if (isJson(value)) return <JsonView src={JSON.parse(value)} theme="atom" />
 
     if (value.length > 64) return (
         <details className='detailsOpenHide'>

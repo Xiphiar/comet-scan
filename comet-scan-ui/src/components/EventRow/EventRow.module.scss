@@ -10,6 +10,8 @@
     overflow: hidden;
     position: relative;
 
+    transform: translateY(-2px);
+
     &::before {
         content: '';
         position: absolute;
@@ -28,7 +30,7 @@
         background: var(--glass-bg-hover);
         border-color: var(--main);
         box-shadow: 0 12px 40px 0 var(--shadow-color), 0 0 20px 0 var(--glow-color);
-        transform: translateY(-2px);
+        // transform: translateY(-2px);
     }
 
     &:last-child {

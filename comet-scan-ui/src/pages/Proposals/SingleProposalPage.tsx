@@ -313,7 +313,7 @@ const SingleProposalPage: FC = () => {
                     },
                     {
                         title: 'JSON',
-                        content: <JsonView src={data.proposal.proposal} />
+                        content: <JsonView src={data.proposal.proposal} theme="atom" />
                     }
                 ]}
             />

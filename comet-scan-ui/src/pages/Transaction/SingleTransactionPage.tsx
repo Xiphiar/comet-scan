@@ -233,7 +233,7 @@ const SingleTransactionPage: FC = () => {
             content: (
                 <>
                     <h3>Transaction JSON</h3>
-                    <JsonView src={data.transaction.transaction} />
+                    <JsonView src={data.transaction.transaction} theme="atom" />
                 </>
             )
         });

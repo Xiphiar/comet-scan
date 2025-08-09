@@ -13,7 +13,7 @@
     "build:types": "tsc --noEmit",
     "build:docker:api": "encore build docker cometscan_api --services explorer,gas,stats",
     "build:docker:indexer": "encore build docker cometscan_indexer --services tasks",
-    "build:docker": "npm run build:docker:api && build:docker:indexer"
+    "build:docker": "npm run build:docker:api && npm run build:docker:indexer"
   },
   "devDependencies": {
     "@types/node": "^20.5.7",

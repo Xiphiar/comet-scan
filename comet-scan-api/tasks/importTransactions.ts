@@ -1,12 +1,9 @@
-import { base64PubkeyToAddress, pubkeyToAddress } from "secretjs";
-import { Transaction } from "../interfaces/models/transactions.interface";
+import { base64PubkeyToAddress } from "secretjs";
+import { Transaction, LcdTxSearchResponse, LcdTxSearchResult, LcdTxSearchTx, MsgLog, TxEvent, Block, ChainConfig } from "@comet-scan/types";
 import Blocks from "../models/blocks";
 import { getChainConfig } from "../config/chains";
-import { LcdTxSearchResponse, LcdTxSearchResult, LcdTxSearchTx, MsgLog, TxEvent } from "../interfaces/lcdTxResponse";
 import Transactions from "../models/transactions";
-import { Block } from "../interfaces/models/blocks.interface";
 import { processBlock } from "./importBlocks";
-import { ChainConfig } from "../interfaces/config.interface";
 import { getLcdClient } from "../config/clients";
 import { processTxMessages } from "./common";
 

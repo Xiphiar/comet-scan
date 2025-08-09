@@ -1,15 +1,5 @@
-import { getSecretNftContractInfo, getSecretNftTokenCount, getSecretTokenInfo, getSecretTokenPermitSupport } from "../common/chainQueries";
-import { getSecretWasmClient } from "../common/cosmWasmClient";
-import Chains, { getChainConfig } from "../config/chains";
-import { ChainConfig } from "../interfaces/config.interface";
-import { WasmCode } from "../interfaces/models/codes.interface";
-import { WasmContract } from "../interfaces/models/contracts.interface";
-import { NftContractInfoResponse, TokenInfoResponse } from "../interfaces/secretQueryResponses";
-import Codes from "../models/codes.model";
-import Contracts from "../models/contracts.model";
-import Transactions from "../models/transactions";
-import { LcdCosmWasmCodesResponse, LcdCosmWasmContractInfoResponse } from "../interfaces/lcdCosmwasmResponses";
-import { getLcdClient } from "../config/clients";
+import Chains from "../config/chains";
+import { ChainConfig } from "@comet-scan/types";
 import { updateCosmWasmContracts } from './cosmwasm.tasks'
 import { updateSecretWasmContracts } from './secretwasm.tasks'
 

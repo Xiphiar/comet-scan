@@ -1,5 +1,5 @@
 import Chains from "../config/chains";
-import { ChainConfig } from "../interfaces/config.interface";
+import { ChainConfig } from "@comet-scan/types";
 import Contracts from "../models/contracts.model";
 import Transactions from "../models/transactions";
 

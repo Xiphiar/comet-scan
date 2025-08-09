@@ -1,10 +1,8 @@
 import { CodeInfoResponse, ContractInfoWithAddress } from "secretjs/dist/grpc_gateway/secret/compute/v1beta1/query.pb";
 import { getSecretTokenInfo, getSecretNftTokenCount, getSecretTokenPermitSupport, getSecretNftContractInfo } from "../common/chainQueries";
 import { getSecretWasmClient } from "../common/cosmWasmClient";
-import { ChainConfig } from "../interfaces/config.interface";
-import { WasmCode } from "../interfaces/models/codes.interface";
-import { WasmContract } from "../interfaces/models/contracts.interface";
-import { TokenInfoResponse, NftContractInfoResponse } from "../interfaces/secretQueryResponses";
+import { ChainConfig, WasmCode, WasmContract } from "@comet-scan/types";
+import { Snip20TokenInfoResponse, Snip721ContractInfoResponse } from "@comet-scan/types";
 import Codes from "../models/codes.model";
 import Contracts from "../models/contracts.model";
 import Transactions from "../models/transactions";
@@ -154,7 +152,7 @@ export const importSecretWasmContract =
         let isNft = false;
 
         // Check if Token
-        let tokenInfo: TokenInfoResponse | undefined = undefined;
+        let tokenInfo: Snip20TokenInfoResponse | undefined = undefined;
         let permitSupport = false;
         if (params.checkToken) try {
             tokenInfo = await getSecretTokenInfo(chainId, contract_address, code.codeHash);
@@ -165,7 +163,7 @@ export const importSecretWasmContract =
         }
 
         // Check if NFT
-        let nftInfo: NftContractInfoResponse | undefined = undefined;
+        let nftInfo: Snip721ContractInfoResponse | undefined = undefined;
         let numTokens = 0;
         if (!tokenInfo && params.checkNft) try {
             nftInfo = await getSecretNftContractInfo(chainId, contract_address, code.codeHash);

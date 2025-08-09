@@ -1,4 +1,4 @@
-import { StartVerifyResponse, TaskStatus, VerifyParams } from "../interfaces/verification.interface";
+import { StartVerifyResponse, TaskStatus, VerifyParams } from "@comet-scan/types";
 import http from "./apiClient";
 
 export const startSecretWasmVerification = async (params: VerifyParams): Promise<StartVerifyResponse> => {

@@ -1,6 +1,6 @@
 import { api, APIError, ErrCode, Query } from "encore.dev/api";
 import Votes from "../models/votes.model";
-import { TokenInfoResponse, VotesResponse } from "../interfaces/responses/explorerApiResponses";
+import { TokenInfoResponse, VotesResponse } from "@comet-scan/types";
 import { getValidatorsFromDb } from "../common/dbQueries";
 import Contracts from "../models/contracts.model";
 

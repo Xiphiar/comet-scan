@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Vote } from "../interfaces/models/votes.interface";
+import { Vote } from "@comet-scan/types";
 import mongoosePaginate from 'mongoose-paginate-v2';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 

@@ -1,4 +1,4 @@
-import { ChainConfig } from "../interfaces/config.interface";
+import { ChainConfig } from "@comet-scan/types";
 
 const CosmosHub: ChainConfig = {
     id: 'cosmos',

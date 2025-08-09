@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Transaction } from "../interfaces/models/transactions.interface";
+import { Transaction } from "@comet-scan/types";
 import mongoosePaginate from 'mongoose-paginate-v2';
 
 const transactionsSchema = new mongoose.Schema<Transaction>({

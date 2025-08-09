@@ -1,7 +1,7 @@
 import { getLatestBlock, getOldestBlock } from "../common/dbQueries";
 import { getSecretTokenPermitSupport } from "../common/chainQueries";
 import Chains from "../config/chains";
-import { ChainConfig } from "../interfaces/config.interface";
+import { ChainConfig } from "@comet-scan/types";
 import Blocks from "../models/blocks";
 import Codes from "../models/codes.model";
 import Contracts from "../models/contracts.model";

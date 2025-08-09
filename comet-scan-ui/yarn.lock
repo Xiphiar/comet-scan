@@ -212,6 +212,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@comet-scan/types@file:../comet-scan-types::locator=comet-scan-ui%40workspace%3A.":
+  version: 0.1.0
+  resolution: "@comet-scan/types@file:../comet-scan-types#../comet-scan-types::hash=037bb2&locator=comet-scan-ui%40workspace%3A."
+  checksum: 10c0/a91546b46ba641820323f6c7c51f4667a5f144b940fa74a853d8f9252c5936346af54c92b5d1b24b9fd1e866d429f4414248e73bcbbb9007f4ca187ae5c33162
+  languageName: node
+  linkType: hard
+
 "@cosmjs/amino@npm:^0.32.4":
   version: 0.32.4
   resolution: "@cosmjs/amino@npm:0.32.4"
@@ -1928,6 +1935,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "comet-scan-ui@workspace:."
   dependencies:
+    "@comet-scan/types": "file:../comet-scan-types"
     "@cosmjs/encoding": "npm:^0.32.4"
     "@eslint/js": "npm:^9.15.0"
     "@keplr-wallet/types": "npm:^0.12.204"
@@ -1951,7 +1959,7 @@ __metadata:
     sass: "npm:^1.83.0"
     secretjs: "npm:^1.15.1"
     ts-pattern: "npm:^5.7.0"
-    typescript: "npm:^5.8.3"
+    typescript: "npm:~5.8.3"
     typescript-eslint: "npm:^8.31.0"
     vite: "npm:^6.0.1"
     vite-plugin-node-polyfills: "npm:^0.23.0"
@@ -5060,7 +5068,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.8.3":
+"typescript@npm:~5.8.3":
   version: 5.8.3
   resolution: "typescript@npm:5.8.3"
   bin:
@@ -5070,7 +5078,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5.8.3#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A~5.8.3#optional!builtin<compat/typescript>":
   version: 5.8.3
   resolution: "typescript@patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=5786d5"
   bin:

@@ -16,6 +16,7 @@
     "vitest": "^1.5.0"
   },
   "dependencies": {
+    "@comet-scan/types": "file:../comet-scan-types",
     "@cosmjs/cosmwasm-stargate": "^0.32.4",
     "@cosmjs/crypto": "^0.32.4",
     "@cosmjs/encoding": "^0.32.4",

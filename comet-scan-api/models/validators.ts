@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Validator } from "../interfaces/models/validators.interface";
+import { Validator } from "@comet-scan/types";
 
 const validatorSchema = new mongoose.Schema<Validator>({
     chainId: {

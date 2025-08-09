@@ -1,5 +1,4 @@
-import { WasmContract } from "../interfaces/models/contracts.interface";
-import { AllContractsPageResponse, AllProposalsPageResponse, AllTokensPageResponse, BlocksPageResponse, FeaturedTokensPageResponse, PaginatedTransactionsResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleCodePageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, StatusPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "../interfaces/responses/explorerApiResponses";
+import { AllContractsPageResponse, AllProposalsPageResponse, AllTokensPageResponse, BlocksPageResponse, FeaturedTokensPageResponse, PaginatedTransactionsResponse, SingleAccountPageResponse, SingleBlockPageResponse, SingleCodePageResponse, SingleContractPageResponse, SingleProposalPageResponse, SingleTransactionPageResponse, SingleValidatorPageResponse, StatusPageResponse, TransactionsPageResponse, ValidatorsPageResponse } from "@comet-scan/types";
 import http from "./apiClient"
 
 export const getOverviewPage = async (chainId: string) => {

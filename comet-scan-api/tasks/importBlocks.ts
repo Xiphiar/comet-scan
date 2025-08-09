@@ -1,9 +1,7 @@
 import axios from "axios";
 import Blocks from "../models/blocks";
 import { Coin, decodeTxRaw } from "@cosmjs/proto-signing";
-import { RpcBlockResponse } from "../interfaces/rpcBlockResponse";
-import { RpcBlockResultsResponse } from "../interfaces/rpcBlockResultsResponse";
-import { Block } from "../interfaces/models/blocks.interface";
+import { RpcBlockResponse, RpcBlockResultsResponse, Block } from "@comet-scan/types";
 
 // const importBlocks = async ({chainId, rpc, startHeight: _startHeight = 0}: ChainConfig) => {
 //     console.log(`Starting block import on ${chainId}`);

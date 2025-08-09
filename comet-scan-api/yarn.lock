@@ -5,6 +5,13 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
+"@comet-scan/types@file:../comet-scan-types::locator=comet-scan-api%40workspace%3A.":
+  version: 0.1.0
+  resolution: "@comet-scan/types@file:../comet-scan-types#../comet-scan-types::hash=4ad2fc&locator=comet-scan-api%40workspace%3A."
+  checksum: 10c0/66fcdd21fe3b33a237b1c70cad11ec5bc2fce0102bc3200efde3db020f2f18bade29b334e38fe50a3bee7c4fa650d47e04543fbd68291e3fbef0714a9a4b13da
+  languageName: node
+  linkType: hard
+
 "@confio/ics23@npm:^0.6.8":
   version: 0.6.8
   resolution: "@confio/ics23@npm:0.6.8"
@@ -1170,6 +1177,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "comet-scan-api@workspace:."
   dependencies:
+    "@comet-scan/types": "file:../comet-scan-types"
     "@cosmjs/cosmwasm-stargate": "npm:^0.32.4"
     "@cosmjs/crypto": "npm:^0.32.4"
     "@cosmjs/encoding": "npm:^0.32.4"

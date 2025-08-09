@@ -1,10 +1,8 @@
 import Chains from "../config/chains";
-import { Amount, StakingMetrics } from "../interfaces/responses/explorerApiResponses";
+import { Amount, StakingMetrics, Snip721ContractInfoResponse, Coin, Snip20TokenInfoResponse } from "@comet-scan/types";
 import Validators from "../models/validators";
 import { getSecretWasmClient } from "./cosmWasmClient";
 import { Cache } from "./cache";
-import { NftContractInfoResponse, TokenInfoResponse } from "../interfaces/secretQueryResponses";
-import { Coin } from "../interfaces/models/blocks.interface";
 import { getLcdClient } from "../config/clients";
 
 export const getTotalSupply = async (chainId: string): Promise<Amount> => {
@@ -208,14 +206,14 @@ export const getDenomTrace = async (chainId: string, denomHash: string): Promise
     }
 }
 
-export const getSecretTokenInfo = async (chainId: string, contract_address: string, code_hash?: string): Promise<TokenInfoResponse> => {
+export const getSecretTokenInfo = async (chainId: string, contract_address: string, code_hash?: string): Promise<Snip20TokenInfoResponse> => {
     const client = await getSecretWasmClient(chainId);
 
     const query = {
         token_info: {},
     };
 
-    const result: TokenInfoResponse | string = await client.query.compute.queryContract({
+    const result: Snip20TokenInfoResponse | string = await client.query.compute.queryContract({
         contract_address,
         code_hash,
         query,
@@ -241,14 +239,14 @@ export const getSecretTokenPermitSupport = async (chainId: string, contract_addr
     else return false;
 }
 
-export const getSecretNftContractInfo = async (chainId: string, contract_address: string, code_hash?: string): Promise<NftContractInfoResponse> => {
+export const getSecretNftContractInfo = async (chainId: string, contract_address: string, code_hash?: string): Promise<Snip721ContractInfoResponse> => {
     const client = await getSecretWasmClient(chainId);
 
     const query = {
         num_tokens: {},
     };
 
-    const result: NftContractInfoResponse | string = await client.query.compute.queryContract({
+    const result: Snip721ContractInfoResponse | string = await client.query.compute.queryContract({
         contract_address,
         code_hash,
         query,

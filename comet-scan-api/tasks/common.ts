@@ -1,6 +1,4 @@
-import { TxEventAttribute } from "../interfaces/lcdTxResponse";
-import { Transaction } from "../interfaces/models/transactions.interface";
-import { Vote } from "../interfaces/models/votes.interface";
+import { TxEventAttribute, Transaction, Vote } from "@comet-scan/types";
 import Votes from "../models/votes.model";
 import { importSecretWasmCode, importSecretWasmContract } from "./secretwasm.tasks";
 

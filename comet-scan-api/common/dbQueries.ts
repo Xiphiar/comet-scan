@@ -1,6 +1,4 @@
-import { Block } from "../interfaces/models/blocks.interface";
-import { Proposal } from "../interfaces/models/proposals.interface";
-import { Validator, ValidatorBondStatus } from "../interfaces/models/validators.interface";
+import { Block, Proposal, Validator, ValidatorBondStatus } from "@comet-scan/types";
 import Blocks from "../models/blocks";
 import Contracts from "../models/contracts.model";
 import Proposals from "../models/proposals";

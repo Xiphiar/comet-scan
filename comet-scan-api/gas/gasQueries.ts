@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import Blocks, { Block } from "../models/blocks";
+import Blocks from "../models/blocks";
+import { Block } from "@comet-scan/types";
 
 interface QueryTopGasBlockProps {
     chainId: string;

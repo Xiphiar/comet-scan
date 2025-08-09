@@ -1,6 +1,6 @@
 import { getLatestBlock } from "../common/dbQueries";
 import Chains from "../config/chains";
-import { ChainConfig } from "../interfaces/config.interface";
+import { ChainConfig } from "@comet-scan/types";
 import Blocks from "../models/blocks";
 import Transactions from "../models/transactions";
 

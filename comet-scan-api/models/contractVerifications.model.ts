@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ContractVerification } from "../interfaces/verification.interface";
+import { ContractVerification } from "@comet-scan/types";
 
 const contractVerificationsSchema = new mongoose.Schema<ContractVerification>({
     repo: {

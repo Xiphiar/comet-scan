@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { WasmContract } from "../interfaces/models/contracts.interface";
+import { WasmContract } from "@comet-scan/types";
 import mongoosePaginate from 'mongoose-paginate-v2';
 
 const contractsSchema = new mongoose.Schema<WasmContract>({

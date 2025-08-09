@@ -2,13 +2,12 @@ import { Validator as SJSValidator } from "secretjs/dist/grpc_gateway/cosmos/sta
 import { getSecretWasmClient } from "../common/cosmWasmClient";
 import Chains from "../config/chains";
 import Validators from "../models/validators";
-import { Validator } from "../interfaces/models/validators.interface";
+import { Validator, ChainConfig } from "@comet-scan/types";
 import { base64TendermintPubkeyToValconsAddress, fromBase64, validatorAddressToSelfDelegatorAddress } from "secretjs";
 import { getDelegationToValidator } from "../common/chainQueries";
 
 import { sha256 } from "@noble/hashes/sha256";
 import { consensusPubkeyToHexAddress } from "../common/addresses";
-import { ChainConfig } from "../interfaces/config.interface";
 import { importAccount } from "./importAccounts";
 import { getKeybaseAvatar } from "../common/keybase";
 import sleep from "../utils/sleep";

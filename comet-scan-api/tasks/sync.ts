@@ -1,9 +1,8 @@
 import axios from "axios";
-import { ChainConfig } from "../interfaces/config.interface";
+import { ChainConfig, RpcStatusResponse } from "@comet-scan/types";
 import Blocks from "../models/blocks";
 import { processBlock } from "./importBlocks"
 import { importTransactionsForBlock } from "./importTransactions";
-import RpcStatusResponse from "../interfaces/rpcStatusResponse";
 import Chains from "../config/chains";
 import KvStore from "../models/kv";
 

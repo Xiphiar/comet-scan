@@ -1,7 +1,5 @@
 import { AxiosError } from "axios";
-import { VoteOption } from "../interfaces/models/proposals.interface";
-import { VotesResponse } from "../interfaces/responses/explorerApiResponses";
-import { TokenInfoResponse } from "../interfaces/secretQueryResponses";
+import { VoteOption, VotesResponse, TokenInfoResponse } from "@comet-scan/types";
 import http from "./apiClient";
 
 // Function to fetch votes for a specific proposal

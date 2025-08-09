@@ -1,5 +1,5 @@
 import Chains from "../config/chains";
-import { ChainConfig } from "../interfaces/config.interface";
+import { ChainConfig } from "@comet-scan/types";
 import { updateAccountsV2 } from "./importAccounts";
 import { updateProposalsForChain } from "./updateProposals";
 import { updateValidatorsForChain } from "./updateValidators";

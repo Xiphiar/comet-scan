@@ -1,5 +1,4 @@
-import { WasmContract } from "../interfaces/models/contracts.interface";
-import { ContractWithStats } from "../interfaces/responses/explorerApiResponses";
+import { WasmContract, ContractWithStats } from "@comet-scan/types";
 import Codes from "../models/codes.model";
 import ContractVerifications from "../models/contractVerifications.model";
 import Transactions from "../models/transactions";

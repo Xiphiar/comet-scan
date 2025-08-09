@@ -1,9 +1,7 @@
 import { getOldestBlock, getTopValidatorsFromDb } from "../common/dbQueries";
 import Proposals from "../models/proposals";
-import { Proposal, ProposalStatus, ValidatorVote } from "../interfaces/models/proposals.interface";
+import { Proposal, ProposalStatus, ValidatorVote, v1beta1LcdProposal, v1LcdProposal, ChainConfig } from "@comet-scan/types";
 import Transactions from "../models/transactions";
-import { v1beta1LcdProposal, v1LcdProposal } from "../interfaces/lcdProposalResponse";
-import { ChainConfig } from "../interfaces/config.interface";
 import { getLcdClient } from "../config/clients";
 import Blocks from "../models/blocks";
 import { getTotalBonded } from "../common/chainQueries";

@@ -1,4 +1,4 @@
-export interface TokenInfoResponse {
+export interface Snip20TokenInfoResponse {
     token_info: {
         name: string,
         symbol: string,
@@ -8,7 +8,7 @@ export interface TokenInfoResponse {
 }
 
 
-export interface NftContractInfoResponse {
+export interface Snip721ContractInfoResponse {
     contract_info: {
         name: string,
         symbol: string,

@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@comet-scan/types": "file:../comet-scan-types",
     "@cosmjs/encoding": "^0.32.4",
     "axios": "^1.7.9",
     "bootstrap": "5.3.3",

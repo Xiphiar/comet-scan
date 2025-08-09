@@ -1,8 +1,5 @@
 import { getLcdClient } from "../config/clients";
-import { ChainConfig } from "../interfaces/config.interface";
-import { LcdCosmWasmCodesResponse, LcdCosmWasmContractInfoResponse } from "../interfaces/lcdCosmwasmResponses";
-import { WasmCode } from "../interfaces/models/codes.interface";
-import { WasmContract } from "../interfaces/models/contracts.interface";
+import { ChainConfig, LcdCosmWasmCodesResponse, LcdCosmWasmContractInfoResponse, WasmCode, WasmContract } from "@comet-scan/types";
 import Codes from "../models/codes.model";
 import Contracts from "../models/contracts.model";
 import Transactions from "../models/transactions";

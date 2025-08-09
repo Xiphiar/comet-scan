@@ -1,4 +1,4 @@
-import { GetExplorerConfigResponse, ValidatorsConfigResponse } from "../interfaces/responses/config.response.interface";
+import { GetExplorerConfigResponse, ValidatorsConfigResponse } from "@comet-scan/types";
 import http from "./apiClient"
 
 export const getConfig = async (): Promise<GetExplorerConfigResponse> => {

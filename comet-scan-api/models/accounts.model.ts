@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Account } from "../interfaces/models/accounts.interface";
+import { Account } from "@comet-scan/types";
 
 const accountsSchema = new mongoose.Schema<Account>({
     chainId: {

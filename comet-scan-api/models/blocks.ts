@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Block } from "../interfaces/models/blocks.interface";
+import { Block } from "@comet-scan/types";
 
 const blocksSchema = new mongoose.Schema<Block>({
     chainId: {

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Proposal } from "../interfaces/models/proposals.interface";
+import { Proposal } from "@comet-scan/types";
 
 const proposalSchema = new mongoose.Schema<Proposal>({
     chainId: {

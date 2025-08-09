@@ -1,15 +1,9 @@
-import { Transaction } from "../interfaces/models/transactions.interface";
+import { ChainConfig, Transaction, Block, Coin, Account, Delegation, Unbonding, BaseAccountDetails, LcdAuthAccount, ModuleAccount, v1beta1ContinuousVestingAccount, LcdBalance, LcdBalancesResponse, LcdDelegationsResponse, LcdUnbondingResponse } from "@comet-scan/types";
 import Blocks from "../models/blocks";
 import { getChainConfig } from "../config/chains";
 import Transactions from "../models/transactions";
-import { Block, Coin } from "../interfaces/models/blocks.interface";
 import Accounts from "../models/accounts.model";
-import { Account, Delegation, Unbonding } from "../interfaces/models/accounts.interface";
-import { BaseAccountDetails, LcdAuthAccount, ModuleAccount, v1beta1ContinuousVestingAccount } from "../interfaces/lcdAuthAccountResponse";
 import { importTransactionsForBlock } from "./importTransactions";
-import { LcdBalance, LcdBalancesResponse } from "../interfaces/LcdBalanceResponse";
-import { LcdDelegationsResponse, LcdUnbondingResponse } from "../interfaces/lcdBondingResponse";
-import { ChainConfig } from "../interfaces/config.interface";
 import { getDenomTrace } from "../common/chainQueries";
 import KvStore from "../models/kv";
 import { syncBlock } from "./sync";

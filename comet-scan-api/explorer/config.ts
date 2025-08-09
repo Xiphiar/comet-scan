@@ -1,7 +1,6 @@
 import { api } from "encore.dev/api";
-import { GetExplorerConfigResponse, ValidatorsConfigResponse } from "../interfaces/responses/config.response.interface";
+import { GetExplorerConfigResponse, ValidatorsConfigResponse, FrontendChainConfig } from "@comet-scan/types";
 import Chains from "../config/chains";
-import { FrontendChainConfig } from "../interfaces/config.interface";
 import { getValidatorsFromDb } from "../common/dbQueries";
 
 export const getExplorerConfig = api(

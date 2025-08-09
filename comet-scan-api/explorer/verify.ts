@@ -1,7 +1,7 @@
 import { api, APIError, ErrCode } from "encore.dev/api";
 import { getChainConfig } from "../config/chains";
 import axios from "axios";
-import { VerifyParams, StartVerifyResponse, TaskStatus } from "../interfaces/verification.interface";
+import { VerifyParams, StartVerifyResponse, TaskStatus } from "@comet-scan/types";
 
 export const verifySecretWasmContract = api<VerifyParams, StartVerifyResponse>(
     { expose: true, method: "POST", path: "/verify/secretwasm" },

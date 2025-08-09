@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { WasmCode } from "../interfaces/models/codes.interface";
+import { WasmCode } from "@comet-scan/types";
 
 const codesSchema = new mongoose.Schema<WasmCode>({
     chainId: {

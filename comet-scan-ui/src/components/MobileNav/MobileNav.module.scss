@@ -95,3 +95,13 @@ button.closeButton:hover {
     transform: rotate(90deg);
     box-shadow: 0 0 20px var(--glow-color);
 }
+
+.logoLink {
+    border: none !important;
+    background: transparent !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+.logoLink::before {
+    content: none !important;
+}

@@ -46,7 +46,7 @@ const MainLayout: FC = () => {
                         <ConnectWallet chainConfig={chainConfig} />
                         <Toggle />
                     </div>
-                    <div className='d-flex d-lg-none justify-content-end flex-grow-1'>
+                    <div className='d-flex d-lg-none justify-content-end flex-grow-1 py-1 pe-1'>
                         <HamburgerButton onClick={()=>setShowMobileNav(true)} />
                     </div>
                 </div>

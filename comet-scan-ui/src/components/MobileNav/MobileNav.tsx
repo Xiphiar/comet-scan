@@ -31,7 +31,7 @@ const MobileNav: FC<{show: boolean, hide: ()=>any, chain: FrontendChainConfig}> 
           <button type='button' onClick={hide} className={styles.closeButton}>
             𐌗
           </button>
-          <NavLink to='/' onClick={()=>hide()}>
+          <NavLink to='/' onClick={()=>hide()} className={styles.logoLink}>
             <svg height={'64px'} width={'76px'}>
                 <use xlinkHref="/logo.svg#cometscanLogo" height={'64px'} width={'76px'} />
             </svg>

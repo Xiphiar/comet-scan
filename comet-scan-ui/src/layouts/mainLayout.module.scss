@@ -49,7 +49,7 @@
         transition: all var(--transition-speed) ease;
         position: relative;
 
-        @media(max-width: 950px) {
+        @media(max-width: 991px) {
             display: none !important;
         }
     }
@@ -83,7 +83,7 @@
 }
 
 .hamburgerButton {
-    padding: 16px 8px;
+    padding: 12px 8px;
     width: 47px;
     border-radius: 8px;
     transition: all var(--transition-speed) ease;

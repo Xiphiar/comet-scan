@@ -1,10 +1,9 @@
 import { FC } from "react";
-import { BlockWithProposer } from "../../interfaces/models/blocks.interface";
+import { BlockWithProposer, FrontendChainConfig } from "@comet-scan/types";
 import { Link } from "react-router-dom";
 import styles from './BlockRow.module.scss'
 import { truncateString } from "../../utils/format";
 import ValidatorAvatar from "../Avatar/KeybaseAvatar";
-import { FrontendChainConfig } from "../../interfaces/config.interface";
 
 const BlockRow: FC<{ block: BlockWithProposer, chain: FrontendChainConfig }> = ({ block, chain }) => {
     return (

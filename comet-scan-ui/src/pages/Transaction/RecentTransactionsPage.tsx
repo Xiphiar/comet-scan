@@ -5,13 +5,11 @@ import useAsync from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
-import { PaginatedTransactionsResponse, TransactionsPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { TransactionsPageResponse, Transaction } from "@comet-scan/types";
 import { getPaginatedTransactionsPage, getRecentTransactionsPage } from "../../api/pagesApi";
 import TransactionRow, { TransactionLabels } from "../../components/TransactionRow/TransactionRow";
 import ReactPaginate from "react-paginate";
 import Spinner from "../../components/Spinner";
-import { Transaction } from "../../interfaces/models/transactions.interface";
-import sleep from "../../utils/sleep";
 import styles from './RecentTransactionsPage.module.scss';
 
 

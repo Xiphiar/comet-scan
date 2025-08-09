@@ -6,7 +6,7 @@ import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import { getAllTokensPage } from "../../api/pagesApi";
-import { AllTokensPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { AllTokensPageResponse } from "@comet-scan/types";
 import TokenRow from "../../components/TokenRow/TokenRow";
 import ReactPaginate from "react-paginate";
 import Selector from "../../components/Selector/Selector";

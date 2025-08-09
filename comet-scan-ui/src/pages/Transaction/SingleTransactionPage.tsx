@@ -6,7 +6,7 @@ import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import { weiFormatNice } from "../../utils/coin";
-import { SingleTransactionPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { SingleTransactionPageResponse, TxEvent } from "@comet-scan/types";
 import { getSingleTransactionPage } from "../../api/pagesApi";
 import MessageRow from "../../components/MessageRow/messageRow";
 import { truncateString } from "../../utils/format";
@@ -21,10 +21,7 @@ import { FaGasPump, FaRegClock } from "react-icons/fa6";
 import { RiCoinsLine } from "react-icons/ri";
 import EventRow from "../../components/EventRow/EventRow";
 import ResponseRow from "../../components/ResponseRow/ResponseRow";
-import { TxEvent } from "../../interfaces/lcdTxResponse";
 import decodeTxResponse, { DecryptedTxResponse } from "../../utils/secret";
-import { TxMsgData } from "secretjs/dist/protobuf/cosmos/base/abci/v1beta1/abci";
-import { fromHex } from "secretjs";
 import ErrorAlert from "../../components/ErrorAlert/ErrorAlert";
 
 const SingleTransactionPage: FC = () => {

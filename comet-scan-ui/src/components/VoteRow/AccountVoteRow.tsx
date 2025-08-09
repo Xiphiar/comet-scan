@@ -1,9 +1,8 @@
 import { FC } from "react";
-import { Vote } from "../../interfaces/models/votes.interface";
 import styles from './VoteRow.module.scss'
 import { useParams, Link } from "react-router-dom";
 import { formatVoteOption, formatTime } from "../../utils/format";
-import { VoteWithTitle } from "../../interfaces/responses/explorerApiResponses";
+import { VoteWithTitle } from "@comet-scan/types";
 
 // Displays the proposal and vote. Does not display validator info.
 const AccountVoteRow: FC<{data: VoteWithTitle}> = ({data: {vote, title}}) => {

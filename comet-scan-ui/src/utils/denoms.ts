@@ -1,6 +1,5 @@
-import { Coin } from "../interfaces/models/blocks.interface";
+import { FrontendChainConfig, Coin } from "@comet-scan/types";
 import { truncateString } from "./format";
-import { FrontendChainConfig } from "../interfaces/config.interface";
 
 export interface DenomDetails {
     unknown?: true;

@@ -3,11 +3,9 @@ import { FC, Fragment } from "react";
 import Spinner from "../../components/Spinner";
 import Card from "../../components/Card";
 import styles from './OverviewPage.module.scss';
-import { Proposal } from "../../interfaces/models/proposals.interface";
-import { FrontendChainConfig } from "../../interfaces/config.interface";
+import { Proposal, FrontendChainConfig, v1LcdProposal } from "@comet-scan/types";
 import { Link } from "react-router-dom";
 import { formatProposalStatus, formatProposalType } from "../../utils/format";
-import { v1LcdProposal } from "../../interfaces/lcdProposalResponse";
 
 const ProposalsCard: FC<{ chain: FrontendChainConfig, proposals: Proposal[], totalProposals: number, className?: string, showMoreLink?: true }> = ({ chain, proposals, totalProposals, className, showMoreLink }) => {
     if (!proposals.length) {

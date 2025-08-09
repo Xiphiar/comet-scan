@@ -1,16 +1,13 @@
 import { ReactElement } from "react";
-import { FrontendChainConfig } from "../interfaces/config.interface";
+import { FrontendChainConfig, Coin, LcdTxResponse, LightWasmContract } from "@comet-scan/types";
 import { combineCoins, stringToCoin } from "./denoms";
 import { Link } from "react-router-dom";
 import { formatAmounts, formatCoin, formatVoteOption, truncateString } from "./format";
-import { Coin } from "../interfaces/models/blocks.interface";
-import { LcdTxResponse } from "../interfaces/lcdTxResponse";
 import MessageRow from "../components/MessageRow/messageRow";
 import { fromBase64, fromUtf8, EncryptionUtils } from "secretjs";
 import { parseSecretWasmMessage } from "./secretWasmMessageParsing";
 import { fromBech32 } from "@cosmjs/encoding";
 import JsonView from "react18-json-view";
-import { LightWasmContract } from "../interfaces/models/contracts.interface";
 
 export const formatTxType = (txType: string) => {
     switch(txType) {

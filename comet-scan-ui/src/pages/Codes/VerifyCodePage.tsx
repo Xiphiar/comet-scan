@@ -6,7 +6,7 @@ import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import { getVerificationStatus, startSecretWasmVerification } from "../../api/verificationApi";
-import { TaskStatus } from "../../interfaces/verification.interface";
+import { TaskStatus } from "@comet-scan/types";
 import Spinner from "../../components/Spinner";
 import parseError from "../../utils/parseError";
 import { toast } from "react-fox-toast";

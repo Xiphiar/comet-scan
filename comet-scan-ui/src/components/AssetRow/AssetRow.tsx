@@ -1,8 +1,7 @@
 import { FC, useEffect, useState } from "react";
-import { FrontendChainConfig } from "../../interfaces/config.interface";
+import { FrontendChainConfig, Coin } from "@comet-scan/types";
 import styles from './AssetRow.module.scss'
 import { weiFormatNice } from "../../utils/coin";
-import { Coin } from "../../interfaces/models/blocks.interface";
 import { getDenomDetails, DenomDetails } from "../../utils/denoms";
 import { SmallSpinner } from "../SmallSpinner/smallSpinner";
 import { FaInfoCircle } from "react-icons/fa";

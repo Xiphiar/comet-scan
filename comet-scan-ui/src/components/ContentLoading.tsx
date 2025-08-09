@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { FrontendChainConfig } from "../interfaces/config.interface";
+import { FrontendChainConfig } from "@comet-scan/types";
 import TitleAndSearch from "./TitleAndSearch";
 import Spinner from "./Spinner";
 import parseError from "../utils/parseError";

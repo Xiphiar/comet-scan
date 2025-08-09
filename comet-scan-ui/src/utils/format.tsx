@@ -1,9 +1,7 @@
 import { ReactElement } from "react";
-import { Coin } from "../interfaces/models/blocks.interface";
-import { ProposalStatus } from "../interfaces/models/proposals.interface";
 import { getDenomDetails } from "./denoms";
-import { weiFormatFixed, weiFormatNice } from "./coin";
-import { FrontendChainConfig } from "../interfaces/config.interface";
+import { weiFormatNice } from "./coin";
+import { FrontendChainConfig, Coin, ProposalStatus } from "@comet-scan/types";
 
 export const truncateString = (str: string, charactersToKeep = 6) => {
     if (str.length < charactersToKeep * 2) return str;

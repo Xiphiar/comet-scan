@@ -2,7 +2,7 @@ import { FC, Fragment, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
-import { SingleAccountPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { SingleAccountPageResponse, Transaction } from "@comet-scan/types";
 import { getPaginatedAccountTransactions, getSingleAccountPage } from "../../api/pagesApi";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
@@ -12,15 +12,12 @@ import { weiFormatNice } from "../../utils/coin";
 import TransactionRow, { TransactionLabels } from "../../components/TransactionRow/TransactionRow";
 import AssetRow from "../../components/AssetRow/AssetRow";
 import ContractRow from "../../components/ContractRow/ContractRow";
-import { Transaction } from "../../interfaces/models/transactions.interface";
 import ReactPaginate from "react-paginate";
 import Spinner from "../../components/Spinner";
 import styles from './SingleAccountPage.module.scss';
 import sleep from "../../utils/sleep";
 import DelegationRow from "../../components/DelegationRow/DelegationRow";
 import UnbondingRow from "../../components/UnbondingRow/UnbondingRow";
-import VoteRow from "../../components/VoteRow/VoteRow";
-import { MdAccountBalance } from "react-icons/md";
 import AccountVoteRow from "../../components/VoteRow/AccountVoteRow";
 
 const SingleAccountPage: FC = () => {

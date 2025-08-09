@@ -1,8 +1,7 @@
 import { FC } from "react";
-import { FrontendChainConfig } from "../../interfaces/config.interface";
+import { FrontendChainConfig, ContractWithStats } from "@comet-scan/types";
 import { Link } from "react-router-dom";
 import { truncateString } from "../../utils/format";
-import { ContractWithStats } from "../../interfaces/responses/explorerApiResponses";
 
 const ContractRow: FC<{ contract: ContractWithStats, chain: FrontendChainConfig }> = ({ contract: { contract }, chain }) => {
     return (

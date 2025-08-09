@@ -1,9 +1,8 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import styles from './ProposalMessageCard.module.scss';
-import { Proposal } from "../../interfaces/models/proposals.interface";
+import { Proposal, v1beta1LcdProposal, v1LcdProposal } from "@comet-scan/types";
 import { useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
-import { v1beta1LcdProposal, v1LcdProposal } from "../../interfaces/lcdProposalResponse";
 import { formatProposalType } from "../../utils/format";
 import parseProposalMessage from "./parseProposalMessage";
 import Spinner from "../../components/Spinner";

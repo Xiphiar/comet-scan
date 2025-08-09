@@ -3,9 +3,8 @@ import Spinner from "../../components/Spinner";
 import Card from "../../components/Card";
 import styles from './OverviewPage.module.scss';
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FrontendChainConfig } from "../../interfaces/config.interface";
+import { FrontendChainConfig, Validator } from "@comet-scan/types";
 import { weiFormatNice } from "../../utils/coin";
-import { Validator } from "../../interfaces/models/validators.interface";
 import ValidatorAvatar from "../../components/Avatar/KeybaseAvatar";
 import Selector from "../../components/Selector/Selector";
 

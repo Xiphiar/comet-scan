@@ -6,7 +6,7 @@ import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import { getFeaturedTokensPage } from "../../api/pagesApi";
-import { FeaturedTokensPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { FeaturedTokensPageResponse } from "@comet-scan/types";
 import TokenRow from "../../components/TokenRow/TokenRow";
 import ReactPaginate from "react-paginate";
 import FeaturedTokenRow from "../../components/TokenRow/FeaturedTokenRow";

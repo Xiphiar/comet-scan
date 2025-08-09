@@ -1,8 +1,7 @@
 import { FC } from "react";
-import { FrontendChainConfig } from "../../interfaces/config.interface";
+import { FrontendChainConfig, WasmContract } from "@comet-scan/types";
 import { formatNice, weiToCoin } from "../../utils/coin";
 import { HistoryTx } from "../../pages/Contracts/SingleTokenPage";
-import { WasmContract } from "../../interfaces/models/contracts.interface";
 import styles from './HistoryTxRow.module.scss';
 import { Link, useParams } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";

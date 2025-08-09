@@ -6,7 +6,7 @@ import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import { weiFormatNice } from "../../utils/coin";
-import { SingleBlockPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { SingleBlockPageResponse } from "@comet-scan/types";
 import { getSingleBlockPage } from "../../api/pagesApi";
 import TransactionRow, { TransactionLabels } from "../../components/TransactionRow/TransactionRow";
 import ValidatorAvatar from "../../components/Avatar/KeybaseAvatar";

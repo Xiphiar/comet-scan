@@ -1,6 +1,6 @@
 import { SecretNetworkClient, EncryptionUtils } from 'secretjs';
 import sleep from './sleep.ts';
-import { FrontendChainConfig } from '../interfaces/config.interface.ts';
+import { FrontendChainConfig } from '@comet-scan/types';
 
 export const connectKeplrWallet = async(chainConfig: FrontendChainConfig): Promise<{
     client: SecretNetworkClient;

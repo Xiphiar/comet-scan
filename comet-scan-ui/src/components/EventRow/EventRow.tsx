@@ -1,6 +1,6 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import styles from './EventRow.module.scss';
-import { TxEvent } from "../../interfaces/lcdTxResponse";
+import { TxEvent } from "@comet-scan/types";
 import { defaultKeyContent } from "../../utils/messageParsing";
 import { FaChevronDown } from "react-icons/fa";
 import { useUser } from "../../hooks/useUser";

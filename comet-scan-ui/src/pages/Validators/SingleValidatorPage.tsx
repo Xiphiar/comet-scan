@@ -2,7 +2,7 @@ import { FC } from "react";
 import { Link, useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
-import { SingleValidatorPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { SingleValidatorPageResponse } from "@comet-scan/types";
 import { getSingleValidatorPage } from "../../api/pagesApi";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";

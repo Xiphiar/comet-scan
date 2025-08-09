@@ -1,8 +1,7 @@
 import { FC } from "react";
-import { FrontendChainConfig } from "../../interfaces/config.interface";
+import { FrontendChainConfig, FeaturedToken } from "@comet-scan/types";
 import { Link } from "react-router-dom";
 import { truncateString } from "../../utils/format";
-import { FeaturedToken } from "../../interfaces/responses/explorerApiResponses";
 import { formatNice } from "../../utils/coin";
 
 const FeaturedTokenRow: FC<{ token: FeaturedToken, chain: FrontendChainConfig }> = ({ token, chain }) => {

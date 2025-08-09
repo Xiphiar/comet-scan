@@ -1,11 +1,9 @@
 import { FC, useEffect, useMemo } from "react";
-import { Delegation, Unbonding } from "../../interfaces/models/accounts.interface";
+import { Unbonding } from "@comet-scan/types";
 import useConfig from "../../hooks/useConfig";
 import { Link, useParams } from "react-router-dom";
 import ValidatorAvatar from "../Avatar/KeybaseAvatar";
 import { weiFormatNice } from "../../utils/coin";
-import { FrontendChainConfig } from "../../interfaces/config.interface";
-import { Validator } from "../../interfaces/models/validators.interface";
 
 type Props = {
     unbonding: Unbonding

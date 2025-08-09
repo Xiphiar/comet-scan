@@ -7,7 +7,7 @@ import {
   import { toast } from 'react-fox-toast';
   
   import { SecretNetworkClient, EncryptionUtils } from 'secretjs';
-import { FrontendChainConfig } from '../interfaces/config.interface';
+import { FrontendChainConfig } from '@comet-scan/types';
   
   interface Props {
     children: ReactNode;

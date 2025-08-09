@@ -1,6 +1,5 @@
 import { createContext } from "react";
-import { FrontendChainConfig } from "../interfaces/config.interface";
-import { Validator } from "../interfaces/models/validators.interface";
+import { FrontendChainConfig, Validator } from "@comet-scan/types";
   
 export interface ConfigContextState {
     chains: FrontendChainConfig[];

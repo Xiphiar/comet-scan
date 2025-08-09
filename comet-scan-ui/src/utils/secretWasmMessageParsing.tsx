@@ -1,15 +1,12 @@
 import { EncryptionUtils, fromBase64, fromUtf8 } from "secretjs";
-import { defaultKeyContent, formatTxType, isJson, ParsedMessage, ParsedMessageContent } from "./messageParsing";
+import { defaultKeyContent, formatTxType, ParsedMessage, ParsedMessageContent } from "./messageParsing";
 import { Link } from "react-router-dom";
-import { FrontendChainConfig } from "../interfaces/config.interface";
+import { FrontendChainConfig, LcdTxResponse, LightWasmContract } from "@comet-scan/types";
 import { formatAmounts, maybeParseJson, truncateStringEnd } from "./format";
-import { LcdTxResponse } from "../interfaces/lcdTxResponse";
 import { match, P } from "ts-pattern";
-import JsonView from "react18-json-view";
-import { LightWasmContract } from "../interfaces/models/contracts.interface";
 import { Coin } from "@keplr-wallet/types";
 import HiddenText from "../components/HiddenText/HiddenText";
-import decodeTxResponse, { DecryptedTxResponse } from "./secret";
+import decodeTxResponse from "./secret";
 
 // Get executed contract addresses from events for a specific message index
 const getAllExecutedContracts = (tx: LcdTxResponse, messageIndex: string, exclude?: string): string[] => {

@@ -1,6 +1,5 @@
 import { FC, ReactElement, useState, useEffect, Fragment } from "react";
-import { FrontendChainConfig } from "../../interfaces/config.interface";
-import { Transaction } from "../../interfaces/models/transactions.interface";
+import { FrontendChainConfig, Transaction } from "@comet-scan/types";
 import { Link } from "react-router-dom";
 import styles from './TransactionRow.module.scss'
 import { formatAmounts, formatTime, truncateString } from "../../utils/format";
@@ -11,6 +10,7 @@ import { SmallSpinner } from "../SmallSpinner/smallSpinner";
 import { useUser } from "../../hooks/useUser";
 import useConfig from "../../hooks/useConfig";
 import Tooltip from "../Tooltip/Tooltip";
+
 const TransactionRow: FC<{ transaction: Transaction, chain: FrontendChainConfig }> = ({ transaction, chain }) => {
     const { user } = useUser();
     const { chains: allChains } = useConfig();

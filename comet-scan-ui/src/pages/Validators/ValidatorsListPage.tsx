@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { useParams } from "react-router-dom";
 import useAsync from "../../hooks/useAsync";
-import { ValidatorsPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { ValidatorsPageResponse } from "@comet-scan/types";
 import { getInactiveValidatorsPage, getValidatorsPage } from "../../api/pagesApi";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";

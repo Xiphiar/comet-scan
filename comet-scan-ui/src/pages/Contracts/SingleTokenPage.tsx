@@ -2,7 +2,7 @@ import { FC, Fragment, useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
 import useAsync from "../../hooks/useAsync";
-import { SingleContractPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { SingleContractPageResponse } from "@comet-scan/types";
 import { getSingleContractPage } from "../../api/pagesApi";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";

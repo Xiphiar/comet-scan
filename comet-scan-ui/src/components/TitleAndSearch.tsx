@@ -1,6 +1,6 @@
 import { FC, ReactElement, useRef, useState } from "react";
 import styles from './TitleAndSearch.module.scss'
-import { ChainConfig, FrontendChainConfig } from "../interfaces/config.interface";
+import { ChainConfig, FrontendChainConfig } from "@comet-scan/types";
 import { fromBech32, normalizeBech32 } from "@cosmjs/encoding";
 import useConfig from "../hooks/useConfig";
 import { Link, useParams } from "react-router-dom";

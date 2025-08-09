@@ -5,7 +5,7 @@ import useAsync from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
-import { AllProposalsPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { AllProposalsPageResponse } from "@comet-scan/types";
 import { getAllProposalsPage } from "../../api/pagesApi";
 import { ProposalRow } from "../Overview/ProposalsCard";
 

@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Vote } from "../../interfaces/models/votes.interface";
+import { Vote } from "@comet-scan/types";
 import styles from './VoteRow.module.scss'
 import { useParams, Link } from "react-router-dom";
 import { formatVoteOption, formatTime } from "../../utils/format";

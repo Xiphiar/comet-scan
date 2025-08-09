@@ -7,7 +7,7 @@ import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import ContractRow from "../../components/ContractRow/ContractRow";
 import { getAllContractsPage } from "../../api/pagesApi";
-import { AllContractsPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { AllContractsPageResponse } from "@comet-scan/types";
 import { IoDocuments } from "react-icons/io5";
 import { FaFileSignature } from "react-icons/fa6";
 import { Ri24HoursFill } from "react-icons/ri";

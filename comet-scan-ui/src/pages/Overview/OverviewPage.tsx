@@ -7,7 +7,7 @@ import useAsync from "../../hooks/useAsync";
 import { getOverviewPage } from "../../api/pagesApi";
 import { weiFormatNice } from "../../utils/coin";
 import ProposalsCard from "./ProposalsCard";
-import { OverviewPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { OverviewPageResponse } from "@comet-scan/types";
 import ContentLoading from "../../components/ContentLoading";
 import TitleAndSearch from "../../components/TitleAndSearch";
 import { AiOutlineBlock } from "react-icons/ai";

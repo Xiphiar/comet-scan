@@ -1,8 +1,7 @@
 import { PropsWithChildren, ReactElement, useEffect, useState } from "react";
 import { getConfig, getChainValidators } from "../api/configApi";
 import ConfigContext, { ConfigContextState } from "../contexts/ConfigContext";
-import { FrontendChainConfig } from "../interfaces/config.interface";
-import { Validator } from "../interfaces/models/validators.interface";
+import { FrontendChainConfig, Validator } from "@comet-scan/types";
 import MainPage from "../pages/Main/MainPage";
 import { setTheme } from "../utils/theme";
 

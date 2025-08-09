@@ -10,7 +10,7 @@ import { formatTime } from "../../utils/format";
 import { GrStatusGood, GrStatusWarning, GrStatusCritical } from "react-icons/gr";
 import { MdFirstPage, MdLastPage, MdOutlineAccessTime } from "react-icons/md";
 import { HiDatabase } from "react-icons/hi";
-import { StatusPageResponse } from "../../interfaces/responses/explorerApiResponses";
+import { StatusPageResponse } from "@comet-scan/types";
 
 type Props = {
     isLoading?: boolean;

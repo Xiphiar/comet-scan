@@ -1,5 +1,5 @@
 import { FC, useState, useRef, useEffect } from 'react';
-import { FrontendChainConfig } from '../../interfaces/config.interface';
+import { FrontendChainConfig } from '@comet-scan/types';
 import { useUser } from '../../hooks/useUser';
 import { SmallSpinnerBlack } from '../SmallSpinner/smallSpinner';
 import { truncateString } from '../../utils/format';

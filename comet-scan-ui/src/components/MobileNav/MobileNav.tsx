@@ -1,6 +1,6 @@
 import { FC } from "react";
 import styles from './MobileNav.module.scss'
-import { FrontendChainConfig } from "../../interfaces/config.interface";
+import { FrontendChainConfig } from "@comet-scan/types";
 import { NavLink } from "react-router-dom";
 import Toggle from "../Toggle/Toggle";
 import ConnectWallet from "../ConnectWallet/ConnectWallet";

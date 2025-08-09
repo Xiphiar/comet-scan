@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { formatCoins } from "../../utils/format";
 import { defaultKeyContent } from "../../utils/messageParsing";
-import { FrontendChainConfig } from "../../interfaces/config.interface";
+import { FrontendChainConfig } from "@comet-scan/types";
 import { Link } from "react-router-dom";
 
 const parseProposalMessage = async (config: FrontendChainConfig, content: any): Promise<[string, string | ReactNode][]> => {

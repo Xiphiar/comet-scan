@@ -2,10 +2,6 @@ import { api, APIError, ErrCode } from "encore.dev/api";
 import mongoose from "mongoose";
 import { importTransactionsForBlock } from "./importTransactions";
 import { runUpdateTasks } from "./updateTasks";
-import Blocks from "../models/blocks";
-import Accounts from "../models/accounts.model";
-import Transactions from "../models/transactions";
-import Contracts from "../models/contracts.model";
 import { updateContractsForAllChains } from "./importContracts";
 import { importSecretWasmContractsByCodeId } from "./secretwasm.tasks";
 import dotenv from 'dotenv';
@@ -81,9 +77,14 @@ const tenMinuteMs = oneMinuteMs * 10;
     // await Contracts.syncIndexes();
     console.log('Indexes Synced');
 
+    if (!process.env.NO_MIGRATIONS) {
+      runMigrations();
+    }
+
+    if (process.env.NO_INDEXING === 'true') return;
+
     syncAllChains();
     setInterval(syncAllChains, 30 * 1000)
-    runMigrations();
 
     await runUpdateTasks();
     updateContractExecutedCountsForAllChains();

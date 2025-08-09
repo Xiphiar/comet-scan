@@ -1,7 +1,7 @@
-import { FC } from "react";
-import { useParams } from "react-router-dom";
+import { FC, Fragment, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import useConfig from "../../hooks/useConfig";
-import useAsync from "../../hooks/useAsync";
+import { useAsyncV2 } from "../../hooks/useAsync";
 import ContentLoading from "../../components/ContentLoading";
 import Card from "../../components/Card";
 import TitleAndSearch from "../../components/TitleAndSearch";
@@ -11,13 +11,26 @@ import { AllContractsPageResponse } from "@comet-scan/types";
 import { IoDocuments } from "react-icons/io5";
 import { FaFileSignature } from "react-icons/fa6";
 import { Ri24HoursFill } from "react-icons/ri";
+import ReactPaginate from "react-paginate";
 
 
 const AllContractsPage: FC = () => {
     const { chain: chainLookupId } = useParams();
     const { getChain } = useConfig();
     const chain = getChain(chainLookupId);
-    const { data, error } = useAsync<AllContractsPageResponse>(getAllContractsPage(chain.chainId));
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [currentPage, setCurrentPage] = useState<number>(parseInt(searchParams.get('page') || '1'));
+
+    const { data, error } = useAsyncV2<AllContractsPageResponse>(
+        () => getAllContractsPage(chain.chainId, currentPage),
+        [chain.chainId, currentPage]
+    );
+
+    const handlePageChange = (selectedItem: { selected: number }) => {
+        const newPage = selectedItem.selected + 1;
+        setCurrentPage(newPage);
+        setSearchParams({ page: newPage.toString() });
+    };
 
     if (!chain) {
         return (
@@ -31,6 +44,10 @@ const AllContractsPage: FC = () => {
     if (!data) {
         return <ContentLoading chain={chain} title={title} error={error} />
     }
+
+    // Calculate total pages based on totalContracts and items per page
+    const itemsPerPage = 30;
+    const totalPages = Math.ceil(data.totalContracts / itemsPerPage);
 
     return (
         <div className='d-flex flex-column'>
@@ -50,7 +67,7 @@ const AllContractsPage: FC = () => {
                 </Card>
             </div>
             <Card className='col'>
-                <h3>Top Contracts</h3>
+                <h3>All Contracts</h3>
                 {!!data.contracts.length &&
                     <div className='d-flex mt-4 mb-1'>
                         <div className='col col-5 col-md-4'>
@@ -70,13 +87,29 @@ const AllContractsPage: FC = () => {
                         </div>
                     </div>
                 }
-                {data.contracts.map((contract) =><>
+                {data.contracts.map((contract) =><Fragment key={contract.contract.contractAddress}>
                     <div style={{borderBottom: '1px solid var(--light-gray)'}} />
                     <ContractRow contract={contract} chain={chain} />
-                </>)}
+                </Fragment>)}
                 {!data.contracts.length && <div className='py-4 w-full text-center'>
                     No contracts found.
                 </div>}
+
+                {totalPages > 1 && (
+                    <div className="mt-4 d-flex justify-content-center">
+                        <ReactPaginate
+                            breakLabel="..."
+                            nextLabel=">"
+                            onPageChange={handlePageChange}
+                            pageRangeDisplayed={2}
+                            pageCount={totalPages}
+                            previousLabel="<"
+                            renderOnZeroPageCount={null}
+                            className="react-paginate"
+                            forcePage={currentPage - 1}
+                        />
+                    </div>
+                )}
             </Card>
         </div>
     )

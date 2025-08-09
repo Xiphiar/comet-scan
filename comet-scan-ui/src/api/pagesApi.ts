@@ -144,11 +144,14 @@ export const getPaginatedAccountTransactions = async (chainId: string, accountAd
     return data;
 }
 
-export const getAllContractsPage = async (chainId: string): Promise<AllContractsPageResponse> => {
+export const getAllContractsPage = async (chainId: string, page = 1): Promise<AllContractsPageResponse> => {
     const {data} = await http.get(`/explorer/${chainId}/contracts`,
         {
             headers: {
                 'Content-Type': 'application/json'
+            },
+            params: {
+                page
             }
         }
     );

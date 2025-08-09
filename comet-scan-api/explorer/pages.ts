@@ -350,22 +350,32 @@ export const getSingleAccount = api(
   }
 );
 
-export const getContractsPage = api(
+export const getContractsPage = api<{
+  chainId: string;
+  page?: Query<number>;
+}>(
   { expose: true, method: "GET", path: "/explorer/:chainId/contracts" },
-  async ({ chainId }: { chainId: string }): Promise<AllContractsPageResponse> => {
+  async ({ chainId, page }): Promise<AllContractsPageResponse> => {
     const config = getChainConfig(chainId);
     if (!config) throw new APIError(ErrCode.NotFound, 'Chain not found');
 
     let contracts: WasmContract[] = [];
     let totalContracts = 0;
     if (config.features.includes('secretwasm') || config.features.includes('cosmwasm')) {
-      console.time('Top Contracts')
-      contracts = await Contracts.find({ chainId }, { _id: false, __v: false }).sort({ executions: -1 }).limit(30).lean();
-      console.timeEnd('Top Contracts')
-
-      console.time('Total Contracts')
-      totalContracts = await Contracts.find({ chainId }).countDocuments();
-      console.timeEnd('Total Contracts')
+      console.time('Paginated Contracts')
+      const { docs, totalDocs, limit } = await Contracts.paginate(
+        { chainId },
+        {
+          sort: { executions: -1 },
+          page,
+          limit: 30,
+          projection: { _id: false, __v: false },
+          lean: true,
+        }
+      );
+      contracts = docs as unknown as WasmContract[];
+      totalContracts = totalDocs;
+      console.timeEnd('Paginated Contracts')
     }
 
     console.time('Contracts With Stats')

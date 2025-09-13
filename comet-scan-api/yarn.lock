@@ -1196,7 +1196,7 @@ __metadata:
     p-map: "npm:^7.0.2"
     p-queue: "npm:^8.0.1"
     ripemd160: "npm:^2.0.2"
-    secretjs: "npm:~1.15.1"
+    secretjs: "npm:1.21.0"
     typescript: "npm:^5.2.2"
     vitest: "npm:^1.5.0"
   dependenciesMeta:
@@ -3057,9 +3057,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"secretjs@npm:~1.15.1":
-  version: 1.15.1
-  resolution: "secretjs@npm:1.15.1"
+"secretjs@npm:1.21.0":
+  version: 1.21.0
+  resolution: "secretjs@npm:1.21.0"
   dependencies:
     "@cosmjs/amino": "npm:^0.32.4"
     "@cosmjs/encoding": "npm:0.32.3"
@@ -3079,7 +3079,7 @@ __metadata:
     patch-package: "npm:^8.0.0"
     protobufjs: "npm:7.2.5"
     secure-random: "npm:1.1.2"
-  checksum: 10c0/99467c1089d27be069414c6ff72633e7ba38aea3a18c268a917957ac999dab80ffe2c0691226562c3544254a8fd9069353461afe94f32c4ed1aa77ce971da82e
+  checksum: 10c0/5a7bff0020fdd7e1d77796702521bf06b1349c60fa44d0d9b8f2e2d67d88755e1e5132708ef8e6c3f168cc2d06d2f4022e4318b10e144f7f2f92a00a054dbc6e
   languageName: node
   linkType: hard
 

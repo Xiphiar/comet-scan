@@ -115,6 +115,11 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
 
         const executedContracts = getExecutedContractsForTx(config, txResponse);
 
+        const messageTypes: string[] = [];
+        for (const message of tx.body.messages) {
+            if (!messageTypes.includes(message["@type"])) messageTypes.push(message["@type"])
+        }
+
         const newTx: Transaction = {
             chainId,
             hash: txResponse.txhash,
@@ -125,6 +130,7 @@ export const importTransactionsForBlock = async (chainId: string, blockHeight: n
             senders,
             recipients,
             executedContracts,
+            messageTypes,
             feePayer: tx.auth_info?.fee?.payer || undefined,
             feeGranter: tx.auth_info?.fee?.granter || undefined,
             gasLimit: parseInt(txResponse.gas_wanted),

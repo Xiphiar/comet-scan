@@ -45,6 +45,10 @@ const transactionsSchema = new mongoose.Schema<Transaction>({
         required: true,
         // index: true,
     },
+    messageTypes: {
+        type: [String],
+        required: false,
+    },
     feePayer: {
         type: String,
         required: false,
@@ -76,6 +80,8 @@ const transactionsSchema = new mongoose.Schema<Transaction>({
 transactionsSchema.index({ chainId: 1, blockHeight: -1, timestamp: -1 });
 transactionsSchema.index({ chainId: 1, executedContracts: -1, timestamp: -1 });
 transactionsSchema.index({ chainId: 1, executedContracts: -1, blockHeight: -1 });
+transactionsSchema.index({ chainId: 1, messageTypes: -1, timestamp: -1 });
+transactionsSchema.index({ chainId: 1, messageTypes: -1, blockHeight: -1 });
 transactionsSchema.plugin(mongoosePaginate);
 
 export interface TransactionDocument extends mongoose.Document, Transaction {}

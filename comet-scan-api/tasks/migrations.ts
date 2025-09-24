@@ -212,6 +212,67 @@ const recheckTokenPermitSupport = async (config: ChainConfig) => {
     }
 }
 
+const parseMessageTypesFromTransactions = async (chainId = 'secret-4') => {
+    try {
+        const migrationKey = `parsed-message-types-from-transactions-${chainId}`;
+
+        // Check if migration has already been run
+        const existingMigration = await KvStore.findOne({ 
+            chainId, 
+            key: migrationKey 
+        });
+        
+        if (existingMigration) {
+            console.log(`Migration "parseMessageTypesFromTransactions" already completed for ${chainId}`);
+            return;
+        }
+
+        console.log(`Starting migration "parseMessageTypesFromTransactions" on ${chainId}`);
+
+        const latest = await getLatestBlock(chainId);
+        const oldest = await getOldestBlock(chainId);
+        if (!latest) throw 'Could not find latest block';
+        if (!oldest) throw 'Could not find oldest block';
+
+        const total = latest.height - oldest.height;
+        console.log(`Found ${total} blocks to process: ${oldest.height} - ${latest.height}`)
+
+        // Loop through all blocks, latest to oldest
+        for (let i = latest.height; i >= oldest.height; i--) {
+            const percent = ((latest.height - i) / total) * 100;
+            console.log('Parsing', chainId, i, `${percent.toFixed(2)}%`);
+
+            const txs = await Transactions.find({ chainId, blockHeight: i }).lean();
+            if (!txs.length) continue;
+
+            for (const tx of txs) {
+                // Skip transactions where messageTypes is already defined.
+                if (Array.isArray(tx.messageTypes)) continue;
+
+                const messageTypes: string[] = [];
+                for (const message of tx.transaction.tx.body.messages) {
+                    if (!messageTypes.includes(message["@type"])) messageTypes.push(message["@type"])
+                }
+
+                await Transactions.findByIdAndUpdate(tx._id, {
+                    $set: {messageTypes: messageTypes}
+                })
+            }
+        }
+
+        // Mark migration as complete
+        await KvStore.create({
+            chainId: chainId,
+            key: migrationKey,
+            value: new Date().toISOString()
+        });
+
+        console.log(`Completed migration "parseMessageTypesFromTransactions" on ${chainId}`);
+    } catch (err: any) {
+        console.error(`Migration Failed: Error parsing messages from transactions on ${chainId}:`, err, err.toString())
+    }
+}
+
 export const runMigrations = async () => {
     console.log('Starting migrations...');
     
@@ -219,6 +280,7 @@ export const runMigrations = async () => {
         // Only run migrations that use KV store for tracking
         if (chain.features.includes('secretwasm')) {
             await recheckTokenPermitSupport(chain);
+            await parseMessageTypesFromTransactions();
         }
     }
     

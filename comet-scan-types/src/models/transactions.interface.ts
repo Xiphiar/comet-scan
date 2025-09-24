@@ -10,6 +10,7 @@ export interface Transaction {
     senders: string[];
     recipients: string[];
     executedContracts: string[];
+    messageTypes: string[] | undefined;
     feePayer?: string;
     feeGranter?: string;
     gasLimit: number;
